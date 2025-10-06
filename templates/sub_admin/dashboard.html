@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Sub Admin Dashboard</h2>
+
+    <!-- Dashboard Cards -->
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Leads</h5>
+                    <p class="card-text fs-4">{{ total_leads }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Assigned Leads</h5>
+                    <p class="card-text fs-4">{{ assigned_leads }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Unassigned Leads</h5>
+                    <p class="card-text fs-4">{{ unassigned_leads }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Subscribers</h5>
+                    <p class="card-text fs-4">{{ total_subscribers }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="mt-4">
+        <h4>Quick Actions</h4>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="#" class="btn btn-primary">Manage Leads</a>
+            <a href="#" class="btn btn-success">Add Subscriber</a>
+            <a href="#" class="btn btn-warning">Reports</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

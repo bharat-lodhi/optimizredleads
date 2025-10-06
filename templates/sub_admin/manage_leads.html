@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Sub Admin — Manage Leads</h2>
+
+    <!-- Assign Leads Form -->
+    <form method="post" class="mb-3">
+        {% csrf_token %}
+        <div class="row g-2 align-items-center">
+            <div class="col-auto">
+                <select name="assign_to" class="form-select" required>
+                    <option value="">Assign to Subscriber</option>
+                    {% for subscriber in subscribers %}
+                        <option value="{{ subscriber.id }}">{{ subscriber.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Assign Selected Leads</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Download Buttons -->
+    <div class="mb-3 d-flex gap-2">
+        <a href="#" class="btn btn-primary">Download PDF</a>
+        <a href="#" class="btn btn-success">Download Excel</a>
+        <a href="#" class="btn btn-warning">Download CSV</a>
+    </div>
+
+    <!-- Leads Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th><input type="checkbox" id="select-all"></th>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    {% comment %} <th>Assigned To</th> {% endcomment %}
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lead in leads %}
+                <tr>
+                    <td><input type="checkbox" name="lead_ids" value="{{ lead.id }}"></td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ lead.name }}</td>
+                    <td>{{ lead.email }}</td>
+                    <td>{{ lead.phone }}</td>
+                    {% comment %} <td>{{ lead.assigned_to.username if lead.assigned_to else 'Unassigned' }}</td> {% endcomment %}
+                    <td>{{ lead.status }}</td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-info">Edit</a>
+                        <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No leads found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Select/Deselect all checkboxes
+document.getElementById('select-all')?.addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('input[name="lead_ids"]');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Leads</h3>
+  <a class="btn btn-success mb-2" href="/leads/add/">Add Lead</a>
+  <a class="btn btn-secondary mb-2" href="/leads/export/csv/">Export CSV</a>
+  <a class="btn btn-secondary mb-2" href="/leads/export/excel/">Export Excel</a>
+  <a class="btn btn-secondary mb-2" href="/leads/export/pdf/">Export PDF</a>
+  <table class="table table-bordered">
+    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Assigned</th></tr></thead>
+    <tbody>
+    {% for lead in leads %}
+      <tr>
+        <td>{{ lead.id }}</td>
+        <td>{{ lead.name }}</td>
+        <td>{{ lead.email }}</td>
+        <td>{{ lead.phone }}</td>
+        <td>{{ lead.status }}</td>
+        <td>{% if lead.assigned_to %}{{ lead.assigned_to.email }}{% else %}-{% endif %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6">No leads yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
