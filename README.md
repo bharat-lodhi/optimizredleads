@@ -30,3 +30,4 @@ This is a starter Django project for OptimizedLeads with:
 ## Notes
 - Change SECRET_KEY in optimizedleads/settings.py for production.
 - This starter uses a simple CustomUser model (not tied to Django auth backend).
+"# Optimizredleads" 
