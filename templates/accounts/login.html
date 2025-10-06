@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Login</h2>
+  <form method="post">{% csrf_token %}
+    <div class="mb-3"><input name="email" class="form-control" placeholder="Email" required></div>
+    <div class="mb-3"><input name="password" type="password" class="form-control" placeholder="Password" required></div>
+    <div class="mb-3">
+      <select name="role" class="form-select" required>
+        <option value="central_admin">Central Admin</option>
+        <option value="sub_admin">Sub Admin</option>
+        <option value="subscriber">Subscriber</option>
+      </select>
+    </div>
+    <button class="btn btn-primary">Login</button>
+  </form>
+  <p class="mt-2">Don't have account? <a href="/accounts/register/">Register</a></p>
+</div>
+{% endblock %}
