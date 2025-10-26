@@ -1,0 +1,394 @@
+{% extends "landing/landing.html" %}
+{% load static %}
+
+{% block content %} {% endblock %}
+
+{% block hero %}
+
+
+    <!-- About Hero Section -->
+    <section class="relative bg-gradient-to-br from-indigo-50 to-purple-50 py-20">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 animate-fadeInUp">
+                <div class="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-6">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Our Story
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+                    Transforming Businesses Through 
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                        Smart Lead Generation
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-600 max-w-4xl mx-auto">
+                    Since 2020, OptimizedLeads has been the trusted partner for thousands of businesses across India, helping them generate high-quality leads and achieve unprecedented growth in their respective industries.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Vision Section -->
+    <section class="relative bg-white py-20">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <!-- Mission -->
+                <div class="animate-fadeInLeft">
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 lg:p-12 rounded-3xl shadow-xl">
+                        <div class="w-16 h-16 bg-indigo-500 rounded-2xl flex items-center justify-center mb-6 animate-pulse-slow">
+                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
+                        <p class="text-lg text-gray-600 leading-relaxed mb-6">
+                            To democratize lead generation by providing businesses of all sizes access to high-quality, industry-specific leads that drive real growth and success.
+                        </p>
+                        <ul class="space-y-3">
+                            <li class="flex items-center text-gray-700">
+                                <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Empower businesses with quality leads
+                            </li>
+                            <li class="flex items-center text-gray-700">
+                                <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Simplify the lead generation process
+                            </li>
+                            <li class="flex items-center text-gray-700">
+                                <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Drive measurable business growth
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Vision -->
+                <div class="animate-fadeInRight">
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-8 lg:p-12 rounded-3xl shadow-xl">
+                        <div class="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mb-6 animate-pulse-slow" style="animation-delay: 0.5s;">
+                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-6">Our Vision</h2>
+                        <p class="text-lg text-gray-600 leading-relaxed mb-6">
+                            To become India's most trusted lead generation platform, known for innovation, reliability, and exceptional results across all major industries.
+                        </p>
+                        <ul class="space-y-3">
+                            <li class="flex items-center text-gray-700">
+                                <svg class="w-5 h-5 text-purple-500 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Industry-leading innovation
+                            </li>
+                            <li class="flex items-center text-gray-700">
+                                <svg class="w-5 h-5 text-purple-500 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Nationwide market presence
+                            </li>
+                            <li class="flex items-center text-gray-700">
+                                <svg class="w-5 h-5 text-purple-500 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Customer success excellence
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   
+
+    <!-- Our Story Timeline -->
+    <section class="relative bg-white py-20">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                    Our Journey
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    From a small startup to India's leading lead generation platform
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="relative">
+                    <!-- Timeline Line -->
+                    <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-500 to-purple-500"></div>
+
+                    <!-- Timeline Items -->
+                    <div class="space-y-12">
+                        <!-- 2020 -->
+                        <div class="relative pl-20 timeline-item animate-fadeInLeft">
+                            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-2xl shadow-lg">
+                                <div class="flex items-center mb-4">
+                                    <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-sm font-semibold">2020</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">The Beginning</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    OptimizedLeads was founded with a simple mission: to help businesses find their ideal customers. Started with a team of 3 passionate individuals in Mumbai.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 2021 -->
+                        <div class="relative pl-20 timeline-item animate-fadeInRight">
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl shadow-lg">
+                                <div class="flex items-center mb-4">
+                                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">2021</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">First Milestone</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    Reached 500+ happy clients and generated over 100,000 leads. Expanded our services to include Real Estate and Study Abroad sectors.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 2022 -->
+                        <div class="relative pl-20 timeline-item animate-fadeInLeft">
+                            <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-8 rounded-2xl shadow-lg">
+                                <div class="flex items-center mb-4">
+                                    <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">2022</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">Rapid Growth</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    Crossed 2,000 clients and 1 million leads generated. Launched Education and Job Consultancy verticals. Team grew to 25+ professionals.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 2023 -->
+                        <div class="relative pl-20 timeline-item animate-fadeInRight">
+                            <div class="bg-gradient-to-br from-orange-50 to-red-50 p-8 rounded-2xl shadow-lg">
+                                <div class="flex items-center mb-4">
+                                    <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold">2023</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">Innovation Year</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    Launched our advanced lead scoring system and CRM integration. Achieved 85% average conversion rate across all industries.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 2024 -->
+                        <div class="relative pl-20 timeline-item animate-fadeInLeft">
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-2xl shadow-lg">
+                                <div class="flex items-center mb-4">
+                                    <span class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-semibold">2024</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">Market Leadership</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    Became India's #1 lead generation platform with 5,000+ clients and 2.5M+ leads generated. Expanding to new cities and industries.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="relative bg-gradient-to-br from-gray-50 to-indigo-50 py-20">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                    Meet Our Leadership Team
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    The visionaries and experts driving OptimizedLeads forward
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Team Member 1 -->
+                <div class="bg-white rounded-3xl shadow-xl p-8 text-center hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fadeInUp">
+                    <div class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
+                        AK
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Raj karma </h3>
+                    <p class="text-indigo-600 font-medium mb-4">Founder & CEO</p>
+                    <p class="text-gray-600 leading-relaxed">
+                        10+ years in digital marketing and lead generation. Passionate about helping businesses grow through data-driven strategies.
+                    </p>
+                </div>
+
+                <!-- Team Member 2 -->
+                <div class="bg-white rounded-3xl shadow-xl p-8 text-center hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fadeInUp" style="animation-delay: 0.1s;">
+                    <div class="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
+                        PS
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Bhavika patil</h3>
+                    <p class="text-green-600 font-medium mb-4">Head of Operations</p>
+                    <p class="text-gray-600 leading-relaxed">
+                        Expert in process optimization and quality assurance. Ensures every lead meets our high standards before delivery.
+                    </p>
+                </div>
+
+                <!-- Team Member 3 -->
+                <div class="bg-white rounded-3xl shadow-xl p-8 text-center hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fadeInUp" style="animation-delay: 0.2s;">
+                    <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
+                        RG
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Mahesh Diwedi</h3>
+                    <p class="text-blue-600 font-medium mb-4">Head of Technology</p>
+                    <p class="text-gray-600 leading-relaxed">
+                        Tech innovator with expertise in AI and machine learning. Develops cutting-edge solutions for lead qualification.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="relative bg-white py-20">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                    Our Core Values
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    The principles that guide everything we do at OptimizedLeads
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Value 1 -->
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fadeInUp">
+                    <div class="w-16 h-16 bg-indigo-500 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Quality First</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        We never compromise on lead quality. Every lead is verified and meets our strict standards before delivery.
+                    </p>
+                </div>
+
+                <!-- Value 2 -->
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fadeInUp" style="animation-delay: 0.1s;">
+                    <div class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Transparency</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Complete transparency in our processes, pricing, and results. You always know exactly what you're getting.
+                    </p>
+                </div>
+
+                <!-- Value 3 -->
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fadeInUp" style="animation-delay: 0.2s;">
+                    <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Innovation</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Constantly evolving our technology and methods to stay ahead of industry trends and deliver better results.
+                    </p>
+                </div>
+
+                <!-- Value 4 -->
+                <div class="bg-gradient-to-br from-orange-50 to-red-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fadeInUp" style="animation-delay: 0.3s;">
+                    <div class="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Customer Success</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Your success is our success. We're committed to helping you achieve your business goals through quality leads.
+                    </p>
+                </div>
+
+                <!-- Value 5 -->
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fadeInUp" style="animation-delay: 0.4s;">
+                    <div class="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Excellence</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        We strive for excellence in everything we do, from lead quality to customer service and support.
+                    </p>
+                </div>
+
+                <!-- Value 6 -->
+                <div class="bg-gradient-to-br from-teal-50 to-cyan-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fadeInUp" style="animation-delay: 0.5s;">
+                    <div class="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Reliability</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Consistent delivery, dependable results, and unwavering commitment to our promises and deadlines.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative bg-gradient-to-br from-indigo-600 to-purple-700 py-20">
+        <div class="w-full px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                Ready to Join Our Success Story?
+            </h2>
+            <p class="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+                Become part of the OptimizedLeads family and transform your business with high-quality leads that convert.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <button class="bg-white text-indigo-600 hover:bg-gray-100 font-bold px-10 py-5 rounded-xl text-xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105">
+                    Start Free 14-Day Trial
+                </button>
+                <button class="bg-transparent border-2 border-white text-white hover:bg-white hover:text-indigo-600 font-bold px-10 py-5 rounded-xl text-xl transition-all duration-300 hover:scale-105">
+                    Contact Our Team
+                </button>
+            </div>
+            
+            <div class="flex flex-wrap justify-center items-center gap-8 text-sm text-indigo-200">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    No setup fees
+                </div>
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Cancel anytime
+                </div>
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    24/7 support included
+                </div>
+            </div>
+        </div>
+    </section>
+
+   
+				</div>
+				</div>
+				</div>
+			</div> <!-- ast-container -->
+	</div><!-- #content -->
+{% endblock %}

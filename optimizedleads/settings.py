@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-o^9*r(fcxn)6%hg(-*li(x*&tab1!y27sj+2q=dbugsmim2vk(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,11 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Custom Apps
-    'accounts',
     'leads',
     'central_admin',
     'sub_admin',
     'subscribers',
+    'landing',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +54,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    
+    'optimizedleads.middlewares.RoleBasedAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'optimizedleads.urls'
@@ -80,13 +83,24 @@ WSGI_APPLICATION = 'optimizedleads.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ra_db',
+        'USER': 'postgres',
+        'PASSWORD': 'pass123',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -112,17 +126,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-# STATIC_URL = 'static/'
 
 
 TEMPLATES[0]['DIRS'] = [os.path.join(BASE_DIR, 'templates')]
@@ -130,9 +141,29 @@ TEMPLATES[0]['DIRS'] = [os.path.join(BASE_DIR, 'templates')]
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# # tracking ke liye 
+# BASE_URL = "https://f24569ed63fd.ngrok-free.app"
+# # Hosting ke baad change kar dena:
+# # BASE_URL = "https://yourdomain.com"
+
+
+# CSRF_TRUSTED_ORIGINS = [
+#     "https://f24569ed63fd.ngrok-free.app",
+#     "http://127.0.0.1:8000",
+#     "http://localhost:8000",
+# ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+AUTH_USER_MODEL = 'landing.User'
+
+
+# import os
+
+RAZORPAY_KEY_ID = 'rzp_live_RWE3SJjrKyS9pf'
+RAZORPAY_KEY_SECRET = 'C0dPheXZM3v2bS7rXPRR32u1'

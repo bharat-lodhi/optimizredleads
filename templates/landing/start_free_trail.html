@@ -1,0 +1,433 @@
+{% extends "landing/landing.html" %}
+{% load static %}
+
+{% block content %} {% endblock %}
+
+{% block hero %}
+<!-- Start Free Trial Form Section -->
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-xl w-full space-y-8">
+        <!-- Free Trial Form -->
+        <form class="mt-8 space-y-6 bg-white p-8 rounded-2xl shadow-xl border border-gray-100" method="POST" id="freeTrialForm">
+        
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-900">
+                    Start Your Free Trial
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Get started with high-quality leads in your industry
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Name Field -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="name" 
+                            name="name" 
+                            type="text" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter your full name"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Field -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="email" 
+                            name="email" 
+                            type="email" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter your email address"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone Number Field -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="phone" 
+                            name="phone" 
+                            type="tel" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter your phone number"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Industry Field -->
+                <div>
+                    <label for="industry" class="block text-sm font-medium text-gray-700 mb-2">
+                        Industry *
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="industry" 
+                            name="industry" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
+                        >
+                            <option value="">Select your industry</option>
+                            <option value="real-estate">Real Estate</option>
+                            <option value="education">Education</option>
+                            <option value="study-abroad">Study Abroad</option>
+                            <option value="trading">Trading</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Industry Field (Dynamic) -->
+                <div id="subIndustryContainer" class="hidden">
+                    <label for="sub_industry" class="block text-sm font-medium text-gray-700 mb-2">
+                        Sub-Industry *
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="sub_industry" 
+                            name="sub_industry" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
+                        >
+                            <option value="">Select sub-industry</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Study Abroad Input (Dynamic) -->
+                <div id="studyAbroadContainer" class="hidden">
+                    <label for="preferred_country" class="block text-sm font-medium text-gray-700 mb-2">
+                        Preferred Country *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="preferred_country" 
+                            name="preferred_country" 
+                            type="text" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter your preferred country"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leads Quantity Question -->
+                <div id="leadsQuantityContainer">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        If you purchase leads, what would be your required quantity per month? *
+                    </label>
+                    <div class="space-y-3">
+                        <!-- Quantity Options - One below another -->
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="leads_quantity" value="100" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">100 Leads per month</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="leads_quantity" value="150" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">150 Leads per month</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="leads_quantity" value="200" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">200 Leads per month</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Custom Quantity Input -->
+                        <div class="pt-2">
+                            <label class="flex items-center mb-2">
+                                <input type="radio" name="leads_quantity" value="custom" id="custom_quantity_radio" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">Other, please specify</span>
+                            </label>
+                            <div class="relative ml-6">
+                                <input 
+                                    id="custom_quantity_input" 
+                                    name="custom_quantity" 
+                                    type="number" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                                    placeholder="Enter custom quantity"
+                                    min="1"
+                                    disabled
+                                >
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <span class="text-gray-400 text-sm">leads/month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real Estate Specific Question -->
+                <div id="realEstateQuestionContainer" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        You are a: *
+                    </label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="radio" name="real_estate_type" value="individual" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">Individual</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="real_estate_type" value="builder" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">Builder</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="real_estate_type" value="real-estate-firm" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">Real Estate Firm</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div>
+                <button 
+                    type="submit"
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </span>
+                    Start Free Trial
+                </button>
+            </div>
+
+            <!-- Already have account link -->
+            <div class="text-center">
+                <p class="text-sm text-gray-600">
+                    Already have an account? 
+                    <a href="/login/" class="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200 ml-1">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const industrySelect = document.getElementById('industry');
+        const subIndustryContainer = document.getElementById('subIndustryContainer');
+        const subIndustrySelect = document.getElementById('sub_industry');
+        const studyAbroadContainer = document.getElementById('studyAbroadContainer');
+        const preferredCountryInput = document.getElementById('preferred_country');
+        const realEstateQuestionContainer = document.getElementById('realEstateQuestionContainer');
+        const customQuantityRadio = document.getElementById('custom_quantity_radio');
+        const customQuantityInput = document.getElementById('custom_quantity_input');
+
+        // Sub-industry options for different industries
+        const subIndustryOptions = {
+            'real-estate': [
+                { value: 'buyers-leads', text: 'Buyers Leads' },
+                { value: 'tenant-leads', text: 'Tenant Leads' }
+            ],
+            'education': [
+                { value: 'online-mba', text: 'Online MBA' },
+                { value: 'offline-mba', text: 'Offline MBA' },
+                { value: 'phd', text: 'PhD' },
+                { value: 'doctorate', text: 'Doctorate' },
+                { value: 'certification', text: 'Certification' }
+            ],
+            'trading': [
+                { value: 'forex', text: 'Forex Trading' }
+            ]
+        };
+
+        // Handle industry selection change
+        industrySelect.addEventListener('change', function() {
+            const selectedIndustry = this.value;
+            
+            // Hide all dynamic containers first
+            subIndustryContainer.classList.add('hidden');
+            studyAbroadContainer.classList.add('hidden');
+            realEstateQuestionContainer.classList.add('hidden');
+            
+            // Clear previous sub-industry options
+            subIndustrySelect.innerHTML = '<option value="">Select sub-industry</option>';
+            preferredCountryInput.value = '';
+            preferredCountryInput.required = false;
+            subIndustrySelect.required = false;
+
+            // Show relevant fields based on selected industry
+            if (selectedIndustry === 'study-abroad') {
+                studyAbroadContainer.classList.remove('hidden');
+                preferredCountryInput.required = true;
+            } 
+            else if (subIndustryOptions[selectedIndustry]) {
+                subIndustryContainer.classList.remove('hidden');
+                subIndustrySelect.required = true;
+                
+                // Populate sub-industry options
+                subIndustryOptions[selectedIndustry].forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option.value;
+                    optionElement.textContent = option.text;
+                    subIndustrySelect.appendChild(optionElement);
+                });
+            }
+
+            // Show real estate specific question
+            if (selectedIndustry === 'real-estate') {
+                realEstateQuestionContainer.classList.remove('hidden');
+            }
+        });
+
+        // Handle custom quantity radio button
+        customQuantityRadio.addEventListener('change', function() {
+            if (this.checked) {
+                customQuantityInput.disabled = false;
+                customQuantityInput.focus();
+            } else {
+                customQuantityInput.disabled = true;
+                customQuantityInput.value = '';
+            }
+        });
+
+        // Enable custom input when clicking on it
+        customQuantityInput.addEventListener('focus', function() {
+            customQuantityRadio.checked = true;
+            customQuantityInput.disabled = false;
+        });
+
+        // Form submission handling
+        const freeTrialForm = document.getElementById('freeTrialForm');
+        freeTrialForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate leads quantity
+            const selectedQuantity = document.querySelector('input[name="leads_quantity"]:checked');
+            if (!selectedQuantity) {
+                alert('Please select your required leads quantity per month');
+                return;
+            }
+
+            // Validate custom quantity if selected
+            if (selectedQuantity.value === 'custom' && !customQuantityInput.value) {
+                alert('Please enter your custom leads quantity');
+                return;
+            }
+
+            // Validate real estate type if real estate industry selected
+            if (industrySelect.value === 'real-estate' && !document.querySelector('input[name="real_estate_type"]:checked')) {
+                alert('Please select whether you are an Individual, Builder or Real Estate Firm');
+                return;
+            }
+            
+            // Add loading state
+            const submitButton = freeTrialForm.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            
+            submitButton.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Starting Trial...
+            `;
+            submitButton.disabled = true;
+            
+            // Collect form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                industry: document.getElementById('industry').value,
+                sub_industry: document.getElementById('sub_industry').value,
+                preferred_country: document.getElementById('preferred_country').value,
+                leads_quantity: selectedQuantity.value === 'custom' ? customQuantityInput.value : selectedQuantity.value,
+                real_estate_type: document.querySelector('input[name="real_estate_type"]:checked')?.value
+            };
+            
+            // Simulate API call - replace with actual registration
+            setTimeout(() => {
+                console.log('Free Trial data:', formData);
+                
+                // Reset button state
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+                
+                // Show success message
+                alert('Free trial started successfully! Our team will contact you shortly.');
+                // window.location.href = '/dashboard/'; // Uncomment for actual redirect
+            }, 2000);
+        });
+
+        // Add fade-in animation to form elements
+        const formElements = document.querySelectorAll('input, select, button, a');
+        formElements.forEach((element, index) => {
+            element.style.animationDelay = `${index * 0.1}s`;
+            element.classList.add('animate-fadeIn');
+        });
+    });
+</script>
+
+<style>
+    /* Custom animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    /* Custom select styling */
+    select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+</style>
+{% endblock %}

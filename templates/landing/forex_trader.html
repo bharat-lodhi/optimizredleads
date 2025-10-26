@@ -1,0 +1,484 @@
+{% extends "landing/landing.html" %}
+{% load static %}
+
+{% block content %} {% endblock %}
+
+{% block hero %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forex Leads Subscription - OptimizedLeads</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .forex-gradient {
+            background: linear-gradient(135deg, #059669 0%, #6975dd 50%, #6975dd 100%);
+        }
+        
+        .premium-gradient {
+            background: linear-gradient(135deg, #6975dd 0%, #6975dd 50%, #6975dd 100%);
+        }
+        
+        .enterprise-gradient {
+            background: linear-gradient(135deg, #6975dd 0%, #6975dd 50%, #6975dd 100%);
+        }
+        
+        .pricing-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .popular-badge {
+            background: linear-gradient(135deg, #6975dd 0%, #6975dd 100%);
+        }
+        
+        .feature-check {
+            background: linear-gradient(135deg, #6975dd 0%, #6975dd 100%);
+        }
+        
+        .cta-button {
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .forex-icon {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <!-- Breadcrumb -->
+                <div class="flex items-center justify-center mb-6">
+                    <a href="#" class="text-blue-200 hover:text-white transition-colors">Home</a>
+                    <svg class="w-4 h-4 mx-2 text-blue-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                    </svg>
+                    <span class="text-white font-medium">Forex Leads Subscription</span>
+                </div>
+
+                <!-- Main Heading -->
+                <div class="mb-8">
+                    <div class="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium mb-6">
+                        💹 Premium Forex Trading Leads
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                        Forex Leads<br>
+                        <span class="text-white">Subscription Plans</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+                        Get high-quality, verified forex trading leads delivered monthly. Choose from flexible subscription plans ranging from 2,000 to 24,000 leads per month.
+                    </p>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white-300 mb-2">24K+</div>
+                        <div class="text-blue-100">Max Monthly Leads</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white-300 mb-2">500+</div>
+                        <div class="text-blue-100">Active Brokers</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white mb-2">92%</div>
+                        <div class="text-blue-100">Lead Quality Score</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold texttext-white mb-2">24/7</div>
+                        <div class="text-blue-100">Lead Delivery</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subscription Plans -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+                {% if forex_market %}
+                <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">💎 Choose Your Forex Leads Subscription</h2>
+                    <p class="text-xl text-white max-w-3xl mx-auto text-center leading-relaxed" style="color:#808080">
+                        Flexible monthly subscription plans designed for forex brokers, trading platforms, and financial service providers of all sizes.
+                    </p>
+
+                    <br>
+                <div class="grid md:grid-cols-3 gap-8 mb-16">
+                    {% for product in forex_market %}
+                    <div class="relative bg-white rounded-3xl shadow-xl border-2 border-blue-100 p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
+
+                    <!-- Plan Image -->
+                    <div class="text-center">
+                        {% if product.product_image %}
+                        <img src="{{ product.product_image.url }}" alt="{{ product.plan_type }}" class="w-16 h-16 mx-auto mb-6 rounded-2xl object-cover group-hover:scale-110 transition-transform duration-300">
+                        {% else %}
+                        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87-1.18 6.88L12 17.77 6.18 21.02 7.36 14.14 2 9.27l6.91-1.01L12 2z" />
+                            </svg>
+                        </div>
+                        {% endif %}
+
+                        <!-- Plan Title -->
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2 capitalize">{{ product.plan_type }} Plan</h3>
+                        <p class="text-gray-600 mb-6">{{ product.heading }}</p>
+
+                        <!-- Price -->
+                        <div class="mb-8">
+                        <span class="text-5xl font-bold text-gray-900">₹{{ product.price|floatformat:0 }}</span>
+                        <span class="text-gray-600">/month</span>
+                        </div>
+                    </div>
+
+                    <!-- Long Description -->
+                    <div class="text-gray-700 mb-6 leading-relaxed space-y-2">
+                        {{ product.features|safe }}
+                        </div>
+
+
+                    <!-- Button -->
+                    <a href="/product_details/?id={{ product.id }}" class="text-black hover:text-white font-medium px-4 py-2 border border-black rounded-lg hover:bg-black transition-all duration-300 text-sm">
+                        Get Started with {{ product.plan_type|title }}
+                    </a>
+
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% else %}
+                <p class="text-center text-gray-500">No Forex leads plans found.</p>
+                {% endif %}
+
+            </div>
+            <!-- Plan Comparison Note -->
+            <div class="text-center mt-12">
+                <div class="bg-blue-50 rounded-2xl p-8 max-w-4xl mx-auto">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">💡 All Plans Include</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                        <div class="flex items-center">
+                            <div class="feature-check w-5 h-5 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">100% verified leads</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="feature-check w-5 h-5 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">GDPR compliant data</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="feature-check w-5 h-5 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">No setup fees</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="feature-check w-5 h-5 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Cancel anytime</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="feature-check w-5 h-5 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Money-back guarantee</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="feature-check w-5 h-5 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Multiple export formats</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lead Quality Features -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    🎯 Premium Forex Lead Quality
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Every lead in our subscription plans is thoroughly verified and comes with comprehensive trading profile data.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Verification Process -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Multi-Level Verification</h3>
+                    <p class="text-gray-600 mb-6">Each lead undergoes rigorous verification including phone, email, and trading experience validation.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Phone number verification
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Email address validation
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Trading experience confirmation
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trading Profile Data -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">📊</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Comprehensive Trading Profiles</h3>
+                    <p class="text-gray-600 mb-6">Detailed information about trading experience, preferred instruments, and investment capacity.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Trading experience level
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Preferred currency pairs
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Investment capacity range
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-Time Updates -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">⚡</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Fresh & Updated Data</h3>
+                    <p class="text-gray-600 mb-6">All leads are fresh and updated regularly to ensure maximum conversion potential.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Data updated within 48 hours
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            No duplicate leads
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Active trader status
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subscription Benefits -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    🚀 Why Choose Our Forex Lead Subscriptions?
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Get consistent, high-quality forex leads delivered monthly with flexible plans that scale with your business.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Predictable Lead Flow</h3>
+                    <p class="text-gray-600">Consistent monthly delivery of verified forex leads to maintain steady business growth.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">💰</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Cost-Effective Pricing</h3>
+                    <p class="text-gray-600">Lower per-lead costs with subscription plans compared to one-time purchases.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">📈</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Scalable Solutions</h3>
+                    <p class="text-gray-600">Easily upgrade or downgrade your plan based on business needs and growth.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">🛡️</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Quality Guarantee</h3>
+                    <p class="text-gray-600">100% satisfaction guarantee with lead replacement for any quality issues.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    ❓ Frequently Asked Questions
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Everything you need to know about our forex lead subscription plans.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">How are the leads delivered?</h3>
+                    <p class="text-gray-600">Leads are delivered through your dedicated dashboard, email, and can be integrated with your CRM via API. You'll receive real-time notifications for new leads.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Can I change my subscription plan?</h3>
+                    <p class="text-gray-600">Yes, you can upgrade or downgrade your plan at any time. Changes take effect from the next billing cycle, and we'll prorate any differences.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">What if I'm not satisfied with lead quality?</h3>
+                    <p class="text-gray-600">We offer a 100% satisfaction guarantee. If leads don't meet our quality standards, we'll replace them or provide a full refund for that month.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Are there any setup fees or contracts?</h3>
+                    <p class="text-gray-600">No setup fees or long-term contracts required. All plans are month-to-month and you can cancel anytime with 30 days notice.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Do you provide leads for specific regions?</h3>
+                    <p class="text-gray-600">Yes, we can target specific geographic regions, countries, or cities based on your requirements. Geographic targeting is available in Professional plans and above.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="gradient-bg py-20 text-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                🚀 Ready to Start Your Forex Lead Subscription?
+            </h2>
+            <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+                Choose the perfect plan for your forex brokerage and start receiving high-quality, verified trading leads today.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="bg-white text-blue-600 font-bold py-4 px-8 rounded-xl hover:bg-gray-100 transition-all duration-300 hover:scale-105">
+                    📞 Schedule a Demo Call
+                </button>
+                <button class="bg-white hover:bg-bg-blue-100 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all duration-300 hover:scale-105">
+                    💬 Chat with Sales Team
+                </button>
+            </div>
+            
+            <div class="mt-8 text-blue-200">
+                <p>✅ No setup fees • ✅ Cancel anytime • ✅ 100% satisfaction guarantee</p>
+            </div>
+        </div>
+    </section>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967ede05a7c285fa',t:'MTc1Mzk4MzQ4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+				</div>
+				</div>
+				</div>
+			</div> <!-- ast-container -->
+	</div><!-- #content -->
+{% endblock %}

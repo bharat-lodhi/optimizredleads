@@ -1,0 +1,28 @@
+{% extends 'subscriber_base.html' %}
+{% load static %}
+
+{% block title %}Lead Details - {{ lead.full_name }}{% endblock %}
+
+{% block content %}
+  <!-- Coming Soon Section -->
+  <div class="text-center py-12">
+    <div class="bg-blue-50 rounded-lg p-8 max-w-2xl mx-auto">
+      <svg class="w-16 h-16 mx-auto text-blue-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+      </svg>
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">Ticket Support Section Coming Soon!</h2>
+      <p class="text-gray-600 mb-6">
+        We're working hard to bring you a comprehensive ticket support system. This feature will be available shortly.
+      </p>
+      <p class="text-gray-600 mb-6">
+        In the meantime, if you need any assistance or have questions about your leads, please feel free to contact us directly at:
+      </p>
+      <div class="bg-white rounded-lg p-4 border border-blue-200">
+        <a href="mailto:optimizedleads31@gmail.com" class="text-lg font-semibold text-blue-600 hover:text-blue-800">
+          optimizedleads31@gmail.com
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

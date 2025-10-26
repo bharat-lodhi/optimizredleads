@@ -1,0 +1,306 @@
+{% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Add Real Estate Lead{% endblock %}
+
+{% block page_title %}Add Real Estate Lead{% endblock %}
+{% block page_subtitle %}Create new real estate lead{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}bg-red-50 border border-red-200 text-red-700{% else %}bg-green-50 border border-green-200 text-green-700{% endif %} rounded-md p-4">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Full Name -->
+                <div>
+                    <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name *
+                    </label>
+                    <input type="text" 
+                           name="full_name" 
+                           id="full_name"
+                           required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter full name"
+                           value="{{ request.POST.full_name }}">
+                </div>
+
+                <!-- Phone Number -->
+                <div>
+                    <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number *
+                    </label>
+                    <input type="text" 
+                           name="phone_number" 
+                           id="phone_number"
+                           required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter phone number"
+                           value="{{ request.POST.phone_number }}">
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address
+                    </label>
+                    <input type="email" 
+                           name="email" 
+                           id="email"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter email address"
+                           value="{{ request.POST.email }}">
+                </div>
+
+                <!-- Property Type -->
+                <div>
+                    <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        Property Type
+                    </label>
+                    <select name="property_type" 
+                            id="property_type"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Property Type</option>
+                        {% for value, label in property_types %}
+                            <option value="{{ value }}" {% if request.POST.property_type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Sub Industry -->
+                <div>
+                    <label for="sub_industry" class="block text-sm font-medium text-gray-700 mb-2">
+                        Sub Industry
+                    </label>
+                    <select name="sub_industry" 
+                            id="sub_industry"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Sub Industry</option>
+                        {% for value, label in sub_industries %}
+                            <option value="{{ value }}" {% if request.POST.sub_industry == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Budget -->
+                <div>
+                    <label for="budget" class="block text-sm font-medium text-gray-700 mb-2">
+                        Budget
+                    </label>
+                    <input type="text" 
+                           name="budget" 
+                           id="budget"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter budget"
+                           value="{{ request.POST.budget }}">
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                        Preferred Location
+                    </label>
+                    <input type="text" 
+                           name="location" 
+                           id="location"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter preferred location"
+                           value="{{ request.POST.location }}">
+                </div>
+
+                <!-- Visit Day -->
+                <div>
+                    <label for="visit_day" class="block text-sm font-medium text-gray-700 mb-2">
+                        Visit Day
+                    </label>
+                    <select name="visit_day" 
+                            id="visit_day"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Option</option>
+                        <option value="not_sure_yet" {% if request.POST.visit_day == 'not_sure_yet' %}selected{% endif %}>Not Sure Yet</option>
+                        <option value="this_week" {% if request.POST.visit_day == 'this_week' %}selected{% endif %}>This Week</option>
+                        <option value="this_weekend" {% if request.POST.visit_day == 'this_weekend' %}selected{% endif %}>This Weekend</option>
+                        <option value="next_week" {% if request.POST.visit_day == 'next_week' %}selected{% endif %}>Next Week</option>
+                    </select>
+                </div>
+
+                <!-- Requirement Sq. Ft. -->
+                <div class="md:col-span-2">
+                    <label for="requirement_sqft" class="block text-sm font-medium text-gray-700 mb-2">
+                        Required Sq. Ft.
+                    </label>
+                    <input type="text" 
+                           name="requirement_sqft" 
+                           id="requirement_sqft"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter required square feet"
+                           value="{{ request.POST.requirement_sqft }}">
+                </div>
+            </div>
+
+            <!-- Form Buttons -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <a href="/central-admin/real_estate/" 
+                   class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                    Create Lead
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Add Real Estate Lead{% endblock %}
+
+{% block page_title %}Add Real Estate Lead{% endblock %}
+{% block page_subtitle %}Create new real estate lead{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}bg-red-50 border border-red-200 text-red-700{% else %}bg-green-50 border border-green-200 text-green-700{% endif %} rounded-md p-4">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Full Name -->
+                <div>
+                    <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name *
+                    </label>
+                    <input type="text" 
+                           name="full_name" 
+                           id="full_name"
+                           required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter full name"
+                           value="{{ request.POST.full_name }}">
+                </div>
+
+                <!-- Phone Number -->
+                <div>
+                    <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number *
+                    </label>
+                    <input type="text" 
+                           name="phone_number" 
+                           id="phone_number"
+                           required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter phone number"
+                           value="{{ request.POST.phone_number }}">
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address
+                    </label>
+                    <input type="email" 
+                           name="email" 
+                           id="email"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter email address"
+                           value="{{ request.POST.email }}">
+                </div>
+
+                <!-- Budget -->
+                <div>
+                    <label for="budget" class="block text-sm font-medium text-gray-700 mb-2">
+                        Budget
+                    </label>
+                    <input type="text" 
+                           name="budget" 
+                           id="budget"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter budget"
+                           value="{{ request.POST.budget }}">
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                        Preferred Location
+                    </label>
+                    <input type="text" 
+                           name="location" 
+                           id="location"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter preferred location"
+                           value="{{ request.POST.location }}">
+                </div>
+
+                <!-- Interested to Visit -->
+                <div>
+                    <label for="interested_to_visit" class="block text-sm font-medium text-gray-700 mb-2">
+                        Interested to Visit
+                    </label>
+                    <input type="text" 
+                           name="interested_to_visit" 
+                           id="interested_to_visit"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Yes/No/Maybe"
+                           value="{{ request.POST.interested_to_visit }}">
+                </div>
+
+                <!-- Requirement Sq. Ft. -->
+                <div class="md:col-span-2">
+                    <label for="requirement_sqft" class="block text-sm font-medium text-gray-700 mb-2">
+                        Required Sq. Ft.
+                    </label>
+                    <input type="text" 
+                           name="requirement_sqft" 
+                           id="requirement_sqft"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter required square feet"
+                           value="{{ request.POST.requirement_sqft }}">
+                </div>
+            </div>
+
+            <!-- Form Buttons -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <a href="/central-admin/real_estate/" 
+                   class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                    Create Lead
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} {% endcomment %}
