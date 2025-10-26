@@ -1,0 +1,26 @@
+{% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Upload Leads{% endblock %}
+{% block page_title %}Upload {{ category|title }} Leads{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-6">
+    <h2 class="text-xl font-bold mb-4">Upload Excel File for {{ category|title }}</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="excel_file" accept=".xlsx" required
+               class="border border-gray-300 rounded-lg p-2 w-full mb-4">
+        <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition">
+            Upload
+        </button>
+    </form>
+
+    <p class="text-gray-500 mt-4 text-sm">
+        Make sure the first row of your Excel file contains headers that match the model fields,
+        like <strong>full_name, phone_number, email, budget, etc.</strong>
+    </p>
+</div>
+{% endblock %}

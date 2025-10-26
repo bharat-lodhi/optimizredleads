@@ -1,0 +1,3 @@
+ngrok http 8000
+
+cmd1 = python manage.py runserver

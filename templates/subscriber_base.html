@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Subscribers Panel{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            overflow-y: auto;
+            z-index: 40;
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            padding-bottom: 80px; /* Space for mobile footer */
+        }
+        
+        .mobile-sidebar {
+            transform: translateX(-100%);
+        }
+        
+        .mobile-sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 30;
+        }
+        
+        .overlay.open {
+            display: block;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .nav-item.active svg {
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+        }
+
+        /* Mobile Footer Menu Styles */
+        .mobile-footer {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            z-index: 50;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-footer-menu {
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+        }
+
+        .footer-menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .footer-menu-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .footer-menu-item:not(.active):hover {
+            background: #f3f4f6;
+        }
+
+        .footer-icon {
+            width: 20px;
+            height: 20px;
+            margin-bottom: 4px;
+        }
+
+        .footer-label {
+            font-size: 10px;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding-bottom: 80px; /* Space for mobile footer */
+            }
+
+            .mobile-footer {
+                display: block;
+            }
+
+            /* Hide desktop header menu button on mobile */
+            .desktop-menu-button {
+                display: none;
+            }
+        }
+        
+        /* Smooth transitions */
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile Overlay -->
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar bg-white shadow-lg mobile-sidebar md:translate-x-0">
+        <!-- Logo and Brand -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">{{ user.first_name|slice:":2"|upper }}</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">Subscribers Panel</h1>
+                    <p class="text-sm text-gray-600">Leads</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="p-4 space-y-2">
+            <a href="/subscribers/" 
+               class="nav-item flex items-center space-x-3 p-3 rounded-lg transition-all {% if request.path == '/subscribers/' %}active{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="/subscribers/my-leads/" 
+               class="nav-item flex items-center space-x-3 p-3 rounded-lg transition-all {% if request.path == '/subscribers/my-leads/' %}active{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                </svg>
+                <span>Leads</span>
+            </a>
+
+
+            <a href="/subscribers/tickets/" 
+               class="nav-item flex items-center space-x-3 p-3 rounded-lg transition-all {% if request.path == '/subscribers/tickets/' %}active{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <span>Tickets</span>
+            </a>
+
+        </nav>
+
+        <!-- User Profile Section -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                    <span class="text-white font-semibold">{{ user.first_name|slice:":2"|upper }}</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-sm font-semibold text-gray-800">{{ user.first_name }}</h3>
+                </div>
+                <a href="{% url 'central_admin:logout' %}" class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between p-4">
+                <!-- Desktop Menu Button (Hidden on Mobile) -->
+                {% comment %} <button onclick="toggleSidebar()" class="desktop-menu-button md:block hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </button> {% endcomment %}
+
+                <!-- Page Title -->
+                <div class="flex-1 text-center md:text-left">
+                    <h1 class="text-xl font-semibold text-gray-800">{% block page_title %}Dashboard{% endblock %}</h1>
+                    <p class="text-sm text-gray-600">{% block page_subtitle %}Welcome to Subscribers Panel{% endblock %}</p>
+                </div>
+
+                <!-- Header Actions -->
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications -->
+                    {% comment %} <button class="relative p-2 text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                        </svg>
+                        <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
+                    </button> {% endcomment %}
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+                            <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-sm font-semibold">{{ user.first_name|slice:":2"|upper }}</span>
+                            </div>
+                            <span class="hidden md:block text-sm font-medium text-gray-700">Subscriber</span>
+                            <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+                            <div class="p-4 border-b border-gray-200">
+                                <p class="text-sm font-medium text-gray-800">{{ user.first_name }}</p>
+                                <p class="text-xs text-gray-600">{{ user.username }}</p>
+                            </div>
+                            <div class="p-2">
+                                {% comment %} <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">Profile</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">Settings</a> {% endcomment %}
+                                <a href="{% url 'central_admin:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Block -->
+        <main class="p-6">
+            {% block content %}
+            <!-- Default content will be overridden by child templates -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Welcome to Admin Panel</h2>
+                <p class="text-gray-600">This is the main content area. Extend this template and override the content block.</p>
+            </div>
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- Mobile Footer Menu -->
+    <footer class="mobile-footer">
+        <div class="mobile-footer-menu">
+            <a href="/subscribers/" 
+               class="footer-menu-item {% if request.path == 'subscribers' %}active text-white{% else %}text-gray-600{% endif %}">
+                <svg class="footer-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                </svg>
+                <span class="footer-label">Dashboard</span>
+            </a>
+
+            <a href="/subscribers/my-leads/" 
+               class="nav-item flex items-center space-x-3 p-3 rounded-lg transition-all {% if request.path == '/subscribers/my-leads/' %}active{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                </svg>
+                <span>Leads</span>
+            </a>
+
+           
+            <a href="/subscribers/tickets/" 
+               class="footer-menu-item {% if request.path == '/subscribers/tickets/' %}active text-white{% else %}text-gray-600{% endif %}">
+                <svg class="footer-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <span class="footer-label">Tickets</span>
+            </a>
+
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Toggle sidebar on desktop
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+            
+            // Prevent body scroll when sidebar is open
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        // Toggle user menu
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('userMenu');
+            userMenu.classList.toggle('hidden');
+        }
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('userMenu');
+            const userButton = event.target.closest('button[onclick="toggleUserMenu()"]');
+            
+            if (!userButton && userMenu && !userMenu.contains(event.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // Auto-close sidebar on desktop resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                
+                if (sidebar) sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Mobile footer menu active state management
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const footerItems = document.querySelectorAll('.footer-menu-item');
+            
+            footerItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href && currentPath === href) {
+                    item.classList.add('active', 'text-white');
+                    item.classList.remove('text-gray-600');
+                }
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+
+

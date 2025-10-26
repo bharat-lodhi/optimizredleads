@@ -1,0 +1,550 @@
+{% extends "landing/landing.html" %}
+{% load static %}
+
+{% block content %} {% endblock %}
+
+{% block hero %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Leads Subscription Plans - OptimizedLeads</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .plan-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .popular-badge {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .feature-check {
+            background: linear-gradient(135deg,  #667eea 0%,#667eea 100%);
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #667eea 0%, #553cfa 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background: linear-gradient(135deg, #667eea 0%, #6b46c1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Section -->
+    <header class="gradient-bg text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <!-- Breadcrumb -->
+                <div class="flex items-center justify-center mb-6">
+                    <a href="#" class="text-indigo-200 hover:text-white transition-colors">Home</a>
+                    <svg class="w-4 h-4 mx-2 text-indigo-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                    </svg>
+                    <a href="#" class="text-indigo-200 hover:text-white transition-colors">Real Estate</a>
+                    <svg class="w-4 h-4 mx-2 text-indigo-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                    </svg>
+                    <span class="text-white font-medium">Tenant Leads</span>
+                </div>
+
+                <!-- Main Heading -->
+                <div class="mb-8">
+                    <div class="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium mb-6">
+                        🏢 Premium Tenant Leads
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6" style="color:white">
+                        🏡 Tenant Leads</h1>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6"><span class="text-blue-300">Subscription Plans</span></h1>
+                    
+                    <p class="text-xl md:text-2xl text-indigo-100 max-w-3xl mx-auto leading-relaxed">
+                        Connect with verified tenants actively searching for rental properties. Get high-quality leads with complete property preferences and instant notifications.
+                    </p>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white-300 mb-2">5,000+</div>
+                        <div class="text-indigo-100">Active Tenants</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white-300-300 mb-2">87%</div>
+                        <div class="text-indigo-100">Conversion Rate</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold ttext-white-300-3mb-2">24/7</div>
+                        <div class="text-indigo-100">Lead Delivery</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% comment %} <!-- Pricing Plans Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    Choose Your Perfect Plan
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Select the subscription plan that matches your business needs and start receiving verified tenant leads today.
+                </p>
+            </div>
+
+           
+           
+            <!-- Pricing Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                
+                <!-- Basic Plan -->
+                <div class="plan-card bg-white rounded-3xl shadow-xl p-8 relative">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">🏠</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Basic Plan</h3>
+                        <p class="text-gray-600 mb-6">Perfect for independent agents or small teams</p>
+                        <div class="text-center">
+                            <span class="text-4xl font-bold text-gray-900">₹10,000</span>
+                            <span class="text-gray-600">/month</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="text-blue-500" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700 font-medium">50 Verified Tenant Leads</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="text-blue-500" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Property preferences included (budget, location, size)</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Email & WhatsApp lead delivery</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">7-Day Lead Replacement Guarantee</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Support via Email</span>
+                        </div>
+                    </div>
+
+                    <a href="https://optimizedleads.in/product/basic-plain/" class="text-black-100 hover:text-white font-medium px-3 xl:px-4 py-2 border border-black-200 rounded-lg hover:bg-black hover:bg-opacity-100 transition-all duration-300 text-sm xl:text-base">
+                        Get More Leads
+                    </a>
+                </div>
+
+                <!-- Pro Plan (Popular) -->
+                <div class="plan-card bg-white rounded-3xl shadow-xl p-8 relative border-2 border-orange-400">
+                    <!-- Popular Badge -->
+                    <div class="popular-badge absolute -top-4 left-1/2 transform -translate-x-1/2 px-6 py-2 rounded-full text-white font-bold text-sm">
+                        🔥 MOST POPULAR
+                    </div>
+                    
+                    <div class="text-center mb-8 mt-4">
+                        <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">💼</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Pro Plan</h3>
+                        <p class="text-gray-600 mb-6">Best for growing realtors and mid-size agencies</p>
+                        <div class="text-center">
+                            <span class="text-4xl font-bold text-gray-900">₹18,000</span>
+                            <span class="text-gray-600">/month</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700 font-medium">120 Verified Tenant Leads</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Real-time Lead Notifications</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Custom Location Targeting</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">15-Day Lead Replacement Guarantee</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">WhatsApp + Call Support</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Lead Management Dashboard Access</span>
+                        </div>
+                    </div>
+
+                    <a href="https://optimizedleads.in/product/growth-plan/" class="text-black-100 hover:text-white font-medium px-3 xl:px-4 py-2 border border-black-200 rounded-lg hover:bg-black hover:bg-opacity-100 transition-all duration-300 text-sm xl:text-base">
+                        Get More Leads
+                    </a>
+                </div>
+
+                <!-- Premium Plan -->
+                <div class="plan-card bg-white rounded-3xl shadow-xl p-8 relative">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">🏢</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Premium Plan</h3>
+                        <p class="text-gray-600 mb-6">For top-performing brokers and franchises</p>
+                        <div class="text-center">
+                            <span class="text-4xl font-bold text-gray-900">₹29,000</span>
+                            <span class="text-gray-600">/month</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700 font-medium">200+ High-Intent Tenant Leads</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Geo-Fencing + Budget Filters</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Instant CRM Integration</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">30-Day Lead Replacement Guarantee</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Dedicated Account Manager</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Priority Support (Call, WhatsApp, Email)</span>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="feature-check w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Monthly Lead Performance Report</span>
+                        </div>
+                    </div>
+
+                   <a href="https://optimizedleads.in/product/premium-plan-2/" class="text-black-100 hover:text-white font-medium px-3 xl:px-4 py-2 border border-black-200 rounded-lg hover:bg-black hover:bg-opacity-100 transition-all duration-300 text-sm xl:text-base">
+                        Get More Leads
+                    </a>
+                </div>
+            </div>
+
+            <!-- Money Back Guarantee -->
+            <div class="text-center mt-12">
+                <div class="inline-flex items-center px-6 py-3 bg-green-100 text-green-800 rounded-full font-medium">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    30-Day Money Back Guarantee on All Plans
+                </div>
+            </div>
+        </div>
+    </section> {% endcomment %}
+
+<section class="bg-gray-50 py-16">
+  <div class="max-w-7xl mx-auto px-6">
+
+    {% if tenant_leads %}
+      <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">Tenant Leads Plans</h2>
+        <p class="text-xl text-white max-w-3xl mx-auto text-center leading-relaxed" style="color:#808080">
+            Select the subscription plan that matches your business needs and start receiving verified tenant leads today.
+        </p>
+
+        <br>
+      <div class="grid md:grid-cols-3 gap-8 mb-16">
+        {% for product in tenant_leads %}
+        <div class="relative bg-white rounded-3xl shadow-xl border-2 border-blue-100 p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
+
+          <!-- Plan Image -->
+          <div class="text-center">
+            {% if product.product_image %}
+              <img src="{{ product.product_image.url }}" alt="{{ product.plan_type }}" class="w-16 h-16 mx-auto mb-6 rounded-2xl object-cover group-hover:scale-110 transition-transform duration-300">
+            {% else %}
+              <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87-1.18 6.88L12 17.77 6.18 21.02 7.36 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </div>
+            {% endif %}
+
+            <!-- Plan Title -->
+            <h3 class="text-2xl font-bold text-gray-900 mb-2 capitalize">{{ product.plan_type }} Plan</h3>
+            <p class="text-gray-600 mb-6">{{ product.heading }}</p>
+
+            <!-- Price -->
+            <div class="mb-8">
+              <span class="text-5xl font-bold text-gray-900">₹{{ product.price|floatformat:0 }}</span>
+              <span class="text-gray-600">/month</span>
+            </div>
+          </div>
+
+          <!-- Long Description -->
+          <div class="text-gray-700 mb-6 leading-relaxed space-y-2">
+            {{ product.features|safe }}
+            </div>
+
+
+          <!-- Button -->
+          <a href="/product_details/?id={{ product.id }}" class="text-black hover:text-white font-medium px-4 py-2 border border-black rounded-lg hover:bg-black transition-all duration-300 text-sm">
+            Get Started with {{ product.plan_type|title }}
+          </a>
+
+        </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <p class="text-center text-gray-500">No Buyers Leads plans found.</p>
+    {% endif %}
+
+  </div>
+</section>
+
+
+
+
+    <!-- Why Choose Section -->
+    <section class="py-10 bg-gray-50"  style="margin-top:-40px">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    Why Choose Our Tenant Leads?
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Get access to the highest quality tenant leads with complete property preferences and verified contact information.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Verified Tenants</h3>
+                    <p class="text-gray-600">All leads are pre-verified with genuine contact information and serious rental intent.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Complete Preferences</h3>
+                    <p class="text-gray-600">Get detailed property requirements including budget range, preferred locations, and property size.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Instant Delivery</h3>
+                    <p class="text-gray-600">Receive leads instantly via WhatsApp, email, and SMS as soon as they're generated.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Location Targeting</h3>
+                    <p class="text-gray-600">Target specific areas, neighborhoods, or cities to get leads that match your service areas.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">24/7 Support</h3>
+                    <p class="text-gray-600">Get round-the-clock support via phone, WhatsApp, and email for all your queries.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Lead Replacement</h3>
+                    <p class="text-gray-600">Get free lead replacements if any lead doesn't meet our quality standards within the guarantee period.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="gradient-bg py-20 text-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                Ready to Start Getting Quality Tenant Leads?
+            </h2>
+            <p class="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+                Join thousands of successful real estate professionals who trust OptimizedLeads for their tenant lead generation needs.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button class="bg-white text-indigo-600 font-bold py-4 px-8 rounded-xl hover:bg-gray-100 transition-all duration-300 hover:scale-105">
+                    Start Free 2-Day Trial
+                </button>
+                <div class="flex items-center text-indigo-200">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    No setup fees • Cancel anytime
+                </div>
+            </div>
+
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-white-300 mb-2">87%</div>
+                    <div class="text-indigo-200">Average Conversion Rate</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-white-300-300 mb-2">2.5M+</div>
+                    <div class="text-indigo-200">Leads Generated</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold ttext-white-300-300-300 mb-2">5,000+</div>
+                    <div class="text-indigo-200">Happy Clients</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967c213826638e74',t:'MTc1Mzk1NDc3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+				</div>
+				</div>
+				</div>
+			</div> <!-- ast-container -->
+	</div><!-- #content -->
+{% endblock %}

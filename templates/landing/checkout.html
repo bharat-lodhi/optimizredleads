@@ -1,0 +1,520 @@
+{% extends "landing/landing.html" %}
+{% load static %}
+
+{% block hero %} {% endblock %}
+
+{% block content %}
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Checkout</h1>
+      <p class="text-gray-600 mt-2">Complete your purchase in just a few steps</p>
+    </div>
+
+    <!-- Steps -->
+    <div class="mb-8 flex items-center justify-between">
+      {% for step in checkout_steps %}
+        <div class="flex items-center checkout-step {% if forloop.first %}active{% endif %}">
+          <div class="w-8 h-8 rounded-full {% if forloop.first %}bg-indigo-600 text-white{% else %}bg-gray-300 text-gray-600{% endif %} flex items-center justify-center text-sm font-bold">{{ forloop.counter }}</div>
+          <span class="ml-2 text-sm font-medium {% if forloop.first %}text-gray-900{% else %}text-gray-500{% endif %}">{{ step }}</span>
+        </div>
+        {% if not forloop.last %}<div class="flex-1 h-1 bg-gray-200 mx-4"></div>{% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Left -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Order Summary -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
+          <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+            {% if product.product_image %}
+              <img src="{{ product.product_image.url }}" class="w-16 h-16 rounded-lg object-cover">
+            {% else %}
+              <div class="w-16 h-16 rounded-lg bg-indigo-500 flex items-center justify-center">
+                <span class="text-white font-bold">{{ product.category|slice:":2"|upper }}</span>
+              </div>
+            {% endif %}
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900">{{ product.plan_type|title }} {{ product.category }}</h3>
+              <p class="text-gray-600 text-sm">{{ product.short_description }}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-gray-900">₹{{ product.price }}</p>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h4 class="font-medium text-gray-900 mb-2">Package Includes:</h4>
+            <ul class="space-y-1 text-sm text-gray-600">
+              {% for feature in features_list %}
+                <li class="flex items-center">
+                  <i class="fas fa-check text-green-500 mr-2 text-xs"></i>{{ feature }}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Contact Information</h2>
+          <form id="contact-form">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input type="text" name="first_name" placeholder="First Name" class="input-field">
+              <input type="text" name="last_name" placeholder="Last Name" class="input-field">
+            </div>
+            <input type="email" name="email" placeholder="Email" class="input-field mt-4">
+            <input type="tel" name="phone" placeholder="Phone" class="input-field mt-4">
+            <input type="text" name="company" placeholder="Company (Optional)" class="input-field mt-4">
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Right -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Order Total</h2>
+          <div class="space-y-3">
+            <div class="flex justify-between"><span>Subtotal</span><span>₹{{ base_price }}</span></div>
+            <div class="flex justify-between"><span>GST (18%)</span><span>₹{{ gst_amount }}</span></div>
+            <div class="flex justify-between"><span>Platform Fee</span><span>₹{{ platform_fee }}</span></div>
+            <hr class="my-3">
+            <div class="flex justify-between font-bold text-lg"><span>Total</span><span>₹{{ total_amount }}</span></div>
+          </div>
+
+          <button id="complete-order" class="w-full mt-6 bg-indigo-600 text-white py-3 rounded-md">Complete Order</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+.input-field {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+</style>
+
+<!-- Razorpay Integration -->
+<script>
+$(document).ready(function(){
+
+  $('#complete-order').on('click', function(e){
+    e.preventDefault();
+
+    const data = {
+      first_name: $('input[name="first_name"]').val(),
+      last_name: $('input[name="last_name"]').val(),
+      email: $('input[name="email"]').val(),
+      phone: $('input[name="phone"]').val(),
+      company: $('input[name="company"]').val(),
+      csrfmiddlewaretoken: '{{ csrf_token }}'
+    };
+
+    $.ajax({
+      url: "{% url 'landing:create_order' product.id %}",
+      method: "POST",
+      data: data,
+      success: function(res){
+        const options = {
+          "key": "{{ RAZORPAY_KEY_ID }}",
+          "amount": res.amount,
+          "currency": res.currency,
+          "name": "Optimized Leads",
+          "description": "{{ product.plan_type|title }} {{ product.category }}",
+          "order_id": res.order_id,
+          "handler": function(response){
+            $.ajax({
+              url: "{% url 'landing:verify_payment' %}",
+              method: "POST",
+              data: {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+              },
+              success: function(resp){
+                alert("Payment Successful!");
+                window.location.href = "{% url 'landing:order_success' %}?order_id=" + response.razorpay_order_id + "&amount={{ total_amount }}";
+              },
+              error: function(){
+                alert("Payment verification failed!");
+              }
+            });
+          },
+          "prefill": {
+            "name": data.first_name + " " + data.last_name,
+            "email": data.email,
+            "contact": data.phone
+          },
+          "theme": {
+            "color": "#6366f1"
+          }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+      },
+      error: function(){
+        console.log(xhr.responseText);
+        alert("Failed to create order. Try again.");
+      }
+    });
+
+  });
+
+});
+</script>
+{% endblock %}
+
+
+
+
+{% comment %} {% extends "landing/landing.html" %}
+{% load static %}
+
+{% block hero %} {% endblock %}
+
+{% block content %}
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .checkout-step {
+        transition: all 0.3s ease;
+    }
+    .checkout-step.active {
+        border-color: #6366f1;
+        background-color: #f0f9ff;
+    }
+</style>
+
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Checkout Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Checkout</h1>
+            <p class="text-gray-600 mt-2">Complete your purchase in just a few steps</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center checkout-step active">
+                    <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">1</div>
+                    <span class="ml-2 text-sm font-medium text-gray-900">Cart</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-200 mx-4"></div>
+                <div class="flex items-center checkout-step">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-bold">2</div>
+                    <span class="ml-2 text-sm font-medium text-gray-500">Details</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-200 mx-4"></div>
+                <div class="flex items-center checkout-step">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-bold">3</div>
+                    <span class="ml-2 text-sm font-medium text-gray-500">Payment</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-200 mx-4"></div>
+                <div class="flex items-center checkout-step">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-bold">4</div>
+                    <span class="ml-2 text-sm font-medium text-gray-500">Confirm</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Order Summary & Forms -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Order Summary -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
+                    
+                    <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                        {% if product.product_image %}
+                            <img src="{{ product.product_image.url }}" alt="{{ product.category }}" class="w-16 h-16 rounded-lg object-cover">
+                        {% else %}
+                            <div class="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                                <span class="text-white text-sm font-bold">{{ product.category|slice:":2"|upper }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900">{{ product.plan_type|title }} {{ product.category }}</h3>
+                            <p class="text-gray-600 text-sm">{{ product.short_description }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-900">₹{{ product.price }}</p>
+                            <p class="text-gray-500 text-sm">/{{ product.unit }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Features List -->
+                    <div class="mt-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Package Includes:</h4>
+                        <ul class="space-y-1 text-sm text-gray-600">
+                            {% for feature in features_list %}
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2 text-xs"></i>
+                                    {{ feature }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Contact Information</h2>
+                    
+                    <form id="contact-form">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                                <input type="text" id="first_name" name="first_name" required 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                                <input type="text" id="last_name" name="last_name" required 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                            <input type="email" id="email" name="email" required 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" required 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Company (Optional)</label>
+                            <input type="text" id="company" name="company" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Payment Method</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- Credit Card -->
+                        <div class="flex items-center">
+                            <input type="radio" id="credit_card" name="payment_method" value="credit_card" checked 
+                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <label for="credit_card" class="ml-3 block text-sm font-medium text-gray-700">
+                                Credit/Debit Card
+                            </label>
+                        </div>
+                        
+                        <!-- UPI -->
+                        <div class="flex items-center">
+                            <input type="radio" id="upi" name="payment_method" value="upi" 
+                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <label for="upi" class="ml-3 block text-sm font-medium text-gray-700">
+                                UPI Payment
+                            </label>
+                        </div>
+                        
+                        <!-- Net Banking -->
+                        <div class="flex items-center">
+                            <input type="radio" id="net_banking" name="payment_method" value="net_banking" 
+                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <label for="net_banking" class="ml-3 block text-sm font-medium text-gray-700">
+                                Net Banking
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Card Details Form -->
+                    <div id="card-details" class="mt-6 space-y-4">
+                        <div>
+                            <label for="card_number" class="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                            <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                                <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label for="cvv" class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                                <input type="text" id="cvv" name="cvv" placeholder="123"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="card_holder" class="block text-sm font-medium text-gray-700 mb-1">Card Holder Name</label>
+                            <input type="text" id="card_holder" name="card_holder" placeholder="John Doe"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Order Total -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Order Total</h2>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal</span>
+                            <span class="font-medium">₹{{ product.price }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Tax (18% GST)</span>
+                            <span class="font-medium">₹{% widthratio product.price 1 0.18 %}</span>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Platform Fee</span>
+                            <span class="font-medium">₹99</span>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="flex justify-between text-lg font-bold">
+                            <span>Total</span>
+                            <span>₹{% widthratio product.price 1 1.18|add:99 %}</span>
+                        </div>
+                    </div>
+
+                    <!-- Security Badges -->
+                    <div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                        <div class="flex items-center text-green-800">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            <span class="text-sm font-medium">Secure Payment</span>
+                        </div>
+                        <p class="text-green-700 text-xs mt-1">Your payment information is encrypted and secure</p>
+                    </div>
+
+                    <!-- Terms & Conditions -->
+                    <div class="mt-4">
+                        <div class="flex items-start">
+                            <input type="checkbox" id="terms" name="terms" required 
+                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1">
+                            <label for="terms" class="ml-2 block text-sm text-gray-700">
+                                I agree to the <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms of Service</a> 
+                                and <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Complete Order Button -->
+                    <button id="complete-order" 
+                            class="w-full mt-6 bg-indigo-600 text-white py-3 px-4 rounded-md font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 flex items-center justify-center">
+                        <i class="fas fa-lock mr-2"></i>
+                        Complete Order - ₹{% widthratio product.price 1 1.18|add:99 %}
+                    </button>
+
+                    <!-- Money Back Guarantee -->
+                    <div class="mt-4 text-center">
+                        <p class="text-xs text-gray-500 flex items-center justify-center">
+                            <i class="fas fa-undo-alt mr-1"></i>
+                            30-day money-back guarantee
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Payment method toggle
+    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+    const cardDetails = document.getElementById('card-details');
+    
+    paymentMethods.forEach(method => {
+        method.addEventListener('change', function() {
+            if (this.value === 'credit_card') {
+                cardDetails.style.display = 'block';
+            } else {
+                cardDetails.style.display = 'none';
+            }
+        });
+    });
+
+    // Complete order button
+    const completeOrderBtn = document.getElementById('complete-order');
+    
+    completeOrderBtn.addEventListener('click', function() {
+        // Form validation
+        const termsChecked = document.getElementById('terms').checked;
+        const contactForm = document.getElementById('contact-form');
+        
+        if (!termsChecked) {
+            alert('Please agree to the Terms and Conditions');
+            return;
+        }
+        
+        // Show loading state
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+        this.disabled = true;
+        
+        // Simulate payment processing
+        
+        setTimeout(() => {
+            // Redirect to success page or show success message
+             window.location.href = "/order_success/?order_id=" + Date.now() + "&amount={{ total_amount }}";
+        }, 2000);
+
+    });
+
+    // Input formatting
+    const cardNumber = document.getElementById('card_number');
+    if (cardNumber) {
+        cardNumber.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let matches = value.match(/\d{4,16}/g);
+            let match = matches && matches[0] || '';
+            let parts = [];
+            
+            for (let i = 0, len = match.length; i < len; i += 4) {
+                parts.push(match.substring(i, i + 4));
+            }
+            
+            if (parts.length) {
+                e.target.value = parts.join(' ');
+            } else {
+                e.target.value = value;
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 
+ {% endcomment %}

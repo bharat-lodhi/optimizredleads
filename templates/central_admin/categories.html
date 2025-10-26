@@ -1,0 +1,104 @@
+ 
+
+{% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Categories{% endblock %}
+{% block page_title %}Categories{% endblock %}
+{% block page_subtitle %}Select a category or upload leads{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-6">
+    <!-- Grid of Category Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <!-- Card 1: Real Estate -->
+        <div class="bg-white rounded-xl border border-gray-300 p-8 text-center shadow-sm hover:shadow-md transition">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Real Estate</h3>
+            <div class="flex flex-col gap-3">
+                <a href="/central-admin/real_estate/"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    View Leads
+                </a>
+                <a href="{% url 'central_admin:upload_leads' 'real_estate' %}"
+                   class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                    📁 Upload Excel
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 2: Online MBA -->
+        <div class="bg-white rounded-xl border border-gray-300 p-8 text-center shadow-sm hover:shadow-md transition">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Online MBA</h3>
+            <div class="flex flex-col gap-3">
+                <a href="/central-admin/online_mba/"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    View Leads
+                </a>
+                <a href="{% url 'central_admin:upload_leads' 'online_mba' %}"
+                   class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                    📁 Upload Excel
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 3: Study Abroad -->
+        <div class="bg-white rounded-xl border border-gray-300 p-8 text-center shadow-sm hover:shadow-md transition">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Study Abroad</h3>
+            <div class="flex flex-col gap-3">
+                <a href="/central-admin/study_abroad/"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    View Leads
+                </a>
+                <a href="{% url 'central_admin:upload_leads' 'study_abroad' %}"
+                   class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                    📁 Upload Excel
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Categories{% endblock %}
+
+{% block page_title %}Categories{% endblock %}
+{% block page_subtitle %}Select a category{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Simple Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Card 1: Real Estate -->
+        <a href="/central-admin/real_estate/" class="block">
+            <div class="bg-white rounded-lg border border-gray-300 p-8 text-center hover:bg-gray-50 hover:border-blue-500 transition-colors duration-200">
+                <h3 class="text-xl font-semibold text-gray-800">Real Estate</h3>
+            </div>
+        </a>
+
+        <!-- Card 2: Online MBA -->
+        <a href="/central-admin/online_mba/" class="block">
+            <div class="bg-white rounded-lg border border-gray-300 p-8 text-center hover:bg-gray-50 hover:border-green-500 transition-colors duration-200">
+                <h3 class="text-xl font-semibold text-gray-800">Online MBA</h3>
+            </div>
+        </a>
+
+        <!-- Card 3: Study Abroad -->
+        <a href="/central-admin/study_abroad/" class="block">
+            <div class="bg-white rounded-lg border border-gray-300 p-8 text-center hover:bg-gray-50 hover:border-purple-500 transition-colors duration-200">
+                <h3 class="text-xl font-semibold text-gray-800">Study Abroad</h3>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %} {% endcomment %}

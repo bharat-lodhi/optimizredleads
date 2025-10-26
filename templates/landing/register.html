@@ -1,0 +1,331 @@
+{% extends "landing/landing.html" %}
+{% load static %}
+
+{% block hero %} {% endblock %}
+
+
+{% block content %}
+<!-- Registration Form Section -->
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
+    
+    <div class="max-w-md w-full space-y-8">
+            {% if messages %}
+                <div class="max-w-md mx-auto mt-4">
+                    {% for message in messages %}
+                    <div class="p-3 rounded-md text-center 
+                        {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% endif %}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+        
+
+        <!-- Registration Form -->
+        <form class="mt-8 space-y-6 bg-white p-8 rounded-2xl shadow-xl border border-gray-100" method="post" id="registrationForm">
+            {% csrf_token %}
+            
+            <!-- Header -->
+            <div class="text-center" style="margin-top:-10px">
+                <h2 class="text-3xl font-bold text-gray-900">
+                    Create Account
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Join OptimizedLeads and grow your business
+                </p>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Name Field -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="name" 
+                            name="name" 
+                            type="text" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter your full name"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Field -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="email" 
+                            name="email" 
+                            type="email" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter your email address"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Password *
+                        </label>
+                        <div class="relative">
+                            <input 
+                                id="password" 
+                                name="password" 
+                                type="password" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                                placeholder="Create Password"
+                            >
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" onclick="togglePassword()">
+                                <!-- Eye closed (default for password) -->
+                                <svg id="eye-closed" class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                <!-- Eye open (hidden by default) -->
+                                <svg id="eye-open" class="h-5 w-5 text-gray-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                <!-- Phone Number Field -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="phone" 
+                            name="phone" 
+                            type="tel" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter your phone number"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Industry Field -->
+                <div>
+                    <label for="industry" class="block text-sm font-medium text-gray-700 mb-2">
+                        Industry *
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="industry" 
+                            name="industry" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
+                        >
+                            <option value="">Select your industry</option>
+                            <option value="real-estate">Real Estate</option>
+                            <option value="education">Education</option>
+                            <option value="study-abroad">Study Abroad</option>
+                            <option value="trading">Trading</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Industry Field (Dynamic) -->
+                <div id="subIndustryContainer" class="hidden">
+                    <label for="sub_industry" class="block text-sm font-medium text-gray-700 mb-2">
+                        Sub-Industry *
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="sub_industry" 
+                            name="sub_industry" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
+                        >
+                            <option value="">Select sub-industry</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Study Abroad Input (Dynamic) -->
+                <div id="studyAbroadContainer" class="hidden">
+                    <label for="preferred_country" class="block text-sm font-medium text-gray-700 mb-2">
+                        Preferred Country *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="preferred_country" 
+                            name="preferred_country" 
+                            type="text" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter your preferred country"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div>
+                <button 
+                    type="submit"
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </span>
+                    Create Account
+                </button>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center">
+                <p class="text-sm text-gray-600">
+                    Already have an account? 
+                    <a href="/login/" class="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200 ml-1">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const industrySelect = document.getElementById('industry');
+    const subIndustryContainer = document.getElementById('subIndustryContainer');
+    const subIndustrySelect = document.getElementById('sub_industry');
+    const studyAbroadContainer = document.getElementById('studyAbroadContainer');
+    const preferredCountryInput = document.getElementById('preferred_country');
+
+    // Sub-industry options for different industries
+    const subIndustryOptions = {
+        'real-estate': [
+            { value: 'buyers-leads', text: 'Buyers Leads' },
+            { value: 'tenant-leads', text: 'Tenant Leads' }
+        ],
+        'education': [
+            { value: 'online-mba', text: 'Online MBA' },
+            { value: 'offline-mba', text: 'Offline MBA' },
+            { value: 'phd', text: 'PhD' },
+            { value: 'doctorate', text: 'Doctorate' },
+            { value: 'certification', text: 'Certification' }
+        ],
+        'trading': [
+            { value: 'forex', text: 'Forex Trading' }
+        ]
+    };
+
+    // Handle industry selection change
+    industrySelect.addEventListener('change', function() {
+        const selectedIndustry = this.value;
+        
+        // Hide all dynamic containers first
+        subIndustryContainer.classList.add('hidden');
+        studyAbroadContainer.classList.add('hidden');
+        
+        // Clear previous sub-industry options
+        subIndustrySelect.innerHTML = '<option value="">Select sub-industry</option>';
+        preferredCountryInput.value = '';
+        preferredCountryInput.required = false;
+        subIndustrySelect.required = false;
+
+        // Show relevant fields based on selected industry
+        if (selectedIndustry === 'study-abroad') {
+            studyAbroadContainer.classList.remove('hidden');
+            preferredCountryInput.required = true;
+        } 
+        else if (subIndustryOptions[selectedIndustry]) {
+            subIndustryContainer.classList.remove('hidden');
+            subIndustrySelect.required = true;
+            
+            // Populate sub-industry options
+            subIndustryOptions[selectedIndustry].forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.text;
+                subIndustrySelect.appendChild(optionElement);
+            });
+        }
+    });
+});
+
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const eyeClosed = document.getElementById('eye-closed');
+    const eyeOpen = document.getElementById('eye-open');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeClosed.classList.add('hidden');
+        eyeOpen.classList.remove('hidden');
+    } else {
+        passwordInput.type = 'password';
+        eyeClosed.classList.remove('hidden');
+        eyeOpen.classList.add('hidden');
+    }
+}
+</script>
+
+<style>
+    /* Custom animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    /* Custom select styling */
+    select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+</style>
+{% endblock %}

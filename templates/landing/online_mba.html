@@ -1,0 +1,846 @@
+{% extends "landing/landing.html" %}
+{% load static %}
+
+{% block content %} {% endblock %}
+
+{% block hero %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Abroad Lead Generation - OptimizedLeads</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-color: #667eea;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #5B3DDF 0%, #5B3DDF 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background: linear-gradient(135deg, #5B3DDF 0%, #5B3DDF 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .feature-check {
+            background: linear-gradient(135deg, #583fe0 0%, #583fe0 100%);
+        }
+        
+        .process-step {
+            position: relative;
+        }
+        
+        .process-step::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: translateY(-50%);
+            z-index: -1;
+        }
+        
+        .process-step:last-child::after {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .process-step::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <!-- Breadcrumb -->
+                <div class="flex items-center justify-center mb-6">
+                    <a href="#" class="text-indigo-200 hover:text-white transition-colors">Home</a>
+                    <svg class="w-4 h-4 mx-2 text-indigo-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                    </svg>
+                    <span class="text-white font-medium">Study Abroad Lead Generation</span>
+                </div>
+
+                <!-- Main Heading -->
+                <div class="mb-8">
+                    <div class="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium mb-6">
+                        🎯 B2B Lead Generation Services
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                        Online/Offline MBA<br>
+                        <span class="text-white">Lead Generation for Consultancies</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-indigo-100 max-w-3xl mx-auto leading-relaxed">
+                        Partner with us to get high-quality, pre-qualified Online MBA leads. We connect serious MBA aspirants with trusted consultancies through our proven lead generation system.
+                    </p>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white- mb-2">3,000+</div>
+                        <div class="text-indigo-100">Monthly MBA Leads</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-whote- mb-2">150+</div>
+                        <div class="text-indigo-100">Partner Consultancies</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white- mb-2">88%</div>
+                        <div class="text-indigo-100">Lead Conversion Rate</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-yellow- mb-2">50+</div>
+                        <div class="text-indigo-100">MBA Programs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MBA Subscription Plans -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           {% if offline_mba %}
+      <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">🎓 on cumpus MBA Leads – Subscription Plans</h2>
+        <p class="text-xl text-white max-w-3xl mx-auto text-center leading-relaxed" style="color:#808080">
+            Choose the perfect subscription plan for your consultancy. All plans include verified leads with guaranteed quality and replacement policy.
+        </p>
+
+        <br>
+      <div class="grid md:grid-cols-3 gap-8 mb-16">
+        {% for product in offline_mba %}
+        <div class="relative bg-white rounded-3xl shadow-xl border-2 border-blue-100 p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
+
+          <!-- Plan Image -->
+          <div class="text-center">
+            {% if product.product_image %}
+              <img src="{{ product.product_image.url }}" alt="{{ product.plan_type }}" class="w-16 h-16 mx-auto mb-6 rounded-2xl object-cover group-hover:scale-110 transition-transform duration-300">
+            {% else %}
+              <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87-1.18 6.88L12 17.77 6.18 21.02 7.36 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </div>
+            {% endif %}
+
+            <!-- Plan Title -->
+            <h3 class="text-2xl font-bold text-gray-900 mb-2 capitalize">{{ product.plan_type }} Plan</h3>
+            <p class="text-gray-600 mb-6">{{ product.heading }}</p>
+
+            <!-- Price -->
+            <div class="mb-8">
+              <span class="text-5xl font-bold text-gray-900">₹{{ product.price|floatformat:0 }}</span>
+              <span class="text-gray-600">/month</span>
+            </div>
+          </div>
+
+          <!-- Long Description -->
+          <div class="text-gray-700 mb-6 leading-relaxed space-y-2">
+            {{ product.features|safe }}
+            </div>
+
+
+          <!-- Button -->
+          <a href="/product_details/?id={{ product.id }}" class="text-black hover:text-white font-medium px-4 py-2 border border-black rounded-lg hover:bg-black transition-all duration-300 text-sm">
+            Get Started with {{ product.plan_type|title }}
+          </a>
+
+        </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <p class="text-center text-gray-500">No offline MBA plans found.</p>
+    {% endif %}
+
+  </div>
+            
+        </div>
+    </section>
+    
+    <!-- MBA Subscription Plans -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="max-w-7xl mx-auto px-6">
+
+    {% if online_mba %}
+      <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">🎓 Online MBA Leads – Subscription Plans</h2>
+        <p class="text-xl text-white max-w-3xl mx-auto text-center leading-relaxed" style="color:#808080">
+            Choose the perfect subscription plan for your consultancy. All plans include verified leads with guaranteed quality and replacement policy.
+        </p>
+
+        <br>
+      <div class="grid md:grid-cols-3 gap-8 mb-16">
+        {% for product in online_mba %}
+        <div class="relative bg-white rounded-3xl shadow-xl border-2 border-blue-100 p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
+
+          <!-- Plan Image -->
+          <div class="text-center">
+            {% if product.product_image %}
+              <img src="{{ product.product_image.url }}" alt="{{ product.plan_type }}" class="w-16 h-16 mx-auto mb-6 rounded-2xl object-cover group-hover:scale-110 transition-transform duration-300">
+            {% else %}
+              <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87-1.18 6.88L12 17.77 6.18 21.02 7.36 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </div>
+            {% endif %}
+
+            <!-- Plan Title -->
+            <h3 class="text-2xl font-bold text-gray-900 mb-2 capitalize">{{ product.plan_type }} Plan</h3>
+            <p class="text-gray-600 mb-6">{{ product.heading }}</p>
+
+            <!-- Price -->
+            <div class="mb-8">
+              <span class="text-5xl font-bold text-gray-900">₹{{ product.price|floatformat:0 }}</span>
+              <span class="text-gray-600">/month</span>
+            </div>
+          </div>
+
+          <!-- Long Description -->
+          <div class="text-gray-700 mb-6 leading-relaxed space-y-2">
+            {{ product.features|safe }}
+            </div>
+
+
+          <!-- Button -->
+          <a href="/product_details/?id={{ product.id }}" class="text-black hover:text-white font-medium px-4 py-2 border border-black rounded-lg hover:bg-black transition-all duration-300 text-sm">
+            Get Started with {{ product.plan_type|title }}
+          </a>
+
+        </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <p class="text-center text-gray-500">No Online MBA plans found.</p>
+    {% endif %}
+
+  </div>
+            
+            <!-- Plan Comparison Note -->
+            <div class="text-center mt-12">
+                <div class="bg-gray-50 rounded-2xl p-8 max-w-4xl mx-auto">
+                    <h4 class="text-xl font-bold text-gray-900 mb-4">🔄 All Plans Include</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-600">
+                        <div class="flex items-center justify-center">
+                            <span class="text-green-600 mr-2">✅</span>
+                            100% Verified Contact Details
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <span class="text-green-600 mr-2">✅</span>
+                            No Setup or Hidden Fees
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <span class="text-green-600 mr-2">✅</span>
+                            Cancel Anytime Policy
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Services for Consultancies -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    🚀 Complete MBA Lead Generation Solutions
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    We provide end-to-end MBA lead generation services specifically designed for education consultancies and MBA program providers.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Lead Qualification -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Pre-Qualified Leads</h3>
+                    <p class="text-gray-600 mb-6">Every lead is thoroughly vetted for academic eligibility, financial capacity, and genuine interest before delivery.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Academic profile verification
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Financial capacity assessment
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Intent verification calls
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-Time Delivery -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">⚡</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Real-Time Lead Delivery</h3>
+                    <p class="text-gray-600 mb-6">Instant lead delivery through our dashboard, email, and WhatsApp integration for immediate follow-up.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Instant dashboard notifications
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Email & WhatsApp alerts
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            API integration available
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Geographic Targeting -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">🌍</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Geographic Targeting</h3>
+                    <p class="text-gray-600 mb-6">Target specific cities, states, or regions to match your consultancy's service areas and preferences.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            City-wise lead filtering
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Regional preference settings
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Tier 1/2/3 city options
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lead Analytics -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">📊</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Advanced Analytics</h3>
+                    <p class="text-gray-600 mb-6">Comprehensive analytics dashboard to track lead performance, conversion rates, and ROI metrics.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Real-time conversion tracking
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            ROI & performance reports
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Lead quality scoring
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dedicated Support -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">🤝</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Dedicated Account Manager</h3>
+                    <p class="text-gray-600 mb-6">Personal account manager to optimize your lead campaigns and ensure maximum conversion rates.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Weekly performance reviews
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Campaign optimization
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            24/7 support availability
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Packages -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">🎨</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Custom Lead Packages</h3>
+                    <p class="text-gray-600 mb-6">Tailored lead generation packages based on your specific requirements, budget, and target markets.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Flexible volume options
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Custom pricing models
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Exclusive territory rights
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    ⚡ How Our Lead Generation Works
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Our proven 6-step process ensures you receive only the highest quality, conversion-ready leads.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative">
+                <!-- Step 1 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Lead Capture</h3>
+                    <p class="text-gray-600">Multi-channel lead capture through digital marketing, social media, and educational events across India.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        2
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Initial Screening</h3>
+                    <p class="text-gray-600">Automated screening for basic eligibility criteria including academic background and financial capacity.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Qualification Call</h3>
+                    <p class="text-gray-600">Personal qualification calls to verify intent, timeline, and specific requirements for studying abroad.</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        4
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Lead Scoring</h3>
+                    <p class="text-gray-600">Advanced scoring algorithm to rate lead quality based on conversion probability and value potential.</p>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-teal-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        5
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Partner Matching</h3>
+                    <p class="text-gray-600">Intelligent matching with consultancies based on specialization, location, and capacity requirements.</p>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        6
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Instant Delivery</h3>
+                    <p class="text-gray-600">Real-time lead delivery with complete student profile and contact details for immediate follow-up.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    🏆 Partner Success Stories
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    See how our lead generation services have transformed consultancy businesses across India.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-xl">👨‍💼</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Rajesh Kumar</h4>
+                            <p class="text-sm text-gray-600">Director, Global Education Consultants</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"OptimizedLeads MBA leads increased our monthly conversions by 280%. The quality is exceptional with verified contact details and genuine interest."</p>
+                    <div class="flex text-yellow-400 mb-4">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <strong>Results:</strong> 300+ MBA leads/month, ₹35L revenue increase
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-xl">👩‍💼</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Priya Sharma</h4>
+                            <p class="text-sm text-gray-600">Founder, Study Abroad Solutions</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"The MBA leads come with detailed profiles including work experience and budget. This saves us 75% time on initial screening."</p>
+                    <div class="flex text-yellow-400 mb-4">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <strong>Results:</strong> 250+ MBA leads/month, 92% lead quality score
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-xl">👨‍💼</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Amit Patel</h4>
+                            <p class="text-sm text-gray-600">CEO, International Education Hub</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"ROI improved by 220% within 2 months. The specialization-wise targeting helps us match leads with our MBA programs perfectly."</p>
+                    <div class="flex text-yellow-400 mb-4">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <strong>Results:</strong> 400+ MBA leads/month, 220% ROI improvement
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Connect Form -->
+    <section class="gradient-bg py-20 text-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                    🤝 Quick Connect for Customized MBA Lead Packages
+                </h2>
+                <p class="text-xl text-indigo-100 max-w-2xl mx-auto">
+                    Connect with our B2B team to create a customized MBA lead generation package that fits your consultancy's specific needs and budget.
+                </p>
+            </div>
+
+           <!-- Single Responsive Container -->
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl p-6 sm:p-8 lg:p-12">
+                    <!-- Contact Form Section -->
+                    <div class="mb-12">
+                        <h3 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8 text-center">Send us a Message</h3>
+                        
+                        <!-- WordPress Contact Form Shortcode -->
+                        <div class="contact-form-container mb-8">
+                            <!-- HTML Forms v1.5.5 - https://wordpress.org/plugins/html-forms/ -->
+<form method="post"  class="hf-form hf-form-584 " data-id="584" data-title="MBA" data-slug="mba-2" data-message-success="Thank you! We will be in touch soon." data-message-invalid-email="Sorry, that email address looks invalid." data-message-required-field-missing="Please fill in the required fields." data-message-error="Oops. An error occurred."><input type="hidden" id="_wpnonce" name="_wpnonce" value="cb00edfe28" /><input type="hidden" name="_wp_http_referer" value="/online-mba/" /><input type="hidden" name="_hf_form_id" value="584" /><div style="display: none;"><input type="text" name="_hf_h584" value="" /></div><div class="hf-fields-wrap">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Company Name -->
+    <div>
+      <label class="block text-black font-medium mb-2">Company/Consultancy Name *</label>
+      <input type="text" name="company_name" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-20 border border-black border-opacity-30 text-black placeholder-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50" placeholder="Enter your company name">
+    </div>
+
+    <!-- Contact Person -->
+    <div>
+      <label class="block text-black font-medium mb-2">Contact Person Name *</label>
+      <input type="text" name="contact_person" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-20 border border-black border-opacity-30 text-black placeholder-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50" placeholder="Enter contact person name">
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label class="block text-black font-medium mb-2">Business Email *</label>
+      <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-20 border border-black border-opacity-30 text-black placeholder-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50" placeholder="Enter business email">
+    </div>
+
+    <!-- Phone -->
+    <div>
+      <label class="block text-black font-medium mb-2">Phone Number *</label>
+      <input type="tel" name="phone" required pattern="[0-9]{10}" class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-20 border border-black border-opacity-30 text-black placeholder-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50" placeholder="+91 9876543210">
+    </div>
+
+    <!-- Business Location -->
+    <div>
+      <label class="block text-black font-medium mb-2">Business Location *</label>
+      <input type="text" name="location" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-20 border border-black border-opacity-30 text-black placeholder-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50" placeholder="City, State">
+    </div>
+
+    <!-- Years in Business -->
+    <div>
+      <label class="block text-black font-medium mb-2">Years in Business</label>
+      <select name="experience" class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-20 border border-black border-opacity-30 text-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50">
+        <option value="">Select Experience</option>
+        <option value="0-1">0-1 Years (Startup)</option>
+        <option value="1-3">1-3 Years</option>
+        <option value="3-5">3-5 Years</option>
+        <option value="5-10">5-10 Years</option>
+        <option value="10+">10+ Years</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Target MBA Specializations -->
+  <div class="mt-6">
+    <label class="block text-black font-medium mb-3">Target MBA Specializations (Select Multiple) *</label>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <label class="flex items-center"><input type="checkbox" name="specialization[]" value="General Management" class="mr-3 rounded"><span class="text-black">&#x1f4bc; General Management</span></label>
+      <label class="flex items-center"><input type="checkbox" name="specialization[]" value="Finance" class="mr-3 rounded"><span class="text-black">&#x1f4b0; Finance</span></label>
+      <label class="flex items-center"><input type="checkbox" name="specialization[]" value="Marketing" class="mr-3 rounded"><span class="text-black">&#x1f4ca; Marketing</span></label>
+      <label class="flex items-center"><input type="checkbox" name="specialization[]" value="HR Management" class="mr-3 rounded"><span class="text-black">&#x1f465; HR Management</span></label>
+      <label class="flex items-center"><input type="checkbox" name="specialization[]" value="Operations" class="mr-3 rounded"><span class="text-black">&#x2699;&#xfe0f; Operations</span></label>
+      <label class="flex items-center"><input type="checkbox" name="specialization[]" value="IT Management" class="mr-3 rounded"><span class="text-black">&#x1f4bb; IT Management</span></label>
+    </div>
+  </div>
+
+  <!-- Monthly Lead Volume and Budget -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div>
+      <label class="block text-black font-medium mb-2">Desired Monthly Lead Volume *</label>
+      <select name="lead_volume" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-20 border border-black border-opacity-30 text-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50">
+        <option value="">Select Volume</option>
+        <option value="50-100">50-100 Leads</option>
+        <option value="100-200">100-200 Leads</option>
+        <option value="200-500">200-500 Leads</option>
+        <option value="500+">500+ Leads</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Geographic Preferences -->
+  <div class="mt-6">
+    <label class="block text-black font-medium mb-2">Geographic Lead Preferences</label>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <label class="flex items-center"><input type="checkbox" name="geo_pref[]" value="Tier 1" class="mr-3 rounded"><span class="text-black">Tier 1 Cities</span></label>
+      <label class="flex items-center"><input type="checkbox" name="geo_pref[]" value="Tier 2" class="mr-3 rounded"><span class="text-black">Tier 2 Cities</span></label>
+      <label class="flex items-center"><input type="checkbox" name="geo_pref[]" value="Tier 3" class="mr-3 rounded"><span class="text-black">Tier 3 Cities</span></label>
+    </div>
+  </div>
+
+  <!-- Current Challenges -->
+  <div class="mt-6">
+    <label class="block text-black font-medium mb-2">Current Lead Generation Challenges</label>
+    <textarea name="challenges" rows="4" class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-20 border border-black border-opacity-30 text-black placeholder-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50" placeholder="Tell us about your current challenges with lead generation, quality issues, or specific requirements..."></textarea>
+  </div>
+
+  <!-- Preferred Contact Time -->
+  <div class="mt-6">
+    <label class="block text-black font-medium mb-2">Preferred Contact Time</label>
+    <select name="contact_time" class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-20 border border-black border-opacity-30 text-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50">
+      <option value="">Select Time</option>
+      <option value="morning">Morning (9 AM - 12 PM)</option>
+      <option value="afternoon">Afternoon (12 PM - 5 PM)</option>
+      <option value="evening">Evening (5 PM - 8 PM)</option>
+      <option value="anytime">Anytime</option>
+    </select>
+  </div>
+
+  <!-- Submit Button -->
+  <div class="text-center pt-6">
+    <button type="submit" class="bg-black text-white font-bold py-4 px-12 rounded-xl hover:bg-gray-800 transition-all duration-300 hover:scale-105 text-lg">
+      &#x1f680; Get My Custom Lead Package
+    </button>
+    <p class="text-black text-sm mt-4">
+      Our B2B team will contact you within 24 hours with a customized proposal and pricing
+    </p>
+  </div>
+
+<noscript>Please enable JavaScript for this form to work.</noscript></div></form><!-- / HTML Forms -->
+                        </div>
+                        
+
+    
+    </section>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967cdc1c5218a3b5',t:'MTc1Mzk2MjQzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+				</div>
+				<div class="elementor-element elementor-element-eeba174 elementor-widget elementor-widget-html" data-id="eeba174" data-element_type="widget" data-widget_type="html.default">
+					<!-- Why Partner With Us -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    🤝 Why Partner With OptimizedLeads?
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    We're the trusted MBA lead generation partner for 150+ education consultancies and MBA program providers across India.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">85% Conversion Rate</h3>
+                    <p class="text-gray-600">Industry-leading conversion rates with pre-qualified, intent-verified leads.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">⚡</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Real-Time Delivery</h3>
+                    <p class="text-gray-600">Instant lead delivery through multiple channels for immediate follow-up.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">🛡️</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Quality Guarantee</h3>
+                    <p class="text-gray-600">100% money-back guarantee on leads that don't meet our quality standards.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">📊</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Advanced Analytics</h3>
+                    <p class="text-gray-600">Comprehensive tracking and analytics to optimize your lead conversion process.</p>
+                </div>
+            </div>
+        </div>				</div>
+				</div>
+				</div>
+			</div> <!-- ast-container -->
+	</div><!-- #content -->
+{% endblock %}

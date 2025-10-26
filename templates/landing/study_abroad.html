@@ -1,0 +1,1033 @@
+{% extends "landing/landing.html" %}
+{% load static %}
+
+{% block content %} {% endblock %}
+
+{% block hero %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Abroad Lead Generation - OptimizedLeads</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-color: #667eea;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .feature-check {
+            background: linear-gradient(135deg, #5B3DDF 0%, #5B3DDF 100%);
+        }
+        
+        .process-step {
+            position: relative;
+        }
+        
+        .process-step::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: translateY(-50%);
+            z-index: -1;
+        }
+        
+        .process-step:last-child::after {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .process-step::after {
+                display: none;
+            }
+        }
+    </style>
+
+</head>
+<body class="bg-gray-50">
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <!-- Breadcrumb -->
+                <div class="flex items-center justify-center mb-6">
+                    <a href="#" class="text-indigo-200 hover:text-white transition-colors">Home</a>
+                    <svg class="w-4 h-4 mx-2 text-indigo-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                    </svg>
+                    <span class="text-white font-medium">Study Abroad Lead Generation</span>
+                </div>
+
+                <!-- Main Heading -->
+                <div class="mb-8">
+                    <div class="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium mb-6">
+                        🎯 B2B Lead Generation Services
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                        Study Abroad<br>
+                        <span class="text-white">Lead Generation for Consultancies</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-indigo-100 max-w-3xl mx-auto leading-relaxed">
+                        Partner with us to get high-quality, pre-qualified study abroad leads. We connect serious students with trusted consultancies through our proven lead generation system.
+                    </p>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white-300 mb-2">5,000+</div>
+                        <div class="text-indigo-100">Monthly Leads</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white-300-300 mb-2">200+</div>
+                        <div class="text-indigo-100">Partner Consultancies</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white-300 mb-2">85%</div>
+                        <div class="text-indigo-100">Lead Conversion Rate</div>
+                    </div>
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-white-300 mb-2">25+</div>
+                        <div class="text-indigo-100">Target Countries</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lead Categories -->
+<section class="py-20 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+        🎯 High-Quality Lead Categories
+      </h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        We generate pre-qualified leads across all major study destinations and academic levels for your consultancy business.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- USA Leads -->
+      <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+          <span class="text-2xl">🇺🇸</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-4">USA Study Leads</h3>
+        <p class="text-gray-600 mb-6">Pre-qualified students interested in US universities with verified academic profiles and financial capacity.</p>
+        <div class="space-y-2">
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            STEM & Non-STEM programs
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Budget verified: $30K–$80K
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Test scores: GRE/GMAT ready
+          </div>
+        </div>
+        <a href="https://optimizedleads.in/study-abroad-free-trails" class="mt-6 text-black hover:text-white font-medium px-5 xl:px-4 py-2 border border-black rounded-lg hover:bg-black hover:bg-opacity-100 transition-all duration-300 text-sm xl:text-base inline-block">
+          Get More Leads
+        </a>
+      </div>
+
+      <!-- Canada Leads -->
+      <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+        <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-6">
+          <span class="text-2xl">🇨🇦</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Canada Study Leads</h3>
+        <p class="text-gray-600 mb-6">Students seeking Canadian education with PR pathway interest and verified financial documentation.</p>
+        <div class="space-y-2">
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            College & University programs
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Budget verified: $25K–$50K
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            IELTS scores available
+          </div>
+        </div>
+        <a href="https://optimizedleads.in/study-abroad-free-trails" class="mt-6 text-black hover:text-white font-medium px-5 xl:px-4 py-2 border border-black-200 rounded-lg hover:bg-black hover:bg-opacity-100 transition-all duration-300 text-sm xl:text-base inline-block">
+          Get More Leads
+        </a>
+      </div>
+
+      <!-- UK Leads -->
+      <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+        <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+          <span class="text-2xl">🇬🇧</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-4">UK Study Leads</h3>
+        <p class="text-gray-600 mb-6">Premium leads for UK universities with focus on 1-year master's programs and graduate route visa.</p>
+        <div class="space-y-2">
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Russell Group universities
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Budget verified: £25K–£45K
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            IELTS/PTE scores ready
+          </div>
+        </div>
+        <a href="https://optimizedleads.in/study-abroad-free-trails" class="mt-6 text-black hover:text-white font-medium px-5 xl:px-4 py-2 border border-black-200 rounded-lg hover:bg-black hover:bg-opacity-100 transition-all duration-300 text-sm xl:text-base inline-block">
+          Get More Leads
+        </a>
+      </div>
+
+      <!-- Australia Leads -->
+      <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+        <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
+          <span class="text-2xl">🇦🇺</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Australia Study Leads</h3>
+        <p class="text-gray-600 mb-6">Quality leads for Australian universities with work-study visa interest and verified financial capacity.</p>
+        <div class="space-y-2">
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Group of Eight universities
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Budget verified: AUD 35K–60K
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            IELTS/PTE verified
+          </div>
+        </div>
+        <a href="https://optimizedleads.in/study-abroad-free-trails" class="mt-6 text-black hover:text-white font-medium px-5 xl:px-4 py-2 border border-black-200 rounded-lg hover:bg-black hover:bg-opacity-100 transition-all duration-300 text-sm xl:text-base inline-block">
+          Get More Leads
+        </a>
+      </div>
+
+      <!-- Germany Leads -->
+      <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+        <div class="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center mb-6">
+          <span class="text-2xl">🇩🇪</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Germany Study Leads</h3>
+        <p class="text-gray-600 mb-6">Engineering and technical program leads with German language learning interest and budget verification.</p>
+        <div class="space-y-2">
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Public universities focus
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Budget verified: €15K–25K
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            IELTS/German language ready
+          </div>
+        </div>
+        <a href="https://optimizedleads.in/study-abroad-free-trails" class="mt-6 text-black hover:text-white font-medium px-5 xl:px-4 py-2 border border-black-200 rounded-lg hover:bg-black hover:bg-opacity-100 transition-all duration-300 text-sm xl:text-base inline-block">
+          Get More Leads
+        </a>
+      </div>
+
+      <!-- Premium Package -->
+      <div class="service-card bg-gradient-to-br from-purple-600 to-blue-600 text-white rounded-2xl p-8 shadow-lg">
+        <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mb-6">
+          <span class="text-2xl">💎</span>
+        </div>
+        <h3 class="text-xl font-bold mb-4">Premium Mixed Leads</h3>
+        <p class="text-indigo-100 mb-6">Curated mix of high-quality leads across all destinations with guaranteed conversion rates.</p>
+        <div class="space-y-2">
+          <div class="flex items-center text-sm text-indigo-100">
+            <div class="bg-white bg-opacity-30 w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            All destinations included
+          </div>
+          <div class="flex items-center text-sm text-indigo-100">
+            <div class="bg-white bg-opacity-30 w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            90% conversion guarantee
+          </div>
+          <div class="flex items-center text-sm text-indigo-100">
+            <div class="bg-white bg-opacity-30 w-4 h-4 rounded-full flex items-center justify-center mr-2">
+              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Priority support included
+          </div>
+        </div>
+       <a href="https://optimizedleads.in/study-abroad-free-trails" class="mt-6 text-black hover:text-white font-medium px-5 xl:px-4 py-2 border border-black-200 rounded-lg hover:bg-black hover:bg-opacity-100 transition-all duration-300 text-sm xl:text-base inline-block">
+          Connect Now
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Services for Consultancies -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    🚀 Complete Lead Generation Solutions
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    We provide end-to-end lead generation services specifically designed for study abroad consultancies.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Lead Qualification -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Pre-Qualified Leads</h3>
+                    <p class="text-gray-600 mb-6">Every lead is thoroughly vetted for academic eligibility, financial capacity, and genuine interest before delivery.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Academic profile verification
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Financial capacity assessment
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Intent verification calls
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-Time Delivery -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">⚡</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Real-Time Lead Delivery</h3>
+                    <p class="text-gray-600 mb-6">Instant lead delivery through our dashboard, email, and WhatsApp integration for immediate follow-up.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Instant dashboard notifications
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Email & WhatsApp alerts
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            API integration available
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Geographic Targeting -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">🌍</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Geographic Targeting</h3>
+                    <p class="text-gray-600 mb-6">Target specific cities, states, or regions to match your consultancy's service areas and preferences.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            City-wise lead filtering
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Regional preference settings
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Tier 1/2/3 city options
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lead Analytics -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">📊</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Advanced Analytics</h3>
+                    <p class="text-gray-600 mb-6">Comprehensive analytics dashboard to track lead performance, conversion rates, and ROI metrics.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Real-time conversion tracking
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            ROI & performance reports
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Lead quality scoring
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dedicated Support -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">🤝</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Dedicated Account Manager</h3>
+                    <p class="text-gray-600 mb-6">Personal account manager to optimize your lead campaigns and ensure maximum conversion rates.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Weekly performance reviews
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Campaign optimization
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            24/7 support availability
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Packages -->
+                <div class="service-card bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-2xl">🎨</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Custom Lead Packages</h3>
+                    <p class="text-gray-600 mb-6">Tailored lead generation packages based on your specific requirements, budget, and target markets.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Flexible volume options
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Custom pricing models
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="feature-check w-4 h-4 rounded-full flex items-center justify-center mr-2">
+                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            Exclusive territory rights
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    ⚡ How Our Lead Generation Works
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Our proven 6-step process ensures you receive only the highest quality, conversion-ready leads.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative">
+                <!-- Step 1 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Lead Capture</h3>
+                    <p class="text-gray-600">Multi-channel lead capture through digital marketing, social media, and educational events across India.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        2
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Initial Screening</h3>
+                    <p class="text-gray-600">Automated screening for basic eligibility criteria including academic background and financial capacity.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Qualification Call</h3>
+                    <p class="text-gray-600">Personal qualification calls to verify intent, timeline, and specific requirements for studying abroad.</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        4
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Lead Scoring</h3>
+                    <p class="text-gray-600">Advanced scoring algorithm to rate lead quality based on conversion probability and value potential.</p>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-teal-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        5
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Partner Matching</h3>
+                    <p class="text-gray-600">Intelligent matching with consultancies based on specialization, location, and capacity requirements.</p>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="process-step text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl">
+                        6
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Instant Delivery</h3>
+                    <p class="text-gray-600">Real-time lead delivery with complete student profile and contact details for immediate follow-up.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    🏆 Partner Success Stories
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    See how our lead generation services have transformed consultancy businesses across India.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-xl">👨‍💼</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Rajesh Kumar</h4>
+                            <p class="text-sm text-gray-600">Director, Global Education Consultants</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"OptimizedLeads increased our monthly conversions by 300%. The lead quality is exceptional with 85% conversion rate."</p>
+                    <div class="flex text-yellow-400 mb-4">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <strong>Results:</strong> 150+ leads/month, ₹45L revenue increase
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-xl">👩‍💼</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Priya Sharma</h4>
+                            <p class="text-sm text-gray-600">Founder, Study Abroad Solutions</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"The pre-qualified leads save us 70% time on initial screening. Our team can focus on actual counseling and conversions."</p>
+                    <div class="flex text-yellow-400 mb-4">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <strong>Results:</strong> 200+ leads/month, 90% lead quality score
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-xl">👨‍💼</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Amit Patel</h4>
+                            <p class="text-sm text-gray-600">CEO, International Education Hub</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"ROI improved by 250% within 3 months. The geographic targeting helps us focus on our service areas effectively."</p>
+                    <div class="flex text-yellow-400 mb-4">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <strong>Results:</strong> 180+ leads/month, 250% ROI improvement
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <!-- Single Responsive Container -->
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl p-6 sm:p-8 lg:p-12">
+                    <!-- Contact Form Section -->
+                    <div class="mb-12">
+                        <h3 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8 text-center">Send us a Message</h3>
+                        
+                        <!-- WordPress Contact Form Shortcode -->
+                        <div class="contact-form-container mb-8">
+                           <!-- HTML Forms v1.5.5 - https://wordpress.org/plugins/html-forms/ -->
+<form method="post"  class="hf-form hf-form-605 " data-id="605" data-title="study abroad" data-slug="study-abroad" data-message-success="Thank you! We will be in touch soon." data-message-invalid-email="Sorry, that email address looks invalid." data-message-required-field-missing="Please fill in the required fields." data-message-error="Oops. An error occurred."><input type="hidden" id="_wpnonce" name="_wpnonce" value="cb00edfe28" /><input type="hidden" name="_wp_http_referer" value="/study-abroad/" /><input type="hidden" name="_hf_form_id" value="605" /><div style="display: none;"><input type="text" name="_hf_h605" value="" /></div><div class="hf-fields-wrap"><!-- Quick Connect Form -->
+<section class="gradient-bg py-20 text-black">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold mb-6">
+        &#x1f91d; Quick Connect for Customized Lead Packages
+      </h2>
+      <p class="text-xl text-gray-800 max-w-2xl mx-auto">
+        Connect with our B2B team to create a customized lead generation package that fits your consultancy's specific needs and budget.
+      </p>
+    </div>
+
+    <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-3xl p-8 md:p-12 text-black">
+      
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Company Name -->
+          <div>
+            <label class="block font-medium mb-2">Company/Consultancy Name *</label>
+            <input type="text" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black" placeholder="Enter your company name">
+          </div>
+
+          <!-- Contact Person -->
+          <div>
+            <label class="block font-medium mb-2">Contact Person Name *</label>
+            <input type="text" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black" placeholder="Enter contact person name">
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block font-medium mb-2">Business Email *</label>
+            <input type="email" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black" placeholder="Enter business email">
+          </div>
+
+          <!-- Phone -->
+          <div>
+            <label class="block font-medium mb-2">Phone Number *</label>
+            <input type="tel" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black" placeholder="+91 98765 43210">
+          </div>
+
+          <!-- Business Location -->
+          <div>
+            <label class="block font-medium mb-2">Business Location *</label>
+            <input type="text" required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black" placeholder="City, State">
+          </div>
+
+          <!-- Years in Business -->
+          <div>
+            <label class="block font-medium mb-2">Years in Business</label>
+            <select class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black focus:outline-none focus:ring-2 focus:ring-black">
+              <option value="">Select Experience</option>
+              <option value="0-1">0-1 Years (Startup)</option>
+              <option value="1-3">1-3 Years</option>
+              <option value="3-5">3-5 Years</option>
+              <option value="5-10">5-10 Years</option>
+              <option value="10+">10+ Years</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Target Countries -->
+        <div>
+          <label class="block font-medium mb-3">Target Countries (Select Multiple) *</label>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-3 rounded">
+              <span>&#x1f1fa;&#x1f1f8; USA</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-3 rounded">
+              <span>&#x1f1e8;&#x1f1e6; Canada</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-3 rounded">
+              <span>&#x1f1ec;&#x1f1e7; UK</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-3 rounded">
+              <span>&#x1f1e6;&#x1f1fa; Australia</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-3 rounded">
+              <span>&#x1f1e9;&#x1f1ea; Germany</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-3 rounded">
+              <span>&#x1f1f3;&#x1f1ff; New Zealand</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Monthly Lead Volume and Budget -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block font-medium mb-2">Desired Monthly Lead Volume *</label>
+            <select required class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black focus:outline-none focus:ring-2 focus:ring-black">
+              <option value="">Select Volume</option>
+              <option value="50-100">50-100 Leads</option>
+              <option value="100-200">100-200 Leads</option>
+              <option value="200-500">200-500 Leads</option>
+              <option value="500+">500+ Leads</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-medium mb-2">Monthly Budget Range</label>
+            <select class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black focus:outline-none focus:ring-2 focus:ring-black">
+              <option value="">Select Budget</option>
+              <option value="1-2L">₹1-2 Lakhs</option>
+              <option value="2-5L">₹2-5 Lakhs</option>
+              <option value="5-10L">₹5-10 Lakhs</option>
+              <option value="10L+">₹10+ Lakhs</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Geographic Preferences -->
+        <div>
+          <label class="block font-medium mb-2">Geographic Lead Preferences</label>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-3 rounded">
+              <span>Tier 1 Cities</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-3 rounded">
+              <span>Tier 2 Cities</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-3 rounded">
+              <span>Tier 3 Cities</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Current Challenges -->
+        <div>
+          <label class="block font-medium mb-2">Current Lead Generation Challenges</label>
+          <textarea rows="4" class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black" placeholder="Tell us about your current challenges with lead generation, quality issues, or specific requirements..."></textarea>
+        </div>
+
+        <!-- Preferred Contact Time -->
+        <div>
+          <label class="block font-medium mb-2">Preferred Contact Time</label>
+          <select class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-70 border border-black border-opacity-30 text-black focus:outline-none focus:ring-2 focus:ring-black">
+            <option value="">Select Time</option>
+            <option value="morning">Morning (9 AM - 12 PM)</option>
+            <option value="afternoon">Afternoon (12 PM - 5 PM)</option>
+            <option value="evening">Evening (5 PM - 8 PM)</option>
+            <option value="anytime">Anytime</option>
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center pt-6">
+          <button type="submit" class="bg-black text-white font-bold py-4 px-12 rounded-xl hover:bg-gray-900 transition-all duration-300 hover:scale-105 text-lg">
+            &#x1f680; Get My Custom Lead Package
+          </button>
+          <p class="text-gray-700 text-sm mt-4">
+            Our B2B team will contact you within 24 hours with a customized proposal and pricing.
+          </p>
+        </div>
+      
+    </div>
+  </div>
+</section>
+<noscript>Please enable JavaScript for this form to work.</noscript></div></form><!-- / HTML Forms -->
+                        </div>
+                        
+          
+    </section>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967c9c80f3ac5520',t:'MTc1Mzk1OTgyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>				</div>
+				</div>
+		<div class="elementor-element elementor-element-786f9a2 e-con-full e-flex e-con e-parent" data-id="786f9a2" data-element_type="container">
+				<div class="elementor-element elementor-element-8726974 elementor-widget elementor-widget-html" data-id="8726974" data-element_type="widget" data-widget_type="html.default">
+					  <!-- Contact Info -->
+            {% comment %} <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-3xl mx-auto">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold mb-2">Business Hotline</h4>
+                    <p class="text-black-200">+91 6267402668</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold mb-2">B2B Email</h4>
+                    <p class="text-black-200">info@optimizedleads.com</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold mb-2">WhatsApp Business</h4>
+                    <p class="text-black-200-200">+91 6267402668
+                    </p>
+                </div>
+            </div> {% endcomment %}
+        </div>
+    </section>
+
+    <!-- Why Partner With Us -->
+    <section class="py-5 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    🤝 Why Partner With OptimizedLeads?
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    We're the trusted lead generation partner for 200+ study abroad consultancies across India.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">85% Conversion Rate</h3>
+                    <p class="text-gray-600">Industry-leading conversion rates with pre-qualified, intent-verified leads.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">⚡</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Real-Time Delivery</h3>
+                    <p class="text-gray-600">Instant lead delivery through multiple channels for immediate follow-up.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">🛡️</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Quality Guarantee</h3>
+                    <p class="text-gray-600">100% money-back guarantee on leads that don't meet our quality standards.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">📊</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Advanced Analytics</h3>
+                    <p class="text-gray-600">Comprehensive tracking and analytics to optimize your lead conversion process.</p>
+                </div>
+            </div>
+        </div>				</div>
+				</div>
+				</div>
+			</div> <!-- ast-container -->
+	</div><!-- #content -->
+
+{% endblock %}
+    
+		
+
+
+    

@@ -1,0 +1,72 @@
+{% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Edit User{% endblock %}
+{% block page_title %}Edit User{% endblock %}
+{% block page_subtitle %}Modify user account details{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow">
+    <form method="POST">
+        {% csrf_token %}
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-gray-700 font-semibold">First Name</label>
+                <input type="text" name="first_name" value="{{ user.first_name }}" class="border p-2 rounded w-full">
+            </div>
+            <div>
+                <label class="block text-gray-700 font-semibold">Last Name</label>
+                <input type="text" name="last_name" value="{{ user.last_name }}" class="border p-2 rounded w-full">
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-semibold">Email</label>
+            <input type="email" name="email" value="{{ user.email }}" class="border p-2 rounded w-full">
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            <div>
+                <label class="block text-gray-700 font-semibold">Role</label>
+                <select name="role" class="border p-2 rounded w-full">
+                    {% for value, label in role_choices %}
+                        <option value="{{ value }}" {% if user.role == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-semibold">Plan Type</label>
+                <select name="plan_type" class="border p-2 rounded w-full">
+                    {% for value, label in plan_choices %}
+                        <option value="{{ value }}" {% if user.plan_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-semibold">Plan Status</label>
+                <select name="plan_status" class="border p-2 rounded w-full">
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if user.plan_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-semibold">Credit Limit</label>
+            <input type="number" name="credit_limit" value="{{ user.credit_limit }}" class="border p-2 rounded w-full">
+        </div>
+
+        <div class="mb-4 flex items-center">
+            <input type="checkbox" name="is_verified" id="is_verified" {% if user.is_verified %}checked{% endif %} class="mr-2">
+            <label for="is_verified" class="text-gray-700 font-semibold">Verified Account</label>
+        </div>
+
+        <div class="flex justify-end">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
