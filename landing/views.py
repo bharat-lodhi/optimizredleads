@@ -149,42 +149,169 @@ def product_details(request):
 
     
     
+# from django.shortcuts import render, get_object_or_404
+# from django.http import JsonResponse
+# from django.conf import settings
+# from central_admin.models import Product
+# from landing.models import Payment
+# import razorpay
+# from django.views.decorators.csrf import csrf_exempt
+# from decimal import Decimal
+# import hmac, hashlib
+
+# client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+# # Utility function
+# def calculate_order_amount(product_price):
+#     base_price = Decimal(str(product_price))
+#     gst_amount = base_price * Decimal('0.18')
+#     platform_fee = Decimal('99')  # fixed platform fee
+#     total_amount = base_price + gst_amount + platform_fee
+#     return {
+#         'base_price': round(base_price,2),
+#         'gst_amount': round(gst_amount,2),
+#         'platform_fee': round(platform_fee,2),
+#         'total_amount': round(total_amount,2),
+#     }
+
+# # Checkout page
+# def checkout(request, product_id):
+#     product = get_object_or_404(Product, id=product_id)
+#     features_list = [f.strip() for f in (product.features or '').split('\n') if f.strip()]
+#     amounts = calculate_order_amount(product.price)
+    
+#     context = {
+#         'product': product,
+#         'features_list': features_list,
+#         **amounts,
+#         'checkout_steps': ['Cart','Details','Payment','Confirm'],
+#         'RAZORPAY_KEY_ID': settings.RAZORPAY_KEY_ID,
+#     }
+#     return render(request, 'landing/checkout.html', context)
+
+# # Create Razorpay order
+# def create_order(request, product_id):
+#     if request.method != "POST":
+#         return JsonResponse({"error": "Invalid request"}, status=400)
+
+#     product = get_object_or_404(Product, id=product_id)
+#     amounts = calculate_order_amount(product.price)
+#     total_amount_paise = int(amounts['total_amount'] * 100)
+
+#     # Razorpay order creation
+#     try:
+#         razorpay_order = client.order.create({
+#             "amount": total_amount_paise,
+#             "currency": "INR",
+#             "payment_capture": 1
+#         })
+#     except Exception as e:
+#         return JsonResponse({"error": str(e)}, status=500)
+
+#     # Save in DB
+#     payment = Payment.objects.create(
+#         user=request.user if request.user.is_authenticated else None,
+#         email=request.POST.get('email') if not request.user.is_authenticated else request.user.email,
+#         name=request.POST.get('first_name') if not request.user.is_authenticated else request.user.username,
+#         razorpay_order_id=razorpay_order['id'],
+#         amount=total_amount_paise,
+#         status='created'
+#     )
+
+#     return JsonResponse({
+#         "order_id": razorpay_order['id'],
+#         "amount": total_amount_paise,
+#         "currency": "INR"
+#     })
+
+
+# # Verify payment
+# @csrf_exempt
+# def verify_payment(request):
+#     if request.method != "POST":
+#         return JsonResponse({"error":"Invalid request"}, status=400)
+    
+#     razorpay_order_id = request.POST.get('razorpay_order_id')
+#     razorpay_payment_id = request.POST.get('razorpay_payment_id')
+#     razorpay_signature = request.POST.get('razorpay_signature')
+    
+#     try:
+#         payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+#     except Payment.DoesNotExist:
+#         return JsonResponse({"status":"Order not found"}, status=404)
+    
+#     # Signature verification
+#     generated_signature = hmac.new(
+#         bytes(settings.RAZORPAY_KEY_SECRET, 'utf-8'),
+#         msg=bytes(f"{razorpay_order_id}|{razorpay_payment_id}", 'utf-8'),
+#         digestmod=hashlib.sha256
+#     ).hexdigest()
+    
+#     if generated_signature == razorpay_signature:
+#         payment.razorpay_payment_id = razorpay_payment_id
+#         payment.razorpay_signature = razorpay_signature
+#         payment.status = "paid"
+#         payment.save()
+#         return JsonResponse({"status":"Payment verified"})
+#     else:
+#         payment.status = "failed"
+#         payment.save()
+#         return JsonResponse({"status":"Payment verification failed"}, status=400)
+
+# # Success page
+# def order_success(request):
+#     order_id = request.GET.get('order_id','N/A')
+#     amount = request.GET.get('amount','0')
+#     return render(request, 'landing/order_success.html', {'order_id': order_id,'amount': amount})
+    
+    
+    
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.conf import settings
 from central_admin.models import Product
 from landing.models import Payment
+from django.contrib.auth import get_user_model
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
 from decimal import Decimal
 import hmac, hashlib
 
+User = get_user_model()
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
 # Utility function
 def calculate_order_amount(product_price):
     base_price = Decimal(str(product_price))
-    gst_amount = base_price * Decimal('0.18')
-    platform_fee = Decimal('99')  # fixed platform fee
+    platform_fee = base_price * Decimal('0.02')  # 2% platform fee
+    gst_amount = (base_price + platform_fee) * Decimal('0.18')  # GST on (base + platform fee)
     total_amount = base_price + gst_amount + platform_fee
     return {
-        'base_price': round(base_price,2),
-        'gst_amount': round(gst_amount,2),
-        'platform_fee': round(platform_fee,2),
-        'total_amount': round(total_amount,2),
+        'base_price': round(base_price, 2),
+        'gst_amount': round(gst_amount, 2),
+        'platform_fee': round(platform_fee, 2),
+        'total_amount': round(total_amount, 2),
     }
+
+# Extract credits from unit (e.g., "10 Leads" -> 10 credits)
+def extract_credits_from_unit(unit):
+    try:
+        # Extract numbers from unit string
+        import re
+        numbers = re.findall(r'\d+', unit)
+        return int(numbers[0]) if numbers else 0
+    except:
+        return 0
 
 # Checkout page
 def checkout(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    features_list = [f.strip() for f in (product.features or '').split('\n') if f.strip()]
     amounts = calculate_order_amount(product.price)
     
     context = {
         'product': product,
-        'features_list': features_list,
         **amounts,
-        'checkout_steps': ['Cart','Details','Payment','Confirm'],
+        'checkout_steps': ['Cart', 'Details', 'Payment', 'Confirm'],
         'RAZORPAY_KEY_ID': settings.RAZORPAY_KEY_ID,
     }
     return render(request, 'landing/checkout.html', context)
@@ -208,28 +335,42 @@ def create_order(request, product_id):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-    # Save in DB
+    # Save in DB with all customer information
     payment = Payment.objects.create(
         user=request.user if request.user.is_authenticated else None,
-        email=request.POST.get('email') if not request.user.is_authenticated else request.user.email,
-        name=request.POST.get('first_name') if not request.user.is_authenticated else request.user.username,
+        
+        # Customer Information
+        full_name=request.POST.get('full_name'),
+        email=request.POST.get('email'),
+        mobile_number=request.POST.get('mobile_number'),
+        company_agency_name=request.POST.get('company_agency_name'),
+        business_location_city=request.POST.get('business_location_city'),
+        target_area_location=request.POST.get('target_area_location'),
+        additional_requirements=request.POST.get('additional_requirements'),
+        
+        # Product Information
+        product_category=product.category,
+        product_plan_type=product.plan_type,
+        product_quantity=extract_credits_from_unit(product.unit),
+        
+        # Payment Information
         razorpay_order_id=razorpay_order['id'],
         amount=total_amount_paise,
         status='created'
     )
 
     return JsonResponse({
+        "success": True,
         "order_id": razorpay_order['id'],
         "amount": total_amount_paise,
         "currency": "INR"
     })
 
-
-# Verify payment
+# Verify payment and add credits to user
 @csrf_exempt
 def verify_payment(request):
     if request.method != "POST":
-        return JsonResponse({"error":"Invalid request"}, status=400)
+        return JsonResponse({"error": "Invalid request"}, status=400)
     
     razorpay_order_id = request.POST.get('razorpay_order_id')
     razorpay_payment_id = request.POST.get('razorpay_payment_id')
@@ -238,7 +379,7 @@ def verify_payment(request):
     try:
         payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
     except Payment.DoesNotExist:
-        return JsonResponse({"status":"Order not found"}, status=404)
+        return JsonResponse({"success": False, "error": "Order not found"}, status=404)
     
     # Signature verification
     generated_signature = hmac.new(
@@ -248,22 +389,69 @@ def verify_payment(request):
     ).hexdigest()
     
     if generated_signature == razorpay_signature:
+        # Payment successful
         payment.razorpay_payment_id = razorpay_payment_id
         payment.razorpay_signature = razorpay_signature
         payment.status = "paid"
         payment.save()
-        return JsonResponse({"status":"Payment verified"})
+        
+        # Add credits to user if logged in
+        if payment.user:
+            try:
+                credits_to_add = payment.product_quantity
+                user = payment.user
+                
+                # Increase user's credit limit
+                user.credit_limit += credits_to_add
+                user.save()
+                
+                # Log the credit addition (optional)
+                print(f"Added {credits_to_add} credits to user {user.username}")
+                
+            except Exception as e:
+                print(f"Error adding credits to user: {e}")
+        
+        return JsonResponse({
+            "success": True,
+            "status": "Payment verified and credits added",
+            "credits_added": payment.product_quantity if payment.user else 0
+        })
     else:
+        # Payment failed
         payment.status = "failed"
         payment.save()
-        return JsonResponse({"status":"Payment verification failed"}, status=400)
+        return JsonResponse({
+            "success": False, 
+            "error": "Payment verification failed"
+        }, status=400)
 
 # Success page
 def order_success(request):
-    order_id = request.GET.get('order_id','N/A')
-    amount = request.GET.get('amount','0')
-    return render(request, 'landing/order_success.html', {'order_id': order_id,'amount': amount})
+    order_id = request.GET.get('order_id', 'N/A')
     
+    try:
+        payment = Payment.objects.get(razorpay_order_id=order_id)
+        context = {
+            'order_id': order_id,
+            'amount': payment.amount_in_rupees,
+            'payment': payment,
+            'credits_added': payment.product_quantity if payment.user else 0
+        }
+    except Payment.DoesNotExist:
+        context = {
+            'order_id': order_id,
+            'amount': 0,
+            'payment': None,
+            'credits_added': 0
+        }
+    
+    return render(request, 'landing/order_success.html', context)    
+    
+    
+    
+    
+    
+
     
 # ----------------------------------------------------------------------------------------------------------------------------
 

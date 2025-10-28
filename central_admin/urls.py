@@ -5,10 +5,15 @@ app_name = 'central_admin'
 
 urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('add_product/', views.add_product, name='add_product'),
+    
     path('analytics/', views.analytics, name='analytics'),
     path('logout/', views.logout_view, name='logout'),
     path('categories/', views.categories, name='categories'),
+    #-------------------------Products---------------------------------------------
+    path('add_product/', views.add_product, name='add_product'),
+    path('products/', views.product_list, name='products_list'),
+    path('products/edit/<int:product_id>/', views.edit_product, name='edit_product'),
+    path('products/delete/<int:product_id>/', views.delete_product, name='delete_product'),
     # -----------------------real_estate-----------------------------------------
     path('real_estate/', views.real_estate, name='real_estate'),
     path('add_real_estate/', views.add_real_estate, name='add_real_estate'),
