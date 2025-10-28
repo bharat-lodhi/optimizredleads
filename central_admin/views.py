@@ -52,6 +52,76 @@ def add_product(request):
     return render(request, 'central_admin/product.html',context)
 
 
+
+
+def product_list(request):
+    products = Product.objects.all().order_by('-created_at')
+    
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+
+    context = {
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name': short_name,
+        'products': products,
+    }
+    
+    return render(request, 'central_admin/products_list.html', context)
+
+def edit_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == "POST":
+        product.category = request.POST.get('category')
+        product.unit = request.POST.get('unit')
+        product.plan_type = request.POST.get('plan_type')
+        product.short_description = request.POST.get('short_description')
+        product.long_description = request.POST.get('long_description')
+        product.price = request.POST.get('price')
+        product.features = request.POST.get('features')
+        product.heading = request.POST.get('heading')
+        
+        if 'product_image' in request.FILES:
+            product.product_image = request.FILES['product_image']
+        
+        product.save()
+        messages.success(request, "Product updated successfully!")
+        return redirect('central_admin:products_list')
+    
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+    
+    context = {
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name': short_name,
+        'product': product,
+    }
+    
+    return render(request, 'central_admin/edit_product.html', context)
+
+
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == "POST":
+        product.delete()
+        messages.success(request, "Product deleted successfully!")
+        return redirect("/central-admin/products/")
+    
+    # Agar GET request aaye toh bhi directly delete kar dein
+    product.delete()
+    messages.success(request, "Product deleted successfully!")
+    return redirect("/central-admin/products/")
+
+
 def dashboard(request):
     user_name = request.session.get('user_name')
     user_email = request.session.get('user_email')

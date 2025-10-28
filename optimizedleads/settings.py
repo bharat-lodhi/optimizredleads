@@ -145,17 +145,17 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# # tracking ke liye 
-# BASE_URL = "https://f24569ed63fd.ngrok-free.app"
-# # Hosting ke baad change kar dena:
-# # BASE_URL = "https://yourdomain.com"
+# tracking ke liye 
+BASE_URL = "https://c244eb4a3fb2.ngrok-free.app"
+# Hosting ke baad change kar dena:
+# BASE_URL = "https://yourdomain.com"
 
 
-# CSRF_TRUSTED_ORIGINS = [
-#     "https://f24569ed63fd.ngrok-free.app",
-#     "http://127.0.0.1:8000",
-#     "http://localhost:8000",
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    "https://c244eb4a3fb2.ngrok-free.app",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

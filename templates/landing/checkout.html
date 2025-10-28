@@ -10,6 +10,335 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Complete Your Purchase</h1>
+      <p class="text-gray-600 mt-2">Fill in your details and proceed to payment</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Left Column - Form -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Customer Information -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-6">Customer Information</h2>
+          <form id="customer-form">
+            {% csrf_token %}
+            
+            <!-- Personal Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                <input type="text" name="full_name" required 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                       placeholder="Enter your full name">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                <input type="email" name="email" required 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                       placeholder="Enter your email">
+              </div>
+            </div>
+
+            <!-- Contact & Business -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mobile Number (WhatsApp Preferred) *</label>
+                <input type="tel" name="mobile_number" required 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                       placeholder="+91-9876543210">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Company / Agency Name</label>
+                <input type="text" name="company_agency_name" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                       placeholder="Your company name (optional)">
+              </div>
+            </div>
+
+            <!-- Location Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Business Location / City *</label>
+                <input type="text" name="business_location_city" required 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                       placeholder="e.g., Mumbai, Delhi, Bangalore">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Target Area / Location for Leads *</label>
+                <input type="text" name="target_area_location" required 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                       placeholder="e.g., South Delhi, Bandra, Whitefield">
+              </div>
+            </div>
+
+            <!-- Additional Requirements -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Additional Requirements / Comments</label>
+              <textarea name="additional_requirements" rows="4" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                        placeholder="Any specific requirements, preferences, or comments about the leads..."></textarea>
+            </div>
+          </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
+          <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+            {% if product.product_image %}
+              <img src="{{ product.product_image.url }}" alt="{{ product.heading }}" class="w-16 h-16 rounded-lg object-cover">
+            {% else %}
+              <div class="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                <span class="text-white font-bold text-sm">{{ product.category|slice:":2"|upper }}</span>
+              </div>
+            {% endif %}
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900">{{ product.heading|default:product.category }}</h3>
+              <p class="text-gray-600 text-sm">{{ product.plan_type|title }} Plan • {{ product.unit }}</p>
+              <p class="text-gray-500 text-xs mt-1">{{ product.short_description }}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-gray-900">₹{{ product.price }}</p>
+            </div>
+          </div>
+
+          <!-- Features List - Fixed -->
+            <div class="mt-6">
+              <h4 class="font-medium text-gray-900 mb-3">Package Includes:</h4>
+              <div class="bg-blue-50 rounded-lg p-4">
+                  {% if product.features %}
+                      <div class="text-gray-700 text-sm space-y-2">
+                          {{ product.features|safe }}
+                      </div>
+                  {% else %}
+                      <p class="text-gray-600 text-sm">No features listed for this product.</p>
+                  {% endif %}
+              </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column - Order Total -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Order Total</h2>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Product Price</span>
+              <span class="font-medium">₹{{ product.price }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">GST (18%)</span>
+              <span class="font-medium">₹{{ gst_amount|default:"0" }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Platform Fee</span>
+              <span class="font-medium">₹{{ platform_fee|default:"0" }}</span>
+            </div>
+            <hr class="my-3 border-gray-200">
+            <div class="flex justify-between font-bold text-lg">
+              <span>Total Amount</span>
+              <span class="text-blue-600">₹{{ total_amount|default:product.price }}</span>
+            </div>
+          </div>
+
+          <!-- Payment Button -->
+          <button id="proceed-to-pay" class="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-md hover:shadow-lg">
+            Proceed to Pay ₹{{ total_amount|default:product.price }}
+          </button>
+
+          <!-- Security Badges -->
+          <div class="mt-4 text-center">
+            <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
+              <div class="flex items-center">
+                <i class="fas fa-lock text-green-500 mr-1"></i>
+                <span>Secure Payment</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-shield-alt text-blue-500 mr-1"></i>
+                <span>SSL Encrypted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Razorpay Integration -->
+<!-- Razorpay Integration - Debug Version -->
+<script>
+$(document).ready(function(){
+  $('#proceed-to-pay').on('click', function(e){
+    e.preventDefault();
+    console.log('Button clicked - Starting payment process...');
+
+    // Form validation
+    const requiredFields = ['full_name', 'email', 'mobile_number', 'business_location_city', 'target_area_location'];
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+      const element = $(`[name="${field}"]`);
+      if (!element.val().trim()) {
+        isValid = false;
+        element.addClass('border-red-500');
+        console.log(`Missing required field: ${field}`);
+      } else {
+        element.removeClass('border-red-500');
+      }
+    });
+
+    if (!isValid) {
+      alert('Please fill all required fields marked with *');
+      return;
+    }
+
+    // Collect form data
+    const formData = {
+      full_name: $('input[name="full_name"]').val(),
+      email: $('input[name="email"]').val(),
+      mobile_number: $('input[name="mobile_number"]').val(),
+      company_agency_name: $('input[name="company_agency_name"]').val(),
+      business_location_city: $('input[name="business_location_city"]').val(),
+      target_area_location: $('input[name="target_area_location"]').val(),
+      additional_requirements: $('textarea[name="additional_requirements"]').val(),
+      product_category: '{{ product.category }}',
+      product_plan_type: '{{ product.plan_type }}',
+      csrfmiddlewaretoken: '{{ csrf_token }}'
+    };
+
+    console.log('Form data collected:', formData);
+    console.log('AJAX URL:', "{% url 'landing:create_order' product.id %}");
+
+    // Show loading state
+    const button = $(this);
+    const originalText = button.text();
+    button.text('Processing...').prop('disabled', true);
+
+    // Create Razorpay order
+    $.ajax({
+      url: "{% url 'landing:create_order' product.id %}",
+      method: "POST",
+      data: formData,
+      success: function(response){
+        console.log('AJAX Success Response:', response);
+        
+        if (response.success) {
+          console.log('Creating Razorpay checkout...');
+          
+          const options = {
+            "key": "{{ RAZORPAY_KEY_ID }}",
+            "amount": response.amount,
+            "currency": "INR",
+            "name": "Optimized Leads",
+            "description": "{{ product.heading|default:product.category }} - {{ product.plan_type|title }}",
+            "order_id": response.order_id,
+            "handler": function(razorpayResponse){
+              console.log('Razorpay payment successful:', razorpayResponse);
+              
+              // Verify payment
+              $.ajax({
+                url: "{% url 'landing:verify_payment' %}",
+                method: "POST",
+                data: {
+                  razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                  razorpay_order_id: razorpayResponse.razorpay_order_id,
+                  razorpay_signature: razorpayResponse.razorpay_signature,
+                  csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(verifyResponse){
+                  console.log('Payment verification response:', verifyResponse);
+                  if (verifyResponse.success) {
+                    window.location.href = "{% url 'landing:order_success' %}?order_id=" + razorpayResponse.razorpay_order_id;
+                  } else {
+                    alert("Payment verification failed: " + (verifyResponse.error || "Unknown error"));
+                    button.text(originalText).prop('disabled', false);
+                  }
+                },
+                error: function(xhr, status, error){
+                  console.error('Payment verification error:', error, xhr.responseText);
+                  alert("Payment verification error. Please contact support.");
+                  button.text(originalText).prop('disabled', false);
+                }
+              });
+            },
+            "prefill": {
+              "name": formData.full_name,
+              "email": formData.email,
+              "contact": formData.mobile_number
+            },
+            "theme": {
+              "color": "#4F46E5"
+            },
+            "modal": {
+              "ondismiss": function(){
+                console.log('Razorpay modal dismissed');
+                button.text(originalText).prop('disabled', false);
+              }
+            }
+          };
+          
+          const rzp = new Razorpay(options);
+          rzp.open();
+        } else {
+          console.error('Order creation failed:', response.error);
+          alert("Failed to create order: " + (response.error || "Unknown error"));
+          button.text(originalText).prop('disabled', false);
+        }
+      },
+      error: function(xhr, status, error){
+        console.error('AJAX Error Details:');
+        console.error('Status:', status);
+        console.error('Error:', error);
+        console.error('Response Text:', xhr.responseText);
+        console.error('Ready State:', xhr.readyState);
+        console.error('Status Code:', xhr.status);
+        
+        alert("Failed to create order. Check console for details (F12).");
+        button.text(originalText).prop('disabled', false);
+      }
+    });
+  });
+
+  // Remove error styling on input
+  $('input, textarea').on('input', function(){
+    $(this).removeClass('border-red-500');
+  });
+});
+</script>
+
+<style>
+.border-red-500 {
+  border-color: #ef4444 !important;
+}
+</style>
+{% endblock %}
+
+
+{% comment %} {% extends "landing/landing.html" %}
+{% load static %}
+
+{% block hero %} {% endblock %}
+
+{% block content %}
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<div class="min-h-screen bg-gray-50 py-8">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- Header -->
@@ -182,339 +511,4 @@ $(document).ready(function(){
 });
 </script>
 {% endblock %}
-
-
-
-
-{% comment %} {% extends "landing/landing.html" %}
-{% load static %}
-
-{% block hero %} {% endblock %}
-
-{% block content %}
-
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-    .gradient-bg {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    .checkout-step {
-        transition: all 0.3s ease;
-    }
-    .checkout-step.active {
-        border-color: #6366f1;
-        background-color: #f0f9ff;
-    }
-</style>
-
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Checkout Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Checkout</h1>
-            <p class="text-gray-600 mt-2">Complete your purchase in just a few steps</p>
-        </div>
-
-        <!-- Progress Steps -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center checkout-step active">
-                    <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">1</div>
-                    <span class="ml-2 text-sm font-medium text-gray-900">Cart</span>
-                </div>
-                <div class="flex-1 h-1 bg-gray-200 mx-4"></div>
-                <div class="flex items-center checkout-step">
-                    <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-bold">2</div>
-                    <span class="ml-2 text-sm font-medium text-gray-500">Details</span>
-                </div>
-                <div class="flex-1 h-1 bg-gray-200 mx-4"></div>
-                <div class="flex items-center checkout-step">
-                    <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-bold">3</div>
-                    <span class="ml-2 text-sm font-medium text-gray-500">Payment</span>
-                </div>
-                <div class="flex-1 h-1 bg-gray-200 mx-4"></div>
-                <div class="flex items-center checkout-step">
-                    <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-bold">4</div>
-                    <span class="ml-2 text-sm font-medium text-gray-500">Confirm</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column - Order Summary & Forms -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Order Summary -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
-                    
-                    <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                        {% if product.product_image %}
-                            <img src="{{ product.product_image.url }}" alt="{{ product.category }}" class="w-16 h-16 rounded-lg object-cover">
-                        {% else %}
-                            <div class="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                                <span class="text-white text-sm font-bold">{{ product.category|slice:":2"|upper }}</span>
-                            </div>
-                        {% endif %}
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900">{{ product.plan_type|title }} {{ product.category }}</h3>
-                            <p class="text-gray-600 text-sm">{{ product.short_description }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold text-gray-900">₹{{ product.price }}</p>
-                            <p class="text-gray-500 text-sm">/{{ product.unit }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Features List -->
-                    <div class="mt-4">
-                        <h4 class="font-medium text-gray-900 mb-2">Package Includes:</h4>
-                        <ul class="space-y-1 text-sm text-gray-600">
-                            {% for feature in features_list %}
-                                <li class="flex items-center">
-                                    <i class="fas fa-check text-green-500 mr-2 text-xs"></i>
-                                    {{ feature }}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Contact Information -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">Contact Information</h2>
-                    
-                    <form id="contact-form">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                                <input type="text" id="first_name" name="first_name" required 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-                                <input type="text" id="last_name" name="last_name" required 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
-                            <input type="email" id="email" name="email" required 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                        
-                        <div class="mt-4">
-                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
-                            <input type="tel" id="phone" name="phone" required 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                        
-                        <div class="mt-4">
-                            <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Company (Optional)</label>
-                            <input type="text" id="company" name="company" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Payment Method -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">Payment Method</h2>
-                    
-                    <div class="space-y-4">
-                        <!-- Credit Card -->
-                        <div class="flex items-center">
-                            <input type="radio" id="credit_card" name="payment_method" value="credit_card" checked 
-                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
-                            <label for="credit_card" class="ml-3 block text-sm font-medium text-gray-700">
-                                Credit/Debit Card
-                            </label>
-                        </div>
-                        
-                        <!-- UPI -->
-                        <div class="flex items-center">
-                            <input type="radio" id="upi" name="payment_method" value="upi" 
-                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
-                            <label for="upi" class="ml-3 block text-sm font-medium text-gray-700">
-                                UPI Payment
-                            </label>
-                        </div>
-                        
-                        <!-- Net Banking -->
-                        <div class="flex items-center">
-                            <input type="radio" id="net_banking" name="payment_method" value="net_banking" 
-                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
-                            <label for="net_banking" class="ml-3 block text-sm font-medium text-gray-700">
-                                Net Banking
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Card Details Form -->
-                    <div id="card-details" class="mt-6 space-y-4">
-                        <div>
-                            <label for="card_number" class="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                            <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-                                <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label for="cvv" class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                                <input type="text" id="cvv" name="cvv" placeholder="123"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label for="card_holder" class="block text-sm font-medium text-gray-700 mb-1">Card Holder Name</label>
-                            <input type="text" id="card_holder" name="card_holder" placeholder="John Doe"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column - Order Total -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">Order Total</h2>
-                    
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Subtotal</span>
-                            <span class="font-medium">₹{{ product.price }}</span>
-                        </div>
-                        
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Tax (18% GST)</span>
-                            <span class="font-medium">₹{% widthratio product.price 1 0.18 %}</span>
-                        </div>
-                        
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Platform Fee</span>
-                            <span class="font-medium">₹99</span>
-                        </div>
-                        
-                        <hr class="my-3">
-                        
-                        <div class="flex justify-between text-lg font-bold">
-                            <span>Total</span>
-                            <span>₹{% widthratio product.price 1 1.18|add:99 %}</span>
-                        </div>
-                    </div>
-
-                    <!-- Security Badges -->
-                    <div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-                        <div class="flex items-center text-green-800">
-                            <i class="fas fa-shield-alt mr-2"></i>
-                            <span class="text-sm font-medium">Secure Payment</span>
-                        </div>
-                        <p class="text-green-700 text-xs mt-1">Your payment information is encrypted and secure</p>
-                    </div>
-
-                    <!-- Terms & Conditions -->
-                    <div class="mt-4">
-                        <div class="flex items-start">
-                            <input type="checkbox" id="terms" name="terms" required 
-                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1">
-                            <label for="terms" class="ml-2 block text-sm text-gray-700">
-                                I agree to the <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms of Service</a> 
-                                and <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Complete Order Button -->
-                    <button id="complete-order" 
-                            class="w-full mt-6 bg-indigo-600 text-white py-3 px-4 rounded-md font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 flex items-center justify-center">
-                        <i class="fas fa-lock mr-2"></i>
-                        Complete Order - ₹{% widthratio product.price 1 1.18|add:99 %}
-                    </button>
-
-                    <!-- Money Back Guarantee -->
-                    <div class="mt-4 text-center">
-                        <p class="text-xs text-gray-500 flex items-center justify-center">
-                            <i class="fas fa-undo-alt mr-1"></i>
-                            30-day money-back guarantee
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Payment method toggle
-    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
-    const cardDetails = document.getElementById('card-details');
-    
-    paymentMethods.forEach(method => {
-        method.addEventListener('change', function() {
-            if (this.value === 'credit_card') {
-                cardDetails.style.display = 'block';
-            } else {
-                cardDetails.style.display = 'none';
-            }
-        });
-    });
-
-    // Complete order button
-    const completeOrderBtn = document.getElementById('complete-order');
-    
-    completeOrderBtn.addEventListener('click', function() {
-        // Form validation
-        const termsChecked = document.getElementById('terms').checked;
-        const contactForm = document.getElementById('contact-form');
-        
-        if (!termsChecked) {
-            alert('Please agree to the Terms and Conditions');
-            return;
-        }
-        
-        // Show loading state
-        const originalText = this.innerHTML;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-        this.disabled = true;
-        
-        // Simulate payment processing
-        
-        setTimeout(() => {
-            // Redirect to success page or show success message
-             window.location.href = "/order_success/?order_id=" + Date.now() + "&amount={{ total_amount }}";
-        }, 2000);
-
-    });
-
-    // Input formatting
-    const cardNumber = document.getElementById('card_number');
-    if (cardNumber) {
-        cardNumber.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-            let matches = value.match(/\d{4,16}/g);
-            let match = matches && matches[0] || '';
-            let parts = [];
-            
-            for (let i = 0, len = match.length; i < len; i += 4) {
-                parts.push(match.substring(i, i + 4));
-            }
-            
-            if (parts.length) {
-                e.target.value = parts.join(' ');
-            } else {
-                e.target.value = value;
-            }
-        });
-    }
-});
-</script>
-{% endblock %} 
  {% endcomment %}
