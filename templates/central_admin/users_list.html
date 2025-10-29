@@ -25,6 +25,406 @@
                 <th class="px-4 py-3 text-left">Role & Plan</th>
                 <th class="px-4 py-3 text-left">Credits</th>
                 <th class="px-4 py-3 text-left">Subscription</th>
+                <th class="px-4 py-3 text-left">Industry</th>
+                <th class="px-4 py-3 text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr class="border-t hover:bg-gray-50 transition cursor-pointer user-row" 
+                data-user-id="{{ user.id }}"
+                data-user-data='{
+                    "name": "{{ user.first_name }}",
+                    "email": "{{ user.email }}",
+                    "phone": "{{ user.phone|default:'Not provided' }}",
+                    "role": "{{ user.role }}",
+                    "plan_type": "{{ user.plan_type }}",
+                    "plan_status": "{{ user.plan_status }}",
+                    "credit_limit": "{{ user.credit_limit }}",
+                    "credits_used": "{{ user.credits_used }}",
+                    "available_credits": "{{ user.available_credits }}",
+                    "industry": "{{ user.industry|default:'Not provided' }}",
+                    "sub_industry": "{{ user.sub_industry|default:'Not provided' }}",
+                    "preferred_country": "{{ user.preferred_country|default:'Not provided' }}",
+                    "working_location": "{{ user.working_location|default:'Not provided' }}",
+                    "property_type": "{{ user.property_type|default:'Not provided' }}",
+                    "real_estate_type": "{{ user.real_estate_type|default:'Not provided' }}",
+                    "leads_quantity": "{{ user.leads_quantity }}",
+                    "is_verified": "{{ user.is_verified }}",
+                    "date_joined": "{{ user.date_joined|date:'M d, Y' }}",
+                    "last_activity": "{{ user.last_activity|date:'M d, Y H:i'|default:'No activity' }}",
+                    "plan_start_date": "{{ user.plan_start_date|default:'Not set' }}",
+                    "plan_end_date": "{{ user.plan_end_date|default:'Not set' }}"
+                }'>
+                
+                <!-- User Details -->
+                <td class="px-4 py-3">
+                    <div class="font-medium text-gray-900">{{ user.first_name }}</div>
+                    <div class="text-sm text-gray-500">{{ user.email }}</div>
+                    <div class="text-sm text-gray-500">{{ user.phone|default:"No phone" }}</div>
+                </td>
+                
+                <!-- Role & Plan -->
+                <td class="px-4 py-3">
+                    <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs capitalize mb-1">{{ user.role }}</span>
+                    <div class="font-medium text-gray-900">{{ user.plan_type|title }}</div>
+                </td>
+                
+                <!-- Credits -->
+                <td class="px-4 py-3">
+                    <div class="font-semibold text-gray-900">{{ user.available_credits }}/{{ user.credit_limit }}</div>
+                    <div class="text-xs text-gray-500">Used: {{ user.credits_used }}</div>
+                </td>
+                
+                <!-- Subscription -->
+                <td class="px-4 py-3">
+                    {% if user.plan_status == 'active' %}
+                        <span class="text-green-600 font-semibold">Active</span>
+                    {% elif user.plan_status == 'expired' %}
+                        <span class="text-red-500 font-semibold">Expired</span>
+                    {% else %}
+                        <span class="text-gray-500">Inactive</span>
+                    {% endif %}
+                </td>
+                
+                <!-- Industry -->
+                <td class="px-4 py-3">
+                    {% if user.industry %}
+                    <div class="text-sm text-gray-900">{{ user.industry|title }}</div>
+                    {% if user.sub_industry %}
+                    <div class="text-xs text-gray-500">{{ user.sub_industry|title }}</div>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-xs text-gray-400">Not specified</div>
+                    {% endif %}
+                </td>
+                
+                <!-- Actions -->
+                <td class="px-4 py-3 text-center">
+                    <div class="flex flex-col space-y-1">
+                        <a href="{% url 'central_admin:edit_user' user.id %}" 
+                           class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs font-semibold transition-colors">Edit</a>
+                        <a href="{% url 'central_admin:delete_user' user.id %}" 
+                           onclick="return confirm('Are you sure you want to delete this user?')" 
+                           class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs font-semibold transition-colors">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="px-4 py-4 text-center text-gray-500">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- User Details Modal -->
+<div id="userModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 class="text-xl font-bold text-gray-900">User Details</h3>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Personal Information -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h4>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Full Name:</span>
+                            <span class="text-sm text-gray-900" id="modal-name">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Email:</span>
+                            <span class="text-sm text-gray-900" id="modal-email">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Phone:</span>
+                            <span class="text-sm text-gray-900" id="modal-phone">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Date Joined:</span>
+                            <span class="text-sm text-gray-900" id="modal-date-joined">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Account Information</h4>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Role:</span>
+                            <span class="text-sm text-gray-900 capitalize" id="modal-role">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Plan Type:</span>
+                            <span class="text-sm text-gray-900 capitalize" id="modal-plan-type">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Plan Status:</span>
+                            <span class="text-sm font-semibold" id="modal-plan-status">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Verification:</span>
+                            <span class="text-sm font-semibold" id="modal-verification">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credits Information -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Credits Information</h4>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Credit Limit:</span>
+                            <span class="text-sm text-gray-900" id="modal-credit-limit">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Credits Used:</span>
+                            <span class="text-sm text-gray-900" id="modal-credits-used">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Available Credits:</span>
+                            <span class="text-sm font-semibold text-green-600" id="modal-available-credits">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Industry Information -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Industry Information</h4>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Industry:</span>
+                            <span class="text-sm text-gray-900 capitalize" id="modal-industry">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Sub Industry:</span>
+                            <span class="text-sm text-gray-900 capitalize" id="modal-sub-industry">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Preferred Country:</span>
+                            <span class="text-sm text-gray-900" id="modal-preferred-country">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Leads Quantity:</span>
+                            <span class="text-sm font-semibold text-purple-600" id="modal-leads-quantity">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real Estate Information -->
+                <div class="space-y-4 md:col-span-2">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Real Estate Information</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Working Location:</span>
+                            <span class="text-sm text-gray-900" id="modal-working-location">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Property Type:</span>
+                            <span class="text-sm text-gray-900 capitalize" id="modal-property-type">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Real Estate Type:</span>
+                            <span class="text-sm text-gray-900 capitalize" id="modal-real-estate-type">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Dates -->
+                <div class="space-y-4 md:col-span-2">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Subscription Dates</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Plan Start Date:</span>
+                            <span class="text-sm text-gray-900" id="modal-plan-start-date">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Plan End Date:</span>
+                            <span class="text-sm text-gray-900" id="modal-plan-end-date">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Information -->
+                <div class="space-y-4 md:col-span-2">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Activity Information</h4>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-500">Last Activity:</span>
+                        <span class="text-sm text-gray-900" id="modal-last-activity">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="flex justify-end space-x-3 p-6 border-t border-gray-200">
+            <button id="closeModalBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                Close
+            </button>
+            <a href="{% url 'central_admin:edit_user' user.id %}" id="editUserBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                Edit User
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .user-row:hover {
+        background-color: #f9fafb;
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('userModal');
+        const closeModal = document.getElementById('closeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const editUserBtn = document.getElementById('editUserBtn');
+        const userRows = document.querySelectorAll('.user-row');
+        
+        // Function to open modal with user data
+        function openUserModal(userData) {
+            // Personal Information
+            document.getElementById('modal-name').textContent = userData.name || 'Not provided';
+            document.getElementById('modal-email').textContent = userData.email;
+            document.getElementById('modal-phone').textContent = userData.phone;
+            document.getElementById('modal-date-joined').textContent = userData.date_joined;
+            
+            // Account Information
+            document.getElementById('modal-role').textContent = userData.role;
+            document.getElementById('modal-plan-type').textContent = userData.plan_type;
+            
+            const planStatus = document.getElementById('modal-plan-status');
+            planStatus.textContent = userData.plan_status;
+            planStatus.className = 'text-sm font-semibold ' + 
+                (userData.plan_status === 'active' ? 'text-green-600' : 
+                 userData.plan_status === 'expired' ? 'text-red-500' : 'text-gray-500');
+            
+            const verification = document.getElementById('modal-verification');
+            verification.textContent = userData.is_verified === 'True' ? 'Verified' : 'Not Verified';
+            verification.className = 'text-sm font-semibold ' + 
+                (userData.is_verified === 'True' ? 'text-green-600' : 'text-red-500');
+            
+            // Credits Information
+            document.getElementById('modal-credit-limit').textContent = userData.credit_limit;
+            document.getElementById('modal-credits-used').textContent = userData.credits_used;
+            document.getElementById('modal-available-credits').textContent = userData.available_credits;
+            
+            // Industry Information
+            document.getElementById('modal-industry').textContent = userData.industry;
+            document.getElementById('modal-sub-industry').textContent = userData.sub_industry;
+            document.getElementById('modal-preferred-country').textContent = userData.preferred_country;
+            document.getElementById('modal-leads-quantity').textContent = userData.leads_quantity + ' leads/month';
+            
+            // Real Estate Information
+            document.getElementById('modal-working-location').textContent = userData.working_location;
+            document.getElementById('modal-property-type').textContent = userData.property_type;
+            document.getElementById('modal-real-estate-type').textContent = userData.real_estate_type;
+            
+            // Subscription Dates
+            document.getElementById('modal-plan-start-date').textContent = userData.plan_start_date;
+            document.getElementById('modal-plan-end-date').textContent = userData.plan_end_date;
+            
+            // Activity Information
+            document.getElementById('modal-last-activity').textContent = userData.last_activity;
+            
+            // Set edit user link
+            editUserBtn.href = `/central-admin/users/edit/${userData.userId}/`;
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Add click event to all user rows
+        userRows.forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Don't open modal if clicking on action buttons
+                if (e.target.tagName === 'A' || e.target.closest('a')) {
+                    return;
+                }
+                
+                const userData = JSON.parse(this.getAttribute('data-user-data'));
+                userData.userId = this.getAttribute('data-user-id');
+                openUserModal(userData);
+            });
+        });
+        
+        // Close modal functions
+        function closeUserModal() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        closeModal.addEventListener('click', closeUserModal);
+        closeModalBtn.addEventListener('click', closeUserModal);
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeUserModal();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeUserModal();
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}All Users{% endblock %}
+{% block page_title %}All Users{% endblock %}
+{% block page_subtitle %}Manage all registered users{% endblock %}
+
+{% block content %}
+    {% if messages %}
+    <div class="max-w-md mx-auto mt-4">
+        {% for message in messages %}
+        <div class="p-3 rounded-md text-center 
+            {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+<div class="max-w-7xl mx-auto bg-white shadow-md rounded-xl p-4 md:p-6 overflow-x-auto">
+    <table class="min-w-full border border-gray-200 rounded-xl">
+        <thead class="bg-gray-100 text-gray-700">
+            <tr>
+                <th class="px-4 py-3 text-left">User Details</th>
+                <th class="px-4 py-3 text-left">Role & Plan</th>
+                <th class="px-4 py-3 text-left">Credits</th>
+                <th class="px-4 py-3 text-left">Subscription</th>
                 <th class="px-4 py-3 text-left">Verification</th>
                 <th class="px-4 py-3 text-left">Industry/Country</th>
                 <th class="px-4 py-3 text-center">Actions</th>
@@ -118,7 +518,7 @@
         </tbody>
     </table>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}
 
 
 

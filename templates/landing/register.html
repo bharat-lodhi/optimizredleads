@@ -1,14 +1,14 @@
 {% extends "landing/landing.html" %}
 {% load static %}
 
-{% block hero %} {% endblock %}
+{% block content %} {% endblock %}
 
+{% block hero %}
 
-{% block content %}
-<!-- Registration Form Section -->
+<!-- Start Free Trial Form Section -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
-    
-    <div class="max-w-md w-full space-y-8">
+
+    <div class="max-w-xl w-full space-y-8">
             {% if messages %}
                 <div class="max-w-md mx-auto mt-4">
                     {% for message in messages %}
@@ -19,23 +19,18 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-                
-        
-
-        <!-- Registration Form -->
-        <form class="mt-8 space-y-6 bg-white p-8 rounded-2xl shadow-xl border border-gray-100" method="post" id="registrationForm">
-            {% csrf_token %}
-            
-            <!-- Header -->
-            <div class="text-center" style="margin-top:-10px">
+        <!-- Free Trial Form -->
+        <form class="mt-8 space-y-6 bg-white p-8 rounded-2xl shadow-xl border border-gray-100" method="POST" id="freeTrialForm">
+        {% csrf_token %}
+            <div class="text-center">
                 <h2 class="text-3xl font-bold text-gray-900">
-                    Create Account
+                    Start Your Free Trial
                 </h2>
                 <p class="mt-2 text-sm text-gray-600">
-                    Join OptimizedLeads and grow your business
+                    Get started with high-quality leads in your industry
                 </p>
             </div>
-            
+
             <div class="space-y-4">
                 <!-- Name Field -->
                 <div>
@@ -83,32 +78,26 @@
                 </div>
 
                 <!-- Password Field -->
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                            Password *
-                        </label>
-                        <div class="relative">
-                            <input 
-                                id="password" 
-                                name="password" 
-                                type="password" 
-                                required 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
-                                placeholder="Create Password"
-                            >
-                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" onclick="togglePassword()">
-                                <!-- Eye closed (default for password) -->
-                                <svg id="eye-closed" class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                                <!-- Eye open (hidden by default) -->
-                                <svg id="eye-open" class="h-5 w-5 text-gray-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                                </svg>
-                            </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        Password *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Create a password"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
                         </div>
                     </div>
+                </div>
 
                 <!-- Phone Number Field -->
                 <div>
@@ -142,7 +131,7 @@
                             id="industry" 
                             name="industry" 
                             required 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
+                            class="w-full px-4  border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
                         >
                             <option value="">Select your industry</option>
                             <option value="real-estate">Real Estate</option>
@@ -167,7 +156,7 @@
                         <select 
                             id="sub_industry" 
                             name="sub_industry" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
+                            class="w-full px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
                         >
                             <option value="">Select sub-industry</option>
                         </select>
@@ -199,6 +188,121 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Working Location Field (For Real Estate) -->
+                <div id="workingLocationContainer" class="hidden">
+                    <label for="working_location" class="block text-sm font-medium text-gray-700 mb-2">
+                        Working Location *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="working_location" 
+                            name="working_location" 
+                            type="text" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter your working location/city"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Property Type Field (For Real Estate) -->
+                <div id="propertyTypeContainer" class="hidden">
+                    <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        Property Type *
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="property_type" 
+                            name="property_type" 
+                            class="w-full px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
+                        >
+                            <option value="">Select property type</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="investment">Investment</option>
+                            <option value="residential">Residential</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real Estate Type Field (Only for Buyers Leads) -->
+                <div id="realEstateTypeContainer" class="hidden">
+                    <label for="real_estate_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        You are a: *
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="real_estate_type" 
+                            name="real_estate_type" 
+                            class="w-full px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none bg-white"
+                        >
+                            <option value="">Select your type</option>
+                            <option value="individual">Individual</option>
+                            <option value="builder">Builder</option>
+                            <option value="real-estate-firm">Real Estate Firm</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leads Quantity Question -->
+                <div id="leadsQuantityContainer">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        If you purchase leads, what would be your required quantity per month? *
+                    </label>
+                    <div class="space-y-3">
+                        <!-- Quantity Options - One below another -->
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="leads_quantity" value="100" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">100 Leads per month</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="leads_quantity" value="150" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">150 Leads per month</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="leads_quantity" value="200" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">200 Leads per month</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Custom Quantity Input -->
+                        <div class="pt-2">
+                            <label class="flex items-center mb-2">
+                                <input type="radio" name="leads_quantity" value="custom" id="custom_quantity_radio" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">Other, please specify</span>
+                            </label>
+                            <div class="relative ml-6">
+                                <input 
+                                    id="custom_quantity_input" 
+                                    name="custom_quantity" 
+                                    type="number" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400"
+                                    placeholder="Enter custom quantity"
+                                    min="1"
+                                    disabled
+                                >
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <span class="text-gray-400 text-sm">leads/month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Submit Button -->
@@ -212,11 +316,11 @@
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                         </svg>
                     </span>
-                    Create Account
+                    Start Free Trial
                 </button>
             </div>
 
-            <!-- Login Link -->
+            <!-- Already have account link -->
             <div class="text-center">
                 <p class="text-sm text-gray-600">
                     Already have an account? 
@@ -230,93 +334,225 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const industrySelect = document.getElementById('industry');
-    const subIndustryContainer = document.getElementById('subIndustryContainer');
-    const subIndustrySelect = document.getElementById('sub_industry');
-    const studyAbroadContainer = document.getElementById('studyAbroadContainer');
-    const preferredCountryInput = document.getElementById('preferred_country');
+    document.addEventListener('DOMContentLoaded', function() {
+        const industrySelect = document.getElementById('industry');
+        const subIndustryContainer = document.getElementById('subIndustryContainer');
+        const subIndustrySelect = document.getElementById('sub_industry');
+        const studyAbroadContainer = document.getElementById('studyAbroadContainer');
+        const preferredCountryInput = document.getElementById('preferred_country');
+        const workingLocationContainer = document.getElementById('workingLocationContainer');
+        const workingLocationInput = document.getElementById('working_location');
+        const propertyTypeContainer = document.getElementById('propertyTypeContainer');
+        const propertyTypeSelect = document.getElementById('property_type');
+        const realEstateTypeContainer = document.getElementById('realEstateTypeContainer');
+        const realEstateTypeSelect = document.getElementById('real_estate_type');
+        const customQuantityRadio = document.getElementById('custom_quantity_radio');
+        const customQuantityInput = document.getElementById('custom_quantity_input');
 
-    // Sub-industry options for different industries
-    const subIndustryOptions = {
-        'real-estate': [
-            { value: 'buyers-leads', text: 'Buyers Leads' },
-            { value: 'tenant-leads', text: 'Tenant Leads' }
-        ],
-        'education': [
-            { value: 'online-mba', text: 'Online MBA' },
-            { value: 'offline-mba', text: 'Offline MBA' },
-            { value: 'phd', text: 'PhD' },
-            { value: 'doctorate', text: 'Doctorate' },
-            { value: 'certification', text: 'Certification' }
-        ],
-        'trading': [
-            { value: 'forex', text: 'Forex Trading' }
-        ]
-    };
+        // Sub-industry options for different industries
+        const subIndustryOptions = {
+            'real-estate': [
+                { value: 'buyers-leads', text: 'Buyers Leads' },
+                { value: 'tenant-leads', text: 'Tenant Leads' }
+            ],
+            'education': [
+                { value: 'online-mba', text: 'Online MBA' },
+                { value: 'offline-mba', text: 'Offline MBA' },
+                { value: 'phd', text: 'PhD' },
+                { value: 'doctorate', text: 'Doctorate' },
+                { value: 'certification', text: 'Certification' }
+            ],
+            'trading': [
+                { value: 'forex', text: 'Forex Trading' }
+            ]
+        };
 
-    // Handle industry selection change
-    industrySelect.addEventListener('change', function() {
-        const selectedIndustry = this.value;
-        
-        // Hide all dynamic containers first
-        subIndustryContainer.classList.add('hidden');
-        studyAbroadContainer.classList.add('hidden');
-        
-        // Clear previous sub-industry options
-        subIndustrySelect.innerHTML = '<option value="">Select sub-industry</option>';
-        preferredCountryInput.value = '';
-        preferredCountryInput.required = false;
-        subIndustrySelect.required = false;
-
-        // Show relevant fields based on selected industry
-        if (selectedIndustry === 'study-abroad') {
-            studyAbroadContainer.classList.remove('hidden');
-            preferredCountryInput.required = true;
-        } 
-        else if (subIndustryOptions[selectedIndustry]) {
-            subIndustryContainer.classList.remove('hidden');
-            subIndustrySelect.required = true;
+        // Handle industry selection change
+        industrySelect.addEventListener('change', function() {
+            const selectedIndustry = this.value;
             
-            // Populate sub-industry options
-            subIndustryOptions[selectedIndustry].forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option.value;
-                optionElement.textContent = option.text;
-                subIndustrySelect.appendChild(optionElement);
-            });
-        }
-    });
-});
+            // Hide all dynamic containers first
+            subIndustryContainer.classList.add('hidden');
+            studyAbroadContainer.classList.add('hidden');
+            workingLocationContainer.classList.add('hidden');
+            propertyTypeContainer.classList.add('hidden');
+            realEstateTypeContainer.classList.add('hidden');
+            
+            // Clear previous sub-industry options
+            subIndustrySelect.innerHTML = '<option value="">Select sub-industry</option>';
+            preferredCountryInput.value = '';
+            workingLocationInput.value = '';
+            propertyTypeSelect.value = '';
+            realEstateTypeSelect.value = '';
+            
+            // Reset required fields
+            preferredCountryInput.required = false;
+            workingLocationInput.required = false;
+            propertyTypeSelect.required = false;
+            realEstateTypeSelect.required = false;
+            subIndustrySelect.required = false;
 
-function togglePassword() {
-    const passwordInput = document.getElementById('password');
-    const eyeClosed = document.getElementById('eye-closed');
-    const eyeOpen = document.getElementById('eye-open');
-    
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        eyeClosed.classList.add('hidden');
-        eyeOpen.classList.remove('hidden');
-    } else {
-        passwordInput.type = 'password';
-        eyeClosed.classList.remove('hidden');
-        eyeOpen.classList.add('hidden');
-    }
-}
+            // Show relevant fields based on selected industry
+            if (selectedIndustry === 'study-abroad') {
+                studyAbroadContainer.classList.remove('hidden');
+                preferredCountryInput.required = true;
+            } 
+            else if (subIndustryOptions[selectedIndustry]) {
+                subIndustryContainer.classList.remove('hidden');
+                subIndustrySelect.required = true;
+                
+                // Populate sub-industry options
+                subIndustryOptions[selectedIndustry].forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option.value;
+                    optionElement.textContent = option.text;
+                    subIndustrySelect.appendChild(optionElement);
+                });
+            }
+
+            // Show real estate specific fields
+            if (selectedIndustry === 'real-estate') {
+                workingLocationContainer.classList.remove('hidden');
+                propertyTypeContainer.classList.remove('hidden');
+                workingLocationInput.required = true;
+                propertyTypeSelect.required = true;
+            }
+        });
+
+        // Handle sub-industry selection change (for real estate)
+        subIndustrySelect.addEventListener('change', function() {
+            const selectedSubIndustry = this.value;
+            const selectedIndustry = industrySelect.value;
+            
+            // Hide real estate type container first
+            realEstateTypeContainer.classList.add('hidden');
+            realEstateTypeSelect.required = false;
+            
+            // Show real estate type only for buyers leads in real estate
+            if (selectedIndustry === 'real-estate' && selectedSubIndustry === 'buyers-leads') {
+                realEstateTypeContainer.classList.remove('hidden');
+                realEstateTypeSelect.required = true;
+            }
+        });
+
+        // Handle custom quantity radio button
+        customQuantityRadio.addEventListener('change', function() {
+            if (this.checked) {
+                customQuantityInput.disabled = false;
+                customQuantityInput.focus();
+            } else {
+                customQuantityInput.disabled = true;
+                customQuantityInput.value = '';
+            }
+        });
+
+        // Enable custom input when clicking on it
+        customQuantityInput.addEventListener('focus', function() {
+            customQuantityRadio.checked = true;
+            customQuantityInput.disabled = false;
+        });
+
+        // Form submission handling
+        const freeTrialForm = document.getElementById('freeTrialForm');
+        freeTrialForm.addEventListener('submit', function(e) {
+            
+            
+            // Validate required fields including password
+            if (!document.getElementById('name').value) {
+                alert('Please enter your full name');
+                return;
+            }
+            if (!document.getElementById('email').value) {
+                alert('Please enter your email address');
+                return;
+            }
+            if (!document.getElementById('password').value) {
+                alert('Please enter your password');
+                return;
+            }
+            if (!document.getElementById('phone').value) {
+                alert('Please enter your phone number');
+                return;
+            }
+            if (!industrySelect.value) {
+                alert('Please select your industry');
+                return;
+            }
+
+            // Validate leads quantity
+            const selectedQuantity = document.querySelector('input[name="leads_quantity"]:checked');
+            if (!selectedQuantity) {
+                alert('Please select your required leads quantity per month');
+                return;
+            }
+
+            // Validate custom quantity if selected
+            if (selectedQuantity.value === 'custom' && !customQuantityInput.value) {
+                alert('Please enter your custom leads quantity');
+                return;
+            }
+
+            // Validate real estate specific fields
+            if (industrySelect.value === 'real-estate') {
+                if (!workingLocationInput.value) {
+                    alert('Please enter your working location');
+                    return;
+                }
+                if (!propertyTypeSelect.value) {
+                    alert('Please select property type');
+                    return;
+                }
+                if (subIndustrySelect.value === 'buyers-leads' && !realEstateTypeSelect.value) {
+                    alert('Please select whether you are an Individual, Builder or Real Estate Firm');
+                    return;
+                }
+            }
+            
+            // Add loading state
+            const submitButton = freeTrialForm.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            
+            submitButton.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Starting Trial...
+            `;
+            submitButton.disabled = true;
+            
+            // Collect form data including password
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value,
+                industry: document.getElementById('industry').value,
+                sub_industry: document.getElementById('sub_industry').value,
+                preferred_country: document.getElementById('preferred_country').value,
+                working_location: document.getElementById('working_location').value,
+                property_type: document.getElementById('property_type').value,
+                real_estate_type: document.getElementById('real_estate_type').value,
+                leads_quantity: selectedQuantity.value === 'custom' ? customQuantityInput.value : selectedQuantity.value
+            };
+            
+            // Simulate API call - replace with actual registration
+            setTimeout(() => {
+                console.log('Free Trial data:', formData);
+                
+                // Reset button state
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+                
+                // Show success message
+                alert('Free trial started successfully! Our team will contact you shortly.');
+                // window.location.href = '/dashboard/'; // Uncomment for actual redirect
+            }, 2000);
+        });
+    });
 </script>
 
 <style>
-    /* Custom animations */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-fadeIn {
-        animation: fadeIn 0.6s ease-out;
-    }
-    
     /* Custom select styling */
     select {
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
