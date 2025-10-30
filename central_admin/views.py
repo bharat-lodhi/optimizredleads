@@ -2,11 +2,11 @@ from django.shortcuts import render, redirect ,get_object_or_404
 from .models import Product
 from django.contrib import messages
 from django.contrib.auth import logout
-from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, LeadAssignmentLog
+from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, LeadAssignmentLog,ForexTrade
 from django.contrib.auth import get_user_model
-
+from django.contrib.contenttypes.models import ContentType
 User = get_user_model()
-
+from landing.models import ContactLead
 
 def add_product(request):
     if request.method == "POST":
@@ -170,10 +170,9 @@ def categories(request):
     return render(request, 'central_admin/categories.html',context)
 
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
-from leads.models import RealEstateLead,LeadAssignmentLog
+
+
+
 
 
 def real_estate(request):
@@ -428,6 +427,98 @@ def add_study_abroad(request):
 
 
 
+def add_forex_trade(request):
+    if request.method == 'POST':
+        try:
+            # Create new forex trade lead
+            forex_lead = ForexTrade.objects.create(
+                full_name=request.POST.get('full_name'),
+                phone_number=request.POST.get('phone_number'),
+                email=request.POST.get('email'),
+                experience=request.POST.get('experience'),
+                broker=request.POST.get('broker'),
+                initial_investment=request.POST.get('initial_investment'),
+                country=request.POST.get('country'),
+                note=request.POST.get('note'),
+            )
+            
+            messages.success(request, 'Forex trade lead created successfully!')
+            return redirect('/central-admin/add_forex_trade/')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating lead: {str(e)}')
+            
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+
+    context = {
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name': short_name,
+    }
+    
+    return render(request, 'central_admin/add_forex_trade.html',context)
+
+
+from django.contrib.contenttypes.models import ContentType
+
+def forex_trade(request):
+    if request.method == 'POST':
+        selected_leads = request.POST.getlist('leads')
+        assigned_user_id = request.POST.get('assigned_to')
+
+        if not selected_leads or not assigned_user_id:
+            messages.error(request, "Please select leads and a user to assign.")
+            return redirect('central_admin:forex_trade')
+
+        try:
+            assigned_user = User.objects.get(id=assigned_user_id)
+        except User.DoesNotExist:
+            messages.error(request, "Selected user does not exist.")
+            return redirect('central_admin:forex_trade')
+
+        for lead_id in selected_leads:
+            lead = ForexTrade.objects.filter(id=lead_id).first()
+            if lead:
+                lead.assigned_to = assigned_user  # Update existing assignment
+                lead.save()
+
+                # Log assignment
+                LeadAssignmentLog.objects.create(
+                    lead_content_type=ContentType.objects.get_for_model(ForexTrade),
+                    lead_object_id=lead.id,
+                    assigned_to=assigned_user,
+                    assigned_by=request.user,
+                    status_at_assignment=lead.status
+                )
+
+        messages.success(request, f"{len(selected_leads)} Forex Trade leads assigned to {assigned_user.username} successfully!")
+        return redirect('central_admin:forex_trade')
+
+    # GET request -> show all leads (assigned or unassigned)
+    leads = ForexTrade.objects.all().order_by('-created_at')
+    users = User.objects.filter(industry='trading') 
+
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+
+    context = {
+        'leads': leads,
+        'users': users,
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name': short_name,
+    }
+    return render(request, "central_admin/forex_trade.html", context)
+
+
+
 # ---------------------------------------------------------------------------------------
 
 
@@ -524,6 +615,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 def is_central_admin(user):
     return user.is_authenticated and user.role == 'central_admin'
 
+
+
 @login_required
 @user_passes_test(is_central_admin)
 def upload_leads(request, category):
@@ -531,6 +624,7 @@ def upload_leads(request, category):
         'real_estate': RealEstateLead,
         'online_mba': OnlineMBA,
         'study_abroad': StudyAbroad,
+        'forex_trade': ForexTrade,
     }
 
     if category not in model_map:
@@ -542,38 +636,113 @@ def upload_leads(request, category):
     if request.method == 'POST' and request.FILES.get('excel_file'):
         excel_file = request.FILES['excel_file']
 
-        # Check file type
         if not excel_file.name.endswith('.xlsx'):
             messages.error(request, "Please upload a valid .xlsx file")
             return redirect(request.path)
 
-        # Load workbook
-        wb = openpyxl.load_workbook(excel_file)
-        sheet = wb.active
+        try:
+            wb = openpyxl.load_workbook(excel_file)
+            sheet = wb.active
 
-        # Get headers
-        headers = [cell.value for cell in sheet[1]]
+            # Safe header processing
+            headers = []
+            for cell in sheet[1]:
+                header_value = cell.value
+                if header_value is None:
+                    headers.append(f"column_{cell.column}")
+                else:
+                    headers.append(str(header_value).strip())
 
-        created_count = 0
-        skipped_count = 0
+            created_count = 0
+            skipped_count = 0
 
-        # Iterate rows
-        for row in sheet.iter_rows(min_row=2, values_only=True):
-            data = dict(zip(headers, row))
-            # Clean field keys to match model
-            data = {k.strip().lower().replace(" ", "_"): v for k, v in data.items() if v is not None}
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                # Create data dictionary safely
+                data = {}
+                for i, value in enumerate(row):
+                    if i < len(headers):
+                        header_name = headers[i]
+                        clean_header = header_name.lower().replace(" ", "_")
+                        data[clean_header] = value
 
-            try:
-                obj = Model.objects.create(**{k: v for k, v in data.items() if k in [f.name for f in Model._meta.fields]})
-                created_count += 1
-            except Exception as e:
-                skipped_count += 1
-                print("Skipped:", e)
+                # Skip if no data
+                if not any(value for value in data.values() if value is not None):
+                    continue
 
-        messages.success(request, f"{created_count} leads uploaded, {skipped_count} skipped.")
-        return redirect(request.path)
+                try:
+                    # Filter valid fields
+                    valid_fields = [f.name for f in Model._meta.fields]
+                    filtered_data = {k: v for k, v in data.items() 
+                                   if k in valid_fields and v is not None}
+                    
+                    Model.objects.create(**filtered_data)
+                    created_count += 1
+                    
+                except Exception as e:
+                    skipped_count += 1
+                    print(f"Skipped: {e}")
+
+            messages.success(request, f"{created_count} leads uploaded, {skipped_count} skipped.")
+            return redirect(request.path)
+
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+            return redirect(request.path)
 
     return render(request, 'central_admin/upload_leads.html', {'category': category})
+
+
+
+# @login_required
+# @user_passes_test(is_central_admin)
+# def upload_leads(request, category):
+#     model_map = {
+#         'real_estate': RealEstateLead,
+#         'online_mba': OnlineMBA,
+#         'study_abroad': StudyAbroad,
+#     }
+
+#     if category not in model_map:
+#         messages.error(request, "Invalid category.")
+#         return redirect('/central-admin/')
+
+#     Model = model_map[category]
+
+#     if request.method == 'POST' and request.FILES.get('excel_file'):
+#         excel_file = request.FILES['excel_file']
+
+#         # Check file type
+#         if not excel_file.name.endswith('.xlsx'):
+#             messages.error(request, "Please upload a valid .xlsx file")
+#             return redirect(request.path)
+
+#         # Load workbook
+#         wb = openpyxl.load_workbook(excel_file)
+#         sheet = wb.active
+
+#         # Get headers
+#         headers = [cell.value for cell in sheet[1]]
+
+#         created_count = 0
+#         skipped_count = 0
+
+#         # Iterate rows
+#         for row in sheet.iter_rows(min_row=2, values_only=True):
+#             data = dict(zip(headers, row))
+#             # Clean field keys to match model
+#             data = {k.strip().lower().replace(" ", "_"): v for k, v in data.items() if v is not None}
+
+#             try:
+#                 obj = Model.objects.create(**{k: v for k, v in data.items() if k in [f.name for f in Model._meta.fields]})
+#                 created_count += 1
+#             except Exception as e:
+#                 skipped_count += 1
+#                 print("Skipped:", e)
+
+#         messages.success(request, f"{created_count} leads uploaded, {skipped_count} skipped.")
+#         return redirect(request.path)
+
+#     return render(request, 'central_admin/upload_leads.html', {'category': category})
 
 # ------------------------------------------------------------------------------------------
 
@@ -585,3 +754,20 @@ def logout_view(request):
 
 
 
+def contact_leads_list(request):
+    contact_leads = ContactLead.objects.all()
+    
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+    
+    context = {
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name':short_name,
+        'contact_leads': contact_leads
+    }
+    
+    return render(request, 'central_admin/contact_leads_list.html',context)

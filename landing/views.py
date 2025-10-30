@@ -9,6 +9,7 @@ from django.shortcuts import render, get_object_or_404
 
 from django.http import HttpResponse
 from central_admin.models import Product
+from .models import ContactLead
 
 User = get_user_model()
 
@@ -433,7 +434,38 @@ def about_us(request):
     return render(request,'landing/about_us.html')
 
 def contact_us(request):
-    return render(request,'landing/contact_us.html')
+    if request.method == 'POST':
+        try:
+            # Get data from form
+            full_name = request.POST.get('name')
+            email = request.POST.get('email')
+            phone_number = request.POST.get('phone')
+            industry = request.POST.get('industry')
+            message = request.POST.get('message', '')
+            
+            # Basic validation
+            if not all([full_name, email, phone_number, industry]):
+                messages.error(request, 'Please fill all required fields.')
+                return render(request, 'landing/contact_us.html')
+            
+            # Create and save ContactLead object
+            contact_lead = ContactLead(
+                full_name=full_name,
+                email=email,
+                phone_number=phone_number,
+                industry=industry.lower().replace(' ', '_'), 
+                message=message
+            )
+            contact_lead.save()
+            
+            messages.success(request, 'Thank you! We will be in touch soon.')
+            return redirect('/contact_us/')
+            
+        except Exception as e:
+            messages.error(request, 'An error occurred. Please try again.')
+            print(f"Error saving contact lead: {e}")
+    
+    return render(request, 'landing/contact_us.html')
 
 
 def start_free_trail(request):

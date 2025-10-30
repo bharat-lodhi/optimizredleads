@@ -1,0 +1,297 @@
+{% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Contact Leads{% endblock %}
+{% block page_title %}Contact Leads{% endblock %}
+{% block page_subtitle %}Manage all contact form submissions{% endblock %}
+
+{% block content %}
+    {% if messages %}
+    <div class="max-w-md mx-auto mt-4">
+        {% for message in messages %}
+        <div class="p-3 rounded-md text-center 
+            {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+<div class="max-w-7xl mx-auto bg-white shadow-md rounded-xl p-4 md:p-6 overflow-x-auto">
+    <table class="min-w-full border border-gray-200 rounded-xl">
+        <thead class="bg-gray-100 text-gray-700">
+            <tr>
+                <th class="px-4 py-3 text-left">Contact Details</th>
+                <th class="px-4 py-3 text-left">Industry</th>
+                <th class="px-4 py-3 text-left">Message Preview</th>
+                <th class="px-4 py-3 text-left">Submitted</th>
+                <th class="px-4 py-3 text-left">Status</th>
+                <th class="px-4 py-3 text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lead in contact_leads %}
+            <tr class="border-t hover:bg-gray-50 transition cursor-pointer lead-row" 
+                data-lead-id="{{ lead.id }}"
+                data-lead-data='{
+                    "full_name": "{{ lead.full_name|escapejs }}",
+                    "email": "{{ lead.email|escapejs }}",
+                    "phone_number": "{{ lead.phone_number|escapejs }}",
+                    "industry": "{{ lead.industry|escapejs }}",
+                    "industry_display": "{{ lead.get_industry_display|escapejs }}",
+                    "message": "{{ lead.message|default:'No message'|escapejs }}",
+                    "created_at": "{{ lead.created_at|date:'M d, Y H:i' }}",
+                    "is_processed": "{{ lead.is_processed }}",
+                    "notes": "{{ lead.notes|default:'No notes'|escapejs }}"
+                }'>
+                
+                <!-- Contact Details -->
+                <td class="px-4 py-3">
+                    <div class="font-medium text-gray-900">{{ lead.full_name }}</div>
+                    <div class="text-sm text-gray-500">{{ lead.email }}</div>
+                    <div class="text-sm text-gray-500">{{ lead.phone_number }}</div>
+                </td>
+                
+                <!-- Industry -->
+                <td class="px-4 py-3">
+                    <span class="inline-block px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs capitalize">
+                        {{ lead.get_industry_display }}
+                    </span>
+                </td>
+                
+                <!-- Message Preview -->
+                <td class="px-4 py-3">
+                    {% if lead.message %}
+                        <div class="text-sm text-gray-600 truncate max-w-xs">
+                            {{ lead.message|truncatewords:10 }}
+                        </div>
+                    {% else %}
+                        <div class="text-xs text-gray-400">No message</div>
+                    {% endif %}
+                </td>
+                
+                <!-- Submitted -->
+                <td class="px-4 py-3">
+                    <div class="text-sm text-gray-900">{{ lead.created_at|date:"M d, Y" }}</div>
+                    <div class="text-xs text-gray-500">{{ lead.created_at|date:"H:i" }}</div>
+                </td>
+                
+                <!-- Status -->
+                <td class="px-4 py-3">
+                    {% if lead.is_processed %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Processed
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            New
+                        </span>
+                    {% endif %}
+                </td>
+                
+                <!-- Actions -->
+                <td class="px-4 py-3 text-center">
+                    <div class="flex flex-col space-y-1">
+                        <button class="view-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs font-semibold transition-colors">
+                            View
+                        </button>
+
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="px-4 py-4 text-center text-gray-500">No contact leads found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Lead Details Modal -->
+<div id="leadModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 class="text-xl font-bold text-gray-900">Contact Lead Details</h3>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Personal Information -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Contact Information</h4>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Full Name:</span>
+                            <span class="text-sm text-gray-900" id="modal-full-name">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Email:</span>
+                            <span class="text-sm text-gray-900" id="modal-email">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Phone:</span>
+                            <span class="text-sm text-gray-900" id="modal-phone">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lead Information -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Lead Information</h4>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Industry:</span>
+                            <span class="text-sm text-gray-900 capitalize" id="modal-industry">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Status:</span>
+                            <span class="text-sm font-semibold" id="modal-status">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-500">Submitted:</span>
+                            <span class="text-sm text-gray-900" id="modal-created-at">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="space-y-4 md:col-span-2">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Message</h4>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-700 whitespace-pre-wrap" id="modal-message">-</p>
+                    </div>
+                </div>
+
+                <!-- Admin Notes -->
+                <div class="space-y-4 md:col-span-2">
+                    <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Admin Notes</h4>
+                    <div class="bg-yellow-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-700 whitespace-pre-wrap" id="modal-notes">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="flex justify-end space-x-3 p-6 border-t border-gray-200">
+            <button id="closeModalBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                Close
+            </button>
+            <form method="post" action="" id="markProcessedForm" class="inline">
+                {% csrf_token %}
+                {% comment %} <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                    Mark as Processed
+                </button> {% endcomment %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .lead-row:hover {
+        background-color: #f9fafb;
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('leadModal');
+        const closeModal = document.getElementById('closeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const markProcessedForm = document.getElementById('markProcessedForm');
+        const leadRows = document.querySelectorAll('.lead-row');
+        const viewButtons = document.querySelectorAll('.view-btn');
+        
+        // Function to open modal with lead data
+        function openLeadModal(leadData) {
+            // Contact Information
+            document.getElementById('modal-full-name').textContent = leadData.full_name;
+            document.getElementById('modal-email').textContent = leadData.email;
+            document.getElementById('modal-phone').textContent = leadData.phone_number;
+            
+            // Lead Information
+            document.getElementById('modal-industry').textContent = leadData.industry_display;
+            
+            const status = document.getElementById('modal-status');
+            status.textContent = leadData.is_processed === 'True' ? 'Processed' : 'New';
+            status.className = 'text-sm font-semibold ' + 
+                (leadData.is_processed === 'True' ? 'text-green-600' : 'text-yellow-600');
+            
+            document.getElementById('modal-created-at').textContent = leadData.created_at;
+            
+            // Message
+            document.getElementById('modal-message').textContent = leadData.message;
+            
+            // Notes
+            document.getElementById('modal-notes').textContent = leadData.notes;
+            
+            // Set mark processed form action
+            markProcessedForm.action = `/central-admin/contact-leads/${leadData.leadId}/mark-processed/`;
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Add click event to view buttons
+        viewButtons.forEach((button, index) => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const row = this.closest('.lead-row');
+                const leadData = JSON.parse(row.getAttribute('data-lead-data'));
+                leadData.leadId = row.getAttribute('data-lead-id');
+                openLeadModal(leadData);
+            });
+        });
+        
+        // Add click event to lead rows (optional - if you want whole row clickable)
+        leadRows.forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Don't open modal if clicking on action buttons
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.closest('form')) {
+                    return;
+                }
+                
+                const leadData = JSON.parse(this.getAttribute('data-lead-data'));
+                leadData.leadId = this.getAttribute('data-lead-id');
+                openLeadModal(leadData);
+            });
+        });
+        
+        // Close modal functions
+        function closeLeadModal() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        closeModal.addEventListener('click', closeLeadModal);
+        closeModalBtn.addEventListener('click', closeLeadModal);
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeLeadModal();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeLeadModal();
+            }
+        });
+    });
+</script>
+{% endblock %}

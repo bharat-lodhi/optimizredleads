@@ -23,9 +23,10 @@ urlpatterns = [
     # -----------------------study_abroad----------------------------------------
     path('study_abroad/', views.study_abroad, name='study_abroad'),
     path('add_study_abroad/', views.add_study_abroad, name='add_study_abroad'),
-     # Bulk assign URL
-    # path('bulk_assign_online_mba/', views.bulk_assign_online_mba, name='bulk_assign_online_mba'),
-    
+    # -------------------------Forex-trade---------------------------------------------------
+    path('add_forex_trade/', views.add_forex_trade, name='add_forex_trade'),
+    path('forex_trade/', views.forex_trade, name='forex_trade'), 
+     
     # ----------------------------User management------------------------------------------
     path('users/', views.users_list, name='users_list'),
     path('users/edit/<int:user_id>/', views.edit_user, name='edit_user'),
@@ -35,6 +36,7 @@ urlpatterns = [
     # path('upload-leads/<str:category>/', views.upload_leads, name='upload_leads'),
     # path('upload-leads/<str:category>/', views.upload_leads, name='upload_leads'),
     path('upload-leads/<str:category>/', views.upload_leads, name='upload_leads'),
+    path('contact-leads/', views.contact_leads_list, name='contact_leads_list'),
 
 ]
 
