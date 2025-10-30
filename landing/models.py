@@ -161,3 +161,35 @@ class Payment(models.Model):
     def amount_in_rupees(self):
         """Convert amount from paise to rupees"""
         return self.amount / 100 if self.amount else 0
+    
+    
+    
+    # -------------------------------------------------------------------------------------------------------
+    
+    from django.db import models
+
+class ContactLead(models.Model):
+    INDUSTRY_CHOICES = [
+        ('real_estate', 'Real Estate'),
+        ('study_abroad', 'Study Abroad'),
+        ('education', 'Education'),
+        ('job_consultancy', 'Job Consultancy'),
+        ('other', 'Other'),
+    ]
+    
+    full_name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=20)
+    industry = models.CharField(max_length=50, choices=INDUSTRY_CHOICES)
+    message = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_processed = models.BooleanField(default=False)
+    notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.full_name} - {self.industry}"
+
+    class Meta:
+        verbose_name = "Contact Lead"
+        verbose_name_plural = "Contact Leads"
+        ordering = ['-created_at']

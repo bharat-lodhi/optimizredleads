@@ -1,10 +1,10 @@
 {% extends 'central_admin_base.html' %}
 {% load static %}
 
-{% block title %}Add Real Estate Lead{% endblock %}
+{% block title %}Add Forex Trade Lead{% endblock %}
 
-{% block page_title %}Add Real Estate Lead{% endblock %}
-{% block page_subtitle %}Create new real estate lead{% endblock %}
+{% block page_title %}Add Forex Trade Lead{% endblock %}
+{% block page_subtitle %}Create new forex trading lead{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
@@ -64,99 +64,74 @@
                            value="{{ request.POST.email }}">
                 </div>
 
-                <!-- Property Type -->
+                <!-- How much experience -->
                 <div>
-                    <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2">
-                        Property Type
-                    </label>
-                    <select name="property_type" 
-                            id="property_type"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Select Property Type</option>
-                        {% for value, label in property_types %}
-                            <option value="{{ value }}" {% if request.POST.property_type == value %}selected{% endif %}>
-                                {{ label }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Sub Industry -->
-                <div>
-                    <label for="sub_industry" class="block text-sm font-medium text-gray-700 mb-2">
-                        Sub Industry
-                    </label>
-                    <select name="sub_industry" 
-                            id="sub_industry"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Select Sub Industry</option>
-                        {% for value, label in sub_industries %}
-                            <option value="{{ value }}" {% if request.POST.sub_industry == value %}selected{% endif %}>
-                                {{ label }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Budget -->
-                <div>
-                    <label for="budget" class="block text-sm font-medium text-gray-700 mb-2">
-                        Budget
+                    <label for="experience" class="block text-sm font-medium text-gray-700 mb-2">
+                        How much experience
                     </label>
                     <input type="text" 
-                           name="budget" 
-                           id="budget"
+                           name="experience" 
+                           id="experience"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Enter budget"
-                           value="{{ request.POST.budget }}">
+                           placeholder="e.g., 2 years, Beginner, etc."
+                           value="{{ request.POST.experience }}">
                 </div>
 
-                <!-- Location -->
+                <!-- Initially using broker -->
                 <div>
-                    <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
-                        Preferred Location
+                    <label for="broker" class="block text-sm font-medium text-gray-700 mb-2">
+                        Initially using broker
                     </label>
                     <input type="text" 
-                           name="location" 
-                           id="location"
+                           name="broker" 
+                           id="broker"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Enter preferred location"
-                           value="{{ request.POST.location }}">
+                           placeholder="e.g., MetaTrader, NinjaTrader, etc."
+                           value="{{ request.POST.broker }}">
                 </div>
 
-                <!-- Visit Day -->
+                <!-- Initial investment for trading -->
                 <div>
-                    <label for="visit_day" class="block text-sm font-medium text-gray-700 mb-2">
-                        Visit Day
-                    </label>
-                    <select name="visit_day" 
-                            id="visit_day"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Select Option</option>
-                        <option value="not_sure_yet" {% if request.POST.visit_day == 'not_sure_yet' %}selected{% endif %}>Not Sure Yet</option>
-                        <option value="this_week" {% if request.POST.visit_day == 'this_week' %}selected{% endif %}>This Week</option>
-                        <option value="this_weekend" {% if request.POST.visit_day == 'this_weekend' %}selected{% endif %}>This Weekend</option>
-                        <option value="next_week" {% if request.POST.visit_day == 'next_week' %}selected{% endif %}>Next Week</option>
-                    </select>
-                </div>
-
-                <!-- Requirement Sq. Ft. -->
-                <div class="md:col-span-2">
-                    <label for="requirement_sqft" class="block text-sm font-medium text-gray-700 mb-2">
-                        Required Sq. Ft.
+                    <label for="initial_investment" class="block text-sm font-medium text-gray-700 mb-2">
+                        Initial investment for trading
                     </label>
                     <input type="text" 
-                           name="requirement_sqft" 
-                           id="requirement_sqft"
+                           name="initial_investment" 
+                           id="initial_investment"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Enter required square feet"
-                           value="{{ request.POST.requirement_sqft }}">
+                           placeholder="e.g., $5000, ₹50,000, etc."
+                           value="{{ request.POST.initial_investment }}">
                 </div>
+
+                <!-- Country -->
+                <div>
+                    <label for="country" class="block text-sm font-medium text-gray-700 mb-2">
+                        Country
+                    </label>
+                    <input type="text" 
+                           name="country" 
+                           id="country"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter country"
+                           value="{{ request.POST.country }}">
+                </div>
+            </div>
+
+            <!-- Note -->
+            <div>
+                <label for="note" class="block text-sm font-medium text-gray-700 mb-2">
+                    Note
+                </label>
+                <textarea name="note" 
+                          id="note"
+                          rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Enter any additional notes or comments">{{ request.POST.note }}</textarea>
             </div>
 
             <!-- Form Buttons -->
             <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                <a href="/central-admin/real_estate/" 
+                <a href="/central-admin/forex_trade/" 
                    class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
                     Cancel
                 </a>

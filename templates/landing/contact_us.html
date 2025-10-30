@@ -122,7 +122,7 @@
                         <div class="contact-form-container mb-8">
                             <!-- HTML Forms v1.5.5 - https://wordpress.org/plugins/html-forms/ -->
 <form method="post"  class="hf-form hf-form-353 " data-id="353" data-title="contact" data-slug="contact" data-message-success="Thank you! We will be in touch soon." data-message-invalid-email="Sorry, that email address looks invalid." data-message-required-field-missing="Please fill in the required fields." data-message-error="Oops. An error occurred."><input type="hidden" id="_wpnonce" name="_wpnonce" value="cb00edfe28" /><input type="hidden" name="_wp_http_referer" value="/contact-us/" /><input type="hidden" name="_hf_form_id" value="353" /><div style="display: none;"><input type="text" name="_hf_h353" value="" /></div><div class="hf-fields-wrap">  <!-- Contact Form -->
-                    
+                    {% csrf_token %}
                         <!-- Name Field -->
                         <div>
                             <label for="name" class="block text-sm font-semibold text-gray-900 mb-2">
@@ -137,6 +137,7 @@
                                 placeholder="Enter your full name"
                             >
                         </div>
+                        <br/>
 
                         <!-- Email Field -->
                         <div>
@@ -152,6 +153,7 @@
                                 placeholder="Enter your email address"
                             >
                         </div>
+                        <br/>
 
                         <!-- Phone Field -->
                         <div>
@@ -167,6 +169,7 @@
                                 placeholder="Enter your phone number"
                             >
                         </div>
+                        <br/>
 
                         <!-- Industry Dropdown -->
                         <div>
@@ -177,7 +180,7 @@
                                 id="industry" 
                                 name="industry" 
                                 required
-                                class="form-input w-full px-4 py-3 rounded-lg text-gray-900 bg-white"
+                                class="form-input w-full px-4 rounded-lg text-gray-900 bg-white"
                             >
                                 <option value="">Select your industry</option>
                                 <option value="Real Estate">Real Estate</option>
@@ -187,6 +190,7 @@
                                 <option value="Other">Other</option>
                             </select>
                         </div>
+                        <br/>
 
                         <!-- Message Field -->
                         <div>
@@ -201,12 +205,14 @@
                                 placeholder="Tell us more about your lead generation needs..."
                             ></textarea>
                         </div>
+                        <br/>
 
                         <!-- Submit Button -->
                         <button 
                             type="submit" 
                             id="submitBtn"
                             class="submit-button w-full text-white font-bold py-4 px-6 rounded-lg text-lg"
+                            style="background:#2E2EFF"
                         >
                             <span id="submitText">Send Message & Get Free Consultation</span>
                             <div id="submitSpinner" class="hidden flex items-center justify-center">
@@ -215,6 +221,8 @@
                             </div>
                         </button>
 
+                        
+                        <br/><br/>
                         <p class="text-sm text-gray-500 text-center">
                             By submitting this form, you agree to receive communications from OptimizedLeads about our services.
                         </p>
@@ -331,5 +339,5 @@
 				</div>
 				</div>
 				</div>
-			</div> <!-- ast-container -->
+			</div>
 {% endblock %}

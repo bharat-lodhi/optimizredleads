@@ -1,9 +1,9 @@
 {% extends 'central_admin_base.html' %}
 {% load static %}
 
-{% block title %}Online MBA Leads{% endblock %}
-{% block page_title %}Online MBA Leads{% endblock %}
-{% block page_subtitle %}Manage all Online MBA leads{% endblock %}
+{% block title %}Forex Trade Leads{% endblock %}
+{% block page_title %}Forex Trade Leads{% endblock %}
+{% block page_subtitle %}Manage all Forex Trading leads{% endblock %}
 
 {% block content %}
 <form method="POST" id="bulkAssignForm">
@@ -22,7 +22,7 @@
     <!-- Header with Add Button & Bulk Assign -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
             
-        <a href="/central-admin/add_online_mba/" 
+        <a href="/central-admin/add_forex_trade/" 
            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200">
             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
@@ -66,16 +66,17 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">University</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qualification</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Broker</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investment</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remark</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created Date</th>
                     </tr>
                 </thead>
-
 
                 <tbody class="bg-white divide-y divide-gray-200" id="leadsTable">
                     {% for lead in leads %}
@@ -87,9 +88,11 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ lead.full_name|default:"-" }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.email|default:"-" }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.phone_number|default:"-" }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.course|default:"-" }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.university|default:"-" }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.higher_qualification|default:"-" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.experience|default:"-" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.broker|default:"-" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.initial_investment|default:"-" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.country|default:"-" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.note|default:"-" }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {% if lead.assigned_to %}
                                 {{ lead.assigned_to.username }}
@@ -97,9 +100,7 @@
                                 <span class="text-gray-400 italic">Unassigned</span>
                             {% endif %}
                         </td>
-
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.remark|default:"-" }}</td>
-
                         <td class="px-6 py-4 whitespace-nowrap">
                             {% if lead.status == 'new' %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">New</span>
@@ -115,14 +116,14 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="11" class="px-6 py-8 text-center">
+                        <td colspan="14" class="px-6 py-8 text-center">
                             <div class="text-gray-500">
                                 <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <p class="text-lg font-medium text-gray-900 mb-2">No Online MBA leads found</p>
-                                <p class="mb-4">Get started by creating your first Online MBA lead.</p>
-                                <a href="/central-admin/add_online_mba/" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200">
+                                <p class="text-lg font-medium text-gray-900 mb-2">No Forex Trade leads found</p>
+                                <p class="mb-4">Get started by creating your first Forex Trade lead.</p>
+                                <a href="/central-admin/add_forex_trade/" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200">
                                     Add New Lead
                                 </a>
                             </div>
@@ -156,6 +157,3 @@
     });
 </script>
 {% endblock %}
-
-
-
