@@ -12,7 +12,7 @@ class User(AbstractUser):
         ('free', 'Free'),
         ('basic', 'Basic'),
         ('premium', 'Premium'),
-        ('enterprise', 'Enterprise'),
+        ('pro', 'Pro'),
     ]
 
     role = models.CharField(
