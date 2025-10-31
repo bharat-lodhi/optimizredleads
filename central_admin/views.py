@@ -8,6 +8,14 @@ from django.contrib.contenttypes.models import ContentType
 User = get_user_model()
 from landing.models import ContactLead
 
+import openpyxl
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+
+def is_central_admin(user):
+    return user.is_authenticated and user.role == 'central_admin'
+
+
 def add_product(request):
     if request.method == "POST":
         category = request.POST.get('category')
@@ -193,6 +201,12 @@ def real_estate(request):
         for lead_id in selected_leads:
             lead = RealEstateLead.objects.filter(id=lead_id).first()
             if lead:
+                
+                # Check if lead is being assigned to a different user
+                if lead.assigned_to != assigned_user:
+                    # Clear the remark when reassigning to a different user
+                    lead.remark = ""
+                
                 lead.assigned_to = assigned_user  # Update existing assignment
                 lead.save()
 
@@ -264,6 +278,81 @@ def add_real_estate(request):
 
 
 
+@login_required
+@user_passes_test(is_central_admin)
+def edit_real_estate(request, lead_id):
+    lead = get_object_or_404(RealEstateLead, id=lead_id)
+    
+    # Get all choices for dropdowns
+    status_choices = RealEstateLead.STATUS_CHOICES
+    property_type_choices = RealEstateLead.PROPERTY_TYPE_CHOICES
+    sub_industry_choices = RealEstateLead.SUB_INDUSTRY_CHOICES
+    
+    # Get all users for assignment
+    users = User.objects.all()
+
+    if request.method == 'POST':
+        # Update lead fields
+        lead.full_name = request.POST.get('full_name')
+        lead.phone_number = request.POST.get('phone_number')
+        lead.email = request.POST.get('email')
+        lead.property_type = request.POST.get('property_type')
+        lead.sub_industry = request.POST.get('sub_industry')
+        lead.budget = request.POST.get('budget')
+        lead.location = request.POST.get('location')
+        lead.visit_day = request.POST.get('visit_day')
+        lead.requirement_sqft = request.POST.get('requirement_sqft')
+        lead.status = request.POST.get('status')
+        lead.remark = request.POST.get('remark')
+        
+        # Handle assignment
+        assigned_to_id = request.POST.get('assigned_to')
+        if assigned_to_id:
+            try:
+                lead.assigned_to = User.objects.get(id=assigned_to_id)
+            except User.DoesNotExist:
+                lead.assigned_to = None
+        else:
+            lead.assigned_to = None
+        
+        lead.save()
+        messages.success(request, "Real estate lead updated successfully!")
+        return redirect('central_admin:real_estate')
+    
+    # Get session data for context
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+
+    context = {
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name': short_name,
+        'lead': lead,
+        'status_choices': status_choices,
+        'property_type_choices': property_type_choices,
+        'sub_industry_choices': sub_industry_choices,
+        'users': users,
+    }
+    return render(request, 'central_admin/edit_real_estate.html', context)
+
+@login_required
+@user_passes_test(is_central_admin)
+def delete_real_estate(request, lead_id):
+    lead = get_object_or_404(RealEstateLead, id=lead_id)
+    
+    if request.method == 'POST':
+        lead.delete()
+        messages.success(request, "Real estate lead deleted successfully!")
+        return redirect('central_admin:real_estate')
+    
+    # If not POST, show confirmation page or handle differently
+    return redirect('central_admin:real_estate')
+
+
+
 from django.contrib.contenttypes.models import ContentType
 
 def online_mba(request):
@@ -284,6 +373,12 @@ def online_mba(request):
         for lead_id in selected_leads:
             lead = OnlineMBA.objects.filter(id=lead_id).first()
             if lead:
+                
+                # Check if lead is being assigned to a different user
+                if lead.assigned_to != assigned_user:
+                    # Clear the remark when reassigning to a different user
+                    lead.remark = ""
+                
                 lead.assigned_to = assigned_user  # Update existing assignment
                 lead.save()
 
@@ -341,6 +436,69 @@ def add_online_mba(request):
 
 
 
+@login_required
+@user_passes_test(is_central_admin)
+def edit_online_mba(request, lead_id):
+    lead = get_object_or_404(OnlineMBA, id=lead_id)
+    
+    # Get all choices for dropdowns
+    status_choices = OnlineMBA.STATUS_CHOICES
+    
+    # Get all users for assignment
+    users = User.objects.all()
+
+    if request.method == 'POST':
+        # Update lead fields
+        lead.full_name = request.POST.get('full_name')
+        lead.phone_number = request.POST.get('phone_number')
+        lead.email = request.POST.get('email')
+        lead.course = request.POST.get('course')
+        lead.university = request.POST.get('university')
+        lead.higher_qualification = request.POST.get('higher_qualification')
+        lead.status = request.POST.get('status')
+        lead.remark = request.POST.get('remark')
+        
+        # Handle assignment
+        assigned_to_id = request.POST.get('assigned_to')
+        if assigned_to_id:
+            try:
+                lead.assigned_to = User.objects.get(id=assigned_to_id)
+            except User.DoesNotExist:
+                lead.assigned_to = None
+        else:
+            lead.assigned_to = None
+        
+        lead.save()
+        messages.success(request, "Online MBA lead updated successfully!")
+        return redirect('central_admin:online_mba')
+    
+    # Get session data for context
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+
+    context = {
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name': short_name,
+        'lead': lead,
+        'status_choices': status_choices,
+        'users': users,
+    }
+    return render(request, 'central_admin/edit_online_mba.html', context)
+
+@login_required
+@user_passes_test(is_central_admin)
+def delete_online_mba(request, lead_id):
+    lead = get_object_or_404(OnlineMBA, id=lead_id)
+    lead.delete()
+    messages.success(request, "Online MBA lead deleted successfully!")
+    return redirect('central_admin:online_mba')
+
+
+
 def study_abroad(request):
     if request.method == 'POST':
         selected_leads = request.POST.getlist('leads')
@@ -359,6 +517,11 @@ def study_abroad(request):
         for lead_id in selected_leads:
             lead = StudyAbroad.objects.filter(id=lead_id).first()
             if lead:
+                # Check if lead is being assigned to a different user
+                if lead.assigned_to != assigned_user:
+                    # Clear the remark when reassigning to a different user
+                    lead.remark = ""
+                    
                 lead.assigned_to = assigned_user  # Update existing assignment
                 lead.save()
 
@@ -425,6 +588,68 @@ def add_study_abroad(request):
     
     return render(request, 'central_admin/add_study_abroad.html',context)
 
+@login_required
+@user_passes_test(is_central_admin)
+def edit_study_abroad(request, lead_id):
+    lead = get_object_or_404(StudyAbroad, id=lead_id)
+    
+    # Get all choices for dropdowns
+    status_choices = StudyAbroad.STATUS_CHOICES
+    
+    # Get all users for assignment
+    users = User.objects.all()
+
+    if request.method == 'POST':
+        # Update lead fields
+        lead.full_name = request.POST.get('full_name')
+        lead.phone_number = request.POST.get('phone_number')
+        lead.email = request.POST.get('email')
+        lead.country = request.POST.get('country')
+        lead.exam = request.POST.get('exam')
+        lead.budget = request.POST.get('budget')
+        lead.university = request.POST.get('university')
+        lead.status = request.POST.get('status')
+        lead.remark = request.POST.get('remark')
+        
+        # Handle assignment
+        assigned_to_id = request.POST.get('assigned_to')
+        if assigned_to_id:
+            try:
+                lead.assigned_to = User.objects.get(id=assigned_to_id)
+            except User.DoesNotExist:
+                lead.assigned_to = None
+        else:
+            lead.assigned_to = None
+        
+        lead.save()
+        messages.success(request, "Study Abroad lead updated successfully!")
+        return redirect('central_admin:study_abroad')
+    
+    # Get session data for context
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+
+    context = {
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name': short_name,
+        'lead': lead,
+        'status_choices': status_choices,
+        'users': users,
+    }
+    return render(request, 'central_admin/edit_study_abroad.html', context)
+
+@login_required
+@user_passes_test(is_central_admin)
+def delete_study_abroad(request, lead_id):
+    lead = get_object_or_404(StudyAbroad, id=lead_id)
+    lead.delete()
+    messages.success(request, "Study Abroad lead deleted successfully!")
+    return redirect('central_admin:study_abroad')
+
 
 
 def add_forex_trade(request):
@@ -463,6 +688,71 @@ def add_forex_trade(request):
     return render(request, 'central_admin/add_forex_trade.html',context)
 
 
+
+@login_required
+@user_passes_test(is_central_admin)
+def edit_forex_trade(request, lead_id):
+    lead = get_object_or_404(ForexTrade, id=lead_id)
+    
+    # Get all choices for dropdowns
+    status_choices = ForexTrade.STATUS_CHOICES
+    
+    # Get all users for assignment
+    users = User.objects.all()
+
+    if request.method == 'POST':
+        # Update lead fields
+        lead.full_name = request.POST.get('full_name')
+        lead.phone_number = request.POST.get('phone_number')
+        lead.email = request.POST.get('email')
+        lead.experience = request.POST.get('experience')
+        lead.broker = request.POST.get('broker')
+        lead.initial_investment = request.POST.get('initial_investment')
+        lead.country = request.POST.get('country')
+        lead.note = request.POST.get('note')
+        lead.status = request.POST.get('status')
+        lead.remark = request.POST.get('remark')
+        
+        # Handle assignment
+        assigned_to_id = request.POST.get('assigned_to')
+        if assigned_to_id:
+            try:
+                lead.assigned_to = User.objects.get(id=assigned_to_id)
+            except User.DoesNotExist:
+                lead.assigned_to = None
+        else:
+            lead.assigned_to = None
+        
+        lead.save()
+        messages.success(request, "Forex Trade lead updated successfully!")
+        return redirect('central_admin:forex_trade')
+    
+    # Get session data for context
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+
+    context = {
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name': short_name,
+        'lead': lead,
+        'status_choices': status_choices,
+        'users': users,
+    }
+    return render(request, 'central_admin/edit_forex_trade.html', context)
+
+@login_required
+@user_passes_test(is_central_admin)
+def delete_forex_trade(request, lead_id):
+    lead = get_object_or_404(ForexTrade, id=lead_id)
+    lead.delete()
+    messages.success(request, "Forex Trade lead deleted successfully!")
+    return redirect('central_admin:forex_trade')
+
+
 from django.contrib.contenttypes.models import ContentType
 
 def forex_trade(request):
@@ -483,6 +773,10 @@ def forex_trade(request):
         for lead_id in selected_leads:
             lead = ForexTrade.objects.filter(id=lead_id).first()
             if lead:
+                # Check if lead is being assigned to a different user
+                if lead.assigned_to != assigned_user:
+                    # Clear the remark when reassigning to a different user
+                    lead.remark = ""
                 lead.assigned_to = assigned_user  # Update existing assignment
                 lead.save()
 
@@ -561,6 +855,8 @@ def delete_user(request, user_id):
     return redirect('/central-admin/users/')
 
 
+
+
 @login_required
 @user_passes_test(is_central_admin)
 def edit_user(request, user_id):
@@ -576,16 +872,54 @@ def edit_user(request, user_id):
     ]
 
     if request.method == 'POST':
+        # Update basic user information
         user.first_name = request.POST.get('first_name')
         user.last_name = request.POST.get('last_name')
         user.email = request.POST.get('email')
+        user.username = request.POST.get('email')
         user.role = request.POST.get('role')
         user.plan_type = request.POST.get('plan_type')
         user.plan_status = request.POST.get('plan_status')
         user.credit_limit = request.POST.get('credit_limit') or 0
         user.is_verified = bool(request.POST.get('is_verified'))
+        
+        # Handle password change
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        if new_password:
+            if new_password == confirm_password:
+                if len(new_password) >= 8:  # Basic password strength check
+                    user.set_password(new_password)
+                    messages.success(request, "User details and password updated successfully!")
+                else:
+                    messages.error(request, "Password must be at least 8 characters long.")
+                    return render(request, 'central_admin/edit_user.html', {
+                        'user': user,
+                        'role_choices': role_choices,
+                        'plan_choices': plan_choices,
+                        'status_choices': status_choices,
+                        'name': request.session.get('user_name'),
+                        'email': request.session.get('user_email'),
+                        'role': request.session.get('user_role'),
+                        'short_name': request.session.get('user_name')[:2].upper() if request.session.get('user_name') else "",
+                    })
+            else:
+                messages.error(request, "Passwords do not match.")
+                return render(request, 'central_admin/edit_user.html', {
+                    'user': user,
+                    'role_choices': role_choices,
+                    'plan_choices': plan_choices,
+                    'status_choices': status_choices,
+                    'name': request.session.get('user_name'),
+                    'email': request.session.get('user_email'),
+                    'role': request.session.get('user_role'),
+                    'short_name': request.session.get('user_name')[:2].upper() if request.session.get('user_name') else "",
+                })
+        else:
+            messages.success(request, "User details updated successfully!")
+        
         user.save()
-        messages.success(request, "User details updated successfully!")
         return redirect('central_admin:users_list')
     
     user_name = request.session.get('user_name')
@@ -597,23 +931,64 @@ def edit_user(request, user_id):
         'name': user_name,
         'email': user_email,
         'role': user_role,
-        'short_name':short_name,
+        'short_name': short_name,
         'user': user,
         'role_choices': role_choices,
         'plan_choices': plan_choices,
         'status_choices': status_choices,
-        
     }
     return render(request, 'central_admin/edit_user.html', context)
 
+
+
+
+
+# @login_required
+# @user_passes_test(is_central_admin)
+# def edit_user(request, user_id):
+#     user = get_object_or_404(User, id=user_id)
+
+#     # Pass choices to template
+#     role_choices = User.ROLE_CHOICES
+#     plan_choices = User.PLAN_CHOICES
+#     status_choices = [
+#         ('active', 'Active'),
+#         ('inactive', 'Inactive'),
+#         ('expired', 'Expired'),
+#     ]
+
+#     if request.method == 'POST':
+#         user.first_name = request.POST.get('first_name')
+#         user.last_name = request.POST.get('last_name')
+#         user.email = request.POST.get('email')
+#         user.role = request.POST.get('role')
+#         user.plan_type = request.POST.get('plan_type')
+#         user.plan_status = request.POST.get('plan_status')
+#         user.credit_limit = request.POST.get('credit_limit') or 0
+#         user.is_verified = bool(request.POST.get('is_verified'))
+#         user.save()
+#         messages.success(request, "User details updated successfully!")
+#         return redirect('central_admin:users_list')
+    
+#     user_name = request.session.get('user_name')
+#     user_email = request.session.get('user_email')
+#     user_role = request.session.get('user_role')
+#     short_name = user_name[:2].upper() if user_name else ""
+
+#     context = {
+#         'name': user_name,
+#         'email': user_email,
+#         'role': user_role,
+#         'short_name':short_name,
+#         'user': user,
+#         'role_choices': role_choices,
+#         'plan_choices': plan_choices,
+#         'status_choices': status_choices,
+        
+#     }
+#     return render(request, 'central_admin/edit_user.html', context)
+
 # ---------------------------------------Leads Upload---------------------------------------
-import openpyxl
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-
-
-def is_central_admin(user):
-    return user.is_authenticated and user.role == 'central_admin'
 
 
 

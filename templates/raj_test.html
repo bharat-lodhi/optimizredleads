@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Ticket System</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .ticket-card {
+            transition: all 0.3s ease;
+        }
+        
+        .ticket-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .priority-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .loading-spinner {
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="min-h-full bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 py-8"><!-- Header -->
+   <header class="text-center mb-12">
+    <h1 id="page-title" class="text-4xl font-bold text-gray-900 mb-4">Support Center</h1>
+    <p class="text-xl text-gray-600">How can we help you today?</p>
+   </header><!-- Main Content -->
+   <div class="grid lg:grid-cols-3 gap-8"><!-- Ticket Submission Form -->
+    <div class="lg:col-span-2">
+     <div class="bg-white rounded-xl shadow-lg p-8">
+      <div class="flex items-center mb-6">
+       <div class="bg-blue-100 p-3 rounded-lg mr-4">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+       </div>
+       <h2 class="text-2xl font-bold text-gray-900">Submit New Ticket</h2>
+      </div>
+      <form id="ticket-form" class="space-y-6">
+       <div class="grid md:grid-cols-2 gap-6">
+        <div><label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Subject</label> <input type="text" id="subject" name="subject" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Brief description of your issue">
+        </div>
+        <div><label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label> <select id="category" name="category" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"> <option value="">Select a category</option> <option value="technical">Technical Issue</option> <option value="billing">Billing &amp; Payment</option> <option value="account">Account Management</option> <option value="feature">Feature Request</option> <option value="other">Other</option> </select>
+        </div>
+       </div>
+       <div><label for="priority" class="block text-sm font-medium text-gray-700 mb-2">Priority Level</label> <select id="priority" name="priority" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"> <option value="">Select priority</option> <option value="low">Low - General inquiry</option> <option value="medium">Medium - Standard issue</option> <option value="high">High - Urgent issue</option> <option value="critical">Critical - System down</option> </select>
+       </div>
+       <div><label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label> <textarea id="description" name="description" rows="6" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Please provide detailed information about your issue..."></textarea>
+       </div><button type="submit" id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center"> <span id="submit-text">Submit Ticket</span>
+        <div id="submit-spinner" class="loading-spinner ml-2 hidden"></div></button>
+      </form>
+     </div>
+    </div><!-- Sidebar -->
+    <div class="space-y-6"><!-- Quick Stats -->
+     <div class="bg-white rounded-xl shadow-lg p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Ticket Overview</h3>
+      <div class="space-y-3">
+       <div class="flex justify-between items-center"><span class="text-gray-600">Total Tickets</span> <span id="total-count" class="font-semibold text-gray-900">0</span>
+       </div>
+       <div class="flex justify-between items-center"><span class="text-gray-600">Open</span> <span id="open-count" class="font-semibold text-orange-600">0</span>
+       </div>
+       <div class="flex justify-between items-center"><span class="text-gray-600">In Progress</span> <span id="progress-count" class="font-semibold text-blue-600">0</span>
+       </div>
+       <div class="flex justify-between items-center"><span class="text-gray-600">Resolved</span> <span id="resolved-count" class="font-semibold text-green-600">0</span>
+       </div>
+      </div>
+     </div><!-- Contact Info -->
+     <div class="bg-white rounded-xl shadow-lg p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Need Immediate Help?</h3>
+      <div class="space-y-4">
+       <div class="flex items-center">
+        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg><span class="text-gray-600">support@optimizedleads.com</span>
+       </div>
+       <div class="flex items-center">
+        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg><span class="text-gray-600">Response within 24 hours</span>
+       </div>
+      </div>
+      <p id="footer-text" class="text-sm text-gray-500 mt-4">We'll get back to you within 24 hours</p>
+     </div>
+    </div>
+   </div><!-- Tickets List -->
+   <div class="mt-12">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+     <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">Your Tickets</h2>
+      <div class="flex space-x-2"><button id="filter-all" class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">All</button> <button id="filter-open" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">Open</button> <button id="filter-progress" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">In Progress</button> <button id="filter-resolved" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">Resolved</button>
+      </div>
+     </div>
+     <div id="tickets-container" class="space-y-4">
+      <div id="no-tickets" class="text-center py-12">
+       <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+       </svg>
+       <p class="text-gray-500 text-lg">No tickets found</p>
+       <p class="text-gray-400">Submit your first support ticket above</p>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+        // Configuration
+        const defaultConfig = {
+            page_title: "Support Center",
+            company_name: "OptimizedLeads",
+            submit_button_text: "Submit Ticket",
+            footer_text: "We'll get back to you within 24 hours",
+            background_color: "#f9fafb",
+            surface_color: "#ffffff",
+            text_color: "#111827",
+            primary_action_color: "#2563eb",
+            secondary_action_color: "#6b7280"
+        };
+
+        let tickets = [];
+        let currentFilter = 'all';
+
+        // Data SDK Handler
+        const dataHandler = {
+            onDataChanged(data) {
+                tickets = data;
+                renderTickets();
+                updateStats();
+            }
+        };
+
+        // Element SDK Implementation
+        async function onConfigChange(config) {
+            const pageTitle = config.page_title || defaultConfig.page_title;
+            const submitText = config.submit_button_text || defaultConfig.submit_button_text;
+            const footerText = config.footer_text || defaultConfig.footer_text;
+            
+            const backgroundColor = config.background_color || defaultConfig.background_color;
+            const surfaceColor = config.surface_color || defaultConfig.surface_color;
+            const textColor = config.text_color || defaultConfig.text_color;
+            const primaryColor = config.primary_action_color || defaultConfig.primary_action_color;
+            const secondaryColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+
+            document.getElementById('page-title').textContent = pageTitle;
+            document.getElementById('submit-text').textContent = submitText;
+            document.getElementById('footer-text').textContent = footerText;
+
+            document.body.style.backgroundColor = backgroundColor;
+            document.body.style.color = textColor;
+            
+            const surfaces = document.querySelectorAll('.bg-white');
+            surfaces.forEach(surface => {
+                surface.style.backgroundColor = surfaceColor;
+            });
+
+            const primaryButtons = document.querySelectorAll('.bg-blue-600, .text-blue-600');
+            primaryButtons.forEach(btn => {
+                if (btn.classList.contains('bg-blue-600')) {
+                    btn.style.backgroundColor = primaryColor;
+                } else {
+                    btn.style.color = primaryColor;
+                }
+            });
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [
+                    {
+                        get: () => config.background_color || defaultConfig.background_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ background_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.surface_color || defaultConfig.surface_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ surface_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.text_color || defaultConfig.text_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ text_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.primary_action_color || defaultConfig.primary_action_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ primary_action_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ secondary_action_color: value });
+                            }
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["page_title", config.page_title || defaultConfig.page_title],
+                ["company_name", config.company_name || defaultConfig.company_name],
+                ["submit_button_text", config.submit_button_text || defaultConfig.submit_button_text],
+                ["footer_text", config.footer_text || defaultConfig.footer_text]
+            ]);
+        }
+
+        // Utility Functions
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'open': 'bg-orange-100 text-orange-800',
+                'in-progress': 'bg-blue-100 text-blue-800',
+                'resolved': 'bg-green-100 text-green-800',
+                'closed': 'bg-gray-100 text-gray-800'
+            };
+            return colors[status] || colors['open'];
+        }
+
+        function getPriorityColor(priority) {
+            const colors = {
+                'low': '#10b981',
+                'medium': '#f59e0b',
+                'high': '#ef4444',
+                'critical': '#dc2626'
+            };
+            return colors[priority] || colors['medium'];
+        }
+
+        // Render Functions
+        function renderTickets() {
+            const container = document.getElementById('tickets-container');
+            const noTickets = document.getElementById('no-tickets');
+            
+            let filteredTickets = tickets;
+            if (currentFilter !== 'all') {
+                filteredTickets = tickets.filter(ticket => {
+                    if (currentFilter === 'progress') return ticket.status === 'in-progress';
+                    return ticket.status === currentFilter;
+                });
+            }
+
+            if (filteredTickets.length === 0) {
+                noTickets.style.display = 'block';
+                container.querySelectorAll('.ticket-card').forEach(card => card.remove());
+                return;
+            }
+
+            noTickets.style.display = 'none';
+
+            // Clear existing tickets
+            container.querySelectorAll('.ticket-card').forEach(card => card.remove());
+
+            // Render filtered tickets
+            filteredTickets.forEach(ticket => {
+                const ticketElement = createTicketElement(ticket);
+                container.appendChild(ticketElement);
+            });
+        }
+
+        function createTicketElement(ticket) {
+            const div = document.createElement('div');
+            div.className = 'ticket-card bg-white border border-gray-200 rounded-lg p-6';
+            div.innerHTML = `
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center mb-2">
+                            <span class="priority-indicator" style="background-color: ${getPriorityColor(ticket.priority)}"></span>
+                            <h3 class="text-lg font-semibold text-gray-900">${ticket.subject}</h3>
+                        </div>
+                        <p class="text-gray-600 mb-3">${ticket.description}</p>
+                        <div class="flex items-center space-x-4 text-sm text-gray-500">
+                            <span>ID: ${ticket.id}</span>
+                            <span>Category: ${ticket.category}</span>
+                            <span>Created: ${formatDate(ticket.created_at)}</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end space-y-2">
+                        <span class="status-badge ${getStatusColor(ticket.status)}">${ticket.status}</span>
+                        <button onclick="updateTicketStatus('${ticket.__backendId}', '${ticket.status}')" 
+                                class="text-sm text-blue-600 hover:text-blue-800">
+                            Update Status
+                        </button>
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+
+        function updateStats() {
+            const total = tickets.length;
+            const open = tickets.filter(t => t.status === 'open').length;
+            const progress = tickets.filter(t => t.status === 'in-progress').length;
+            const resolved = tickets.filter(t => t.status === 'resolved').length;
+
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('open-count').textContent = open;
+            document.getElementById('progress-count').textContent = progress;
+            document.getElementById('resolved-count').textContent = resolved;
+        }
+
+        // Event Handlers
+        async function updateTicketStatus(backendId, currentStatus) {
+            const ticket = tickets.find(t => t.__backendId === backendId);
+            if (!ticket) return;
+
+            const statusOrder = ['open', 'in-progress', 'resolved', 'closed'];
+            const currentIndex = statusOrder.indexOf(currentStatus);
+            const nextStatus = statusOrder[Math.min(currentIndex + 1, statusOrder.length - 1)];
+
+            if (nextStatus === currentStatus) return;
+
+            const updatedTicket = {
+                ...ticket,
+                status: nextStatus,
+                updated_at: new Date().toISOString()
+            };
+
+            const result = await window.dataSdk.update(updatedTicket);
+            if (!result.isOk) {
+                showToast('Failed to update ticket status', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Form Submission
+        document.getElementById('ticket-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (tickets.length >= 999) {
+                showToast('Maximum limit of 999 tickets reached. Please resolve some tickets first.', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = document.getElementById('submit-text');
+            const submitSpinner = document.getElementById('submit-spinner');
+
+            submitBtn.disabled = true;
+            submitText.textContent = 'Submitting...';
+            submitSpinner.classList.remove('hidden');
+
+            const formData = new FormData(e.target);
+            const ticketData = {
+                id: generateId(),
+                subject: formData.get('subject'),
+                description: formData.get('description'),
+                priority: formData.get('priority'),
+                category: formData.get('category'),
+                status: 'open',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            const result = await window.dataSdk.create(ticketData);
+            
+            submitBtn.disabled = false;
+            submitText.textContent = window.elementSdk?.config?.submit_button_text || defaultConfig.submit_button_text;
+            submitSpinner.classList.add('hidden');
+
+            if (result.isOk) {
+                e.target.reset();
+                showToast('Ticket submitted successfully!');
+            } else {
+                showToast('Failed to submit ticket. Please try again.', 'error');
+            }
+        });
+
+        // Filter Buttons
+        document.getElementById('filter-all').addEventListener('click', () => setFilter('all'));
+        document.getElementById('filter-open').addEventListener('click', () => setFilter('open'));
+        document.getElementById('filter-progress').addEventListener('click', () => setFilter('in-progress'));
+        document.getElementById('filter-resolved').addEventListener('click', () => setFilter('resolved'));
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            
+            // Update button styles
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+                btn.className = 'px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg';
+            });
+            document.getElementById(filter-${filter === 'in-progress' ? 'progress' : filter}).className = 'px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg';
+            
+            renderTickets();
+        }
+
+        // Initialize
+        async function init() {
+            try {
+                if (window.elementSdk) {
+                    await window.elementSdk.init({
+                        defaultConfig,
+                        onConfigChange,
+                        mapToCapabilities,
+                        mapToEditPanelValues
+                    });
+                }
+
+                if (window.dataSdk) {
+                    const result = await window.dataSdk.init(dataHandler);
+                    if (!result.isOk) {
+                        console.error('Failed to initialize data SDK');
+                    }
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+            }
+        }
+
+        init();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9974599586e784b9',t:'MTc2MTkyNjI2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
