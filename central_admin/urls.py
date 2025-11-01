@@ -41,10 +41,10 @@ urlpatterns = [
     path('users/delete/<int:user_id>/', views.delete_user, name='delete_user'),
     
     # --------------------------Leads Upload-------------------------------------------
-    # path('upload-leads/<str:category>/', views.upload_leads, name='upload_leads'),
-    # path('upload-leads/<str:category>/', views.upload_leads, name='upload_leads'),
     path('upload-leads/<str:category>/', views.upload_leads, name='upload_leads'),
     path('contact-leads/', views.contact_leads_list, name='contact_leads_list'),
-
+    #------------------------------tickets------------------------------------------
+    path('tickets/', views.all_tickets, name='all_tickets'),
+    path('tickets/update-status/<int:ticket_id>/', views.update_ticket_status, name='update_ticket_status'),
 ]
 

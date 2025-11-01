@@ -3,6 +3,154 @@
 
 {% block title %}Dashboard - Subscriber Panel{% endblock %}
 {% block page_title %}Dashboard Overview{% endblock %}
+{% block page_subtitle %}Welcome back, {{ user.first_name }}!{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+
+    <!-- Stats Cards - Mobile Horizontal Scroll -->
+    <div class="mb-8">
+        <div class="flex space-x-4 overflow-x-auto pb-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 md:overflow-visible md:space-x-0">
+            <!-- Total Leads -->
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200 min-w-[280px] md:min-w-0 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold text-blue-600 mb-1">{{ total_leads }}</div>
+                        <div class="text-sm text-gray-600">Total Leads</div>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Converted Leads -->
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200 min-w-[280px] md:min-w-0 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold text-green-600 mb-1">{{ converted_leads }}</div>
+                        <div class="text-sm text-gray-600">Converted</div>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Leads -->
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200 min-w-[280px] md:min-w-0 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold text-yellow-600 mb-1">{{ pending_leads }}</div>
+                        <div class="text-sm text-gray-600">Pending</div>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Credits -->
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200 min-w-[280px] md:min-w-0 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold text-purple-600 mb-1">{{ available_credits }}</div>
+                        <div class="text-sm text-gray-600">Available Credits</div>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Industry Information and Ticket Overview -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Ticket Overview - Mobile: Upar, Desktop: Right -->
+        <div class="bg-white rounded-xl shadow-lg p-6 order-1 lg:order-2">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Ticket Overview</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Total Tickets</span> 
+                    <span id="total-count" class="font-semibold text-gray-900">{{ ticket_stats.total|default:0 }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Open</span> 
+                    <span id="open-count" class="font-semibold text-orange-600">{{ ticket_stats.open|default:0 }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">In Progress</span> 
+                    <span id="progress-count" class="font-semibold text-blue-600">{{ ticket_stats.in_progress|default:0 }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Resolved</span> 
+                    <span id="resolved-count" class="font-semibold text-green-600">{{ ticket_stats.resolved|default:0 }}</span>
+                </div>
+                <div class="pt-3 border-t border-gray-200">
+                    <a href="{% url 'subscribers:submit_ticket' %}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        Submit New Ticket
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Industry Information - Mobile: Neeche, Desktop: Left -->
+        <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200 lg:col-span-2 order-2 lg:order-1">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Industry Information</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Industry:</span>
+                    <span class="font-medium capitalize">{{ user_industry|default:"Not Set" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Sub Industry:</span>
+                    <span class="font-medium">{{ user_sub_industry|default:"Not Set" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Plan Type:</span>
+                    <span class="font-medium capitalize">{{ user.plan_type }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Preferred Country:</span>
+                    <span class="font-medium">{{ user.preferred_country|default:"Not Set" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    /* Hide scrollbar for horizontal scroll on mobile */
+    .overflow-x-auto {
+        -ms-overflow-style: none;  /* Internet Explorer 10+ */
+        scrollbar-width: none;  /* Firefox */
+    }
+    .overflow-x-auto::-webkit-scrollbar {
+        display: none;  /* Safari and Chrome */
+    }
+    
+    /* Smooth scrolling for mobile */
+    .overflow-x-auto {
+        scroll-behavior: smooth;
+    }
+</style>
+{% endblock %}
+
+{% comment %} {% extends "subscriber_base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - Subscriber Panel{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
 {% block page_subtitle %}Welcome back, {{ user.first_name }}! Here's your system overview.{% endblock %}
 
 {% block content %}
@@ -93,4 +241,4 @@
     </div>
 
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}
