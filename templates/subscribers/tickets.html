@@ -1,28 +1,372 @@
 {% extends 'subscriber_base.html' %}
 {% load static %}
 
-{% block title %}Lead Details - {{ lead.full_name }}{% endblock %}
+{% block title %}My Tickets - Optimized Leads{% endblock %}
 
 {% block content %}
-  <!-- Coming Soon Section -->
-  <div class="text-center py-12">
-    <div class="bg-blue-50 rounded-lg p-8 max-w-2xl mx-auto">
-      <svg class="w-16 h-16 mx-auto text-blue-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-      </svg>
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">Ticket Support Section Coming Soon!</h2>
-      <p class="text-gray-600 mb-6">
-        We're working hard to bring you a comprehensive ticket support system. This feature will be available shortly.
-      </p>
-      <p class="text-gray-600 mb-6">
-        In the meantime, if you need any assistance or have questions about your leads, please feel free to contact us directly at:
-      </p>
-      <div class="bg-white rounded-lg p-4 border border-blue-200">
-        <a href="mailto:optimizedleads31@gmail.com" class="text-lg font-semibold text-blue-600 hover:text-blue-800">
-          optimizedleads31@gmail.com
+<div class="container mx-auto px-2">
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <!-- Header Section -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+      <div class="flex items-center mb-4 lg:mb-0">
+        <div class="bg-blue-100 p-3 rounded-lg mr-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">My Tickets</h2>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row gap-4">
+        <!-- Search Box -->
+        <div class="relative">
+          <input 
+            type="text" 
+            id="ticket-search" 
+            placeholder="Search tickets..." 
+            class="w-full sm:w-64 px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+          >
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        
+        <!-- New Ticket Button -->
+        <a href="{% url 'subscribers:submit_ticket' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 whitespace-nowrap text-center">
+          New Ticket
         </a>
       </div>
     </div>
+
+    {% if tickets %}
+    <!-- Tickets Cards Grid -->
+    <div id="tickets-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for ticket in tickets %}
+      <div class="ticket-card bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer" 
+           data-ticket-id="{{ ticket.ticket_id }}"
+           data-category="{{ ticket.category }}"
+           data-priority="{{ ticket.priority }}"
+           data-status="{{ ticket.status }}"
+           data-search="{{ ticket.ticket_id }} {{ ticket.get_category_display }} {{ ticket.get_priority_display }} {{ ticket.get_status_display }} {{ ticket.description|truncatewords:10 }}">
+        
+        <!-- Card Header -->
+        <div class="p-4 border-b border-gray-100">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-semibold text-gray-900 text-lg">{{ ticket.ticket_id }}</h3>
+            <span class="px-2 py-1 rounded-full text-xs font-medium 
+              {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
+              {% elif ticket.status == 'in_progress' %}bg-purple-100 text-purple-800
+              {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
+              {% else %}bg-gray-100 text-gray-800{% endif %}">
+              {{ ticket.get_status_display }}
+            </span>
+          </div>
+          <p class="text-sm text-gray-600">{{ ticket.get_category_display }}</p>
+        </div>
+        
+        <!-- Card Body -->
+        <div class="p-4">
+          <p class="text-gray-700 text-sm mb-4 line-clamp-3">{{ ticket.description|truncatewords:20 }}</p>
+          
+          <div class="flex justify-between items-center">
+            <span class="px-2 py-1 rounded-full text-xs font-medium 
+              {% if ticket.priority == 'low' %}bg-green-100 text-green-800
+              {% elif ticket.priority == 'medium' %}bg-yellow-100 text-yellow-800
+              {% elif ticket.priority == 'high' %}bg-orange-100 text-orange-800
+              {% else %}bg-red-100 text-red-800{% endif %}">
+              {{ ticket.get_priority_display }}
+            </span>
+            <span class="text-xs text-gray-500">{{ ticket.created_at|date:"M d, Y" }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- No Results Message (Hidden by default) -->
+    <div id="no-results" class="hidden text-center py-12">
+      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No tickets found</h3>
+      <p class="text-gray-500">Try adjusting your search terms.</p>
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No tickets yet</h3>
+      <p class="text-gray-500 mb-4">You haven't submitted any support tickets yet.</p>
+      <a href="{% url 'subscribers:submit_ticket' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 inline-flex items-center">
+        Submit Your First Ticket
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Ticket Preview Modal -->
+<div id="ticket-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+  <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+      <h3 class="text-xl font-bold text-gray-900" id="modal-ticket-id">Ticket Details</h3>
+      <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition duration-200">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Modal Content -->
+    <div class="p-6 overflow-y-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <p id="modal-category" class="text-gray-900 font-medium"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+          <p id="modal-priority" class="text-gray-900 font-medium"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <p id="modal-status" class="text-gray-900 font-medium"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Created Date</label>
+          <p id="modal-created" class="text-gray-900 font-medium"></p>
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <div id="modal-description" class="bg-gray-50 p-4 rounded-lg text-gray-700 whitespace-pre-line"></div>
+      </div>
+    </div>
+    
+    <!-- Modal Footer -->
+    <div class="flex justify-end p-6 border-t border-gray-200">
+      <button id="close-modal-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .ticket-card {
+    transition: all 0.3s ease;
+  }
+  
+  .ticket-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .hidden {
+    display: none !important;
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('ticket-search');
+  const ticketCards = document.querySelectorAll('.ticket-card');
+  const ticketsContainer = document.getElementById('tickets-container');
+  const noResults = document.getElementById('no-results');
+  const ticketModal = document.getElementById('ticket-modal');
+  const closeModal = document.getElementById('close-modal');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+
+  // Real-time Search Filter
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase().trim();
+    let visibleCount = 0;
+
+    ticketCards.forEach(card => {
+      const searchData = card.getAttribute('data-search').toLowerCase();
+      if (searchData.includes(searchTerm)) {
+        card.style.display = 'block';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // Show/hide no results message
+    if (visibleCount === 0 && searchTerm !== '') {
+      noResults.classList.remove('hidden');
+      ticketsContainer.classList.add('hidden');
+    } else {
+      noResults.classList.add('hidden');
+      ticketsContainer.classList.remove('hidden');
+    }
+  });
+
+  // Ticket Click Handler for Modal
+  ticketCards.forEach(card => {
+    card.addEventListener('click', function() {
+      const ticketId = this.getAttribute('data-ticket-id');
+      const category = this.getAttribute('data-category');
+      const priority = this.getAttribute('data-priority');
+      const status = this.getAttribute('data-status');
+      
+      // Find the actual ticket data (you might want to fetch this via AJAX in real scenario)
+      const ticketDescription = this.querySelector('p.text-gray-700').textContent;
+      const createdDate = this.querySelector('span.text-xs.text-gray-500').textContent;
+      
+      // Populate modal
+      document.getElementById('modal-ticket-id').textContent = ticketId;
+      document.getElementById('modal-category').textContent = getCategoryDisplay(category);
+      document.getElementById('modal-priority').textContent = getPriorityDisplay(priority);
+      document.getElementById('modal-status').textContent = getStatusDisplay(status);
+      document.getElementById('modal-created').textContent = createdDate;
+      document.getElementById('modal-description').textContent = ticketDescription;
+      
+      // Show modal
+      ticketModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  // Close Modal Handlers
+  closeModal.addEventListener('click', closeModalHandler);
+  closeModalBtn.addEventListener('click', closeModalHandler);
+  
+  function closeModalHandler() {
+    ticketModal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  }
+
+  // Close modal on outside click
+  ticketModal.addEventListener('click', function(e) {
+    if (e.target === ticketModal) {
+      closeModalHandler();
+    }
+  });
+
+  // Helper functions for display text
+  function getCategoryDisplay(category) {
+    const categories = {
+      'technical': 'Technical Issue',
+      'billing': 'Billing & Payment',
+      'account': 'Lead Replacement',
+      'feature': 'Feature Request',
+      'other': 'Other'
+    };
+    return categories[category] || category;
+  }
+
+  function getPriorityDisplay(priority) {
+    const priorities = {
+      'low': 'Low - General inquiry',
+      'medium': 'Medium - Standard issue',
+      'high': 'High - Urgent issue',
+      'critical': 'Critical - System down'
+    };
+    return priorities[priority] || priority;
+  }
+
+  function getStatusDisplay(status) {
+    const statuses = {
+      'open': 'Open',
+      'in_progress': 'In Progress',
+      'resolved': 'Resolved',
+      'closed': 'Closed'
+    };
+    return statuses[status] || status;
+  }
+});
+</script>
+{% endblock %}
+
+{% comment %} {% extends 'subscriber_base.html' %}
+{% load static %}
+
+{% block title %}My Tickets - Optimized Leads{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center">
+        <div class="bg-blue-100 p-3 rounded-lg mr-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">My Tickets</h2>
+      </div>
+      <a href="{% url 'subscribers:submit_ticket' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+        New Ticket
+      </a>
+    </div>
+
+    {% if tickets %}
+    <div class="overflow-x-auto">
+      <table class="w-full table-auto">
+        <thead>
+          <tr class="bg-gray-50">
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Ticket ID</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Category</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Priority</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Created Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {% for ticket in tickets %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ ticket.ticket_id }}</td>
+            <td class="px-4 py-3 text-sm text-gray-600">{{ ticket.get_category_display }}</td>
+            <td class="px-4 py-3 text-sm">
+              <span class="px-2 py-1 rounded-full text-xs font-medium 
+                {% if ticket.priority == 'low' %}bg-green-100 text-green-800
+                {% elif ticket.priority == 'medium' %}bg-yellow-100 text-yellow-800
+                {% elif ticket.priority == 'high' %}bg-orange-100 text-orange-800
+                {% else %}bg-red-100 text-red-800{% endif %}">
+                {{ ticket.get_priority_display }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-sm">
+              <span class="px-2 py-1 rounded-full text-xs font-medium 
+                {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
+                {% elif ticket.status == 'in_progress' %}bg-purple-100 text-purple-800
+                {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
+                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ ticket.get_status_display }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-sm text-gray-600">{{ ticket.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No tickets yet</h3>
+      <p class="text-gray-500 mb-4">You haven't submitted any support tickets yet.</p>
+      <a href="{% url 'subscribers:submit_ticket' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 inline-flex items-center">
+        Submit Your First Ticket
+      </a>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
+
+ {% endcomment %}

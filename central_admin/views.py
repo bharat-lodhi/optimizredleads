@@ -7,6 +7,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 User = get_user_model()
 from landing.models import ContactLead
+from django.utils import timezone
+from django.db.models import Count, Q
+from subscribers.models import Ticket
+
 
 import openpyxl
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -1146,3 +1150,77 @@ def contact_leads_list(request):
     }
     
     return render(request, 'central_admin/contact_leads_list.html',context)
+
+
+
+
+def all_tickets(request):
+    # Get filter parameters
+    status_filter = request.GET.get('status', '')
+    priority_filter = request.GET.get('priority', '')
+    category_filter = request.GET.get('category', '')
+
+    
+    # Start with all tickets
+    tickets = Ticket.objects.select_related('user', 'assigned_to').all()
+    
+    # Apply filters
+    if status_filter:
+        tickets = tickets.filter(status=status_filter)
+    if priority_filter:
+        tickets = tickets.filter(priority=priority_filter)
+    if category_filter:
+        tickets = tickets.filter(category=category_filter)
+    
+    # Get counts for filters
+    status_counts = Ticket.objects.values('status').annotate(count=Count('status'))
+    priority_counts = Ticket.objects.values('priority').annotate(count=Count('priority'))
+    category_counts = Ticket.objects.values('category').annotate(count=Count('category'))
+    
+    
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+
+    
+    context = {
+        'tickets': tickets,
+        'status_filter': status_filter,
+        'priority_filter': priority_filter,
+        'category_filter': category_filter,
+        'status_counts': status_counts,
+        'priority_counts': priority_counts,
+        'category_counts': category_counts,
+        'STATUS_CHOICES': Ticket.STATUS_CHOICES,
+        'PRIORITY_CHOICES': Ticket.PRIORITY_CHOICES,
+        'CATEGORY_CHOICES': Ticket.CATEGORY_CHOICES,
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name':short_name,
+    }
+    
+    return render(request, 'central_admin/tickets.html', context)
+
+def update_ticket_status(request, ticket_id):
+    if request.method == 'POST':
+        ticket = get_object_or_404(Ticket, id=ticket_id)
+        new_status = request.POST.get('status')
+        admin_notes = request.POST.get('admin_notes', '')
+        
+        if new_status in dict(Ticket.STATUS_CHOICES):
+            ticket.status = new_status
+            if admin_notes:
+                ticket.admin_notes = admin_notes
+            
+            # Set resolved_at if status is resolved or closed
+            if new_status in ['resolved', 'closed'] and not ticket.resolved_at:
+                ticket.resolved_at = timezone.now()
+            
+            ticket.save()
+            messages.success(request, f'Ticket {ticket.ticket_id} status updated to {new_status}.')
+        else:
+            messages.error(request, 'Invalid status selected.')
+    
+    return redirect('central_admin:all_tickets')

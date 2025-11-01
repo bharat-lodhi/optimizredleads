@@ -146,13 +146,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # tracking ke liye 
-BASE_URL = "https://fb625091beec.ngrok-free.app"
+BASE_URL = "https://2a67f7fc3ee0.ngrok-free.app"
 # Hosting ke baad change kar dena:
 # BASE_URL = "https://yourdomain.com"
 
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://fb625091beec.ngrok-free.app",
+    "https://2a67f7fc3ee0.ngrok-free.app",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
 ]
