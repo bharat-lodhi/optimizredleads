@@ -10,6 +10,6 @@ urlpatterns = [
 
     path('submit-ticket/', views.submit_ticket, name='submit_ticket'),
     path('tickets/', views.my_tickets, name='tickets'),
-
+    path('celender/', views.celender, name='celender'),
 
 ]

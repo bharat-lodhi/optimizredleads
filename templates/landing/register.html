@@ -536,18 +536,6 @@
                 leads_quantity: selectedQuantity.value === 'custom' ? customQuantityInput.value : selectedQuantity.value
             };
             
-            // Simulate API call - replace with actual registration
-            setTimeout(() => {
-                console.log('Free Trial data:', formData);
-                
-                // Reset button state
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = false;
-                
-                // Show success message
-                alert('Free trial started successfully! Our team will contact you shortly.');
-                // window.location.href = '/dashboard/'; // Uncomment for actual redirect
-            }, 2000);
         });
     });
 </script>

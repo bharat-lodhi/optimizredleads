@@ -10,6 +10,7 @@ from landing.models import ContactLead
 from django.utils import timezone
 from django.db.models import Count, Q
 from subscribers.models import Ticket
+from optimizedleads.send_mail import leadassign_mail
 
 
 import openpyxl
@@ -222,7 +223,7 @@ def real_estate(request):
                     assigned_by=request.user,
                     status_at_assignment=lead.status
                 )
-
+        leadassign_mail(assigned_user.email) # mail send 
         messages.success(request, f"{len(selected_leads)} leads assigned to {assigned_user.username} successfully!")
         return redirect('central_admin:real_estate')
 
@@ -394,7 +395,7 @@ def online_mba(request):
                     assigned_by=request.user,
                     status_at_assignment=lead.status
                 )
-
+        leadassign_mail(assigned_user.email) # mail send 
         messages.success(request, f"{len(selected_leads)} leads assigned to {assigned_user.username} successfully!")
         return redirect('central_admin:online_mba')
 
@@ -537,7 +538,7 @@ def study_abroad(request):
                     assigned_by=request.user,
                     status_at_assignment=lead.status
                 )
-
+        leadassign_mail(assigned_user.email) # mail send 
         messages.success(request, f"{len(selected_leads)} leads assigned to {assigned_user.username} successfully!")
         return redirect('central_admin:study_abroad')
 
@@ -792,7 +793,7 @@ def forex_trade(request):
                     assigned_by=request.user,
                     status_at_assignment=lead.status
                 )
-
+        leadassign_mail(assigned_user.email) # mail send 
         messages.success(request, f"{len(selected_leads)} Forex Trade leads assigned to {assigned_user.username} successfully!")
         return redirect('central_admin:forex_trade')
 
@@ -1153,7 +1154,6 @@ def contact_leads_list(request):
 
 
 
-
 def all_tickets(request):
     # Get filter parameters
     status_filter = request.GET.get('status', '')
@@ -1224,3 +1224,4 @@ def update_ticket_status(request, ticket_id):
             messages.error(request, 'Invalid status selected.')
     
     return redirect('central_admin:all_tickets')
+

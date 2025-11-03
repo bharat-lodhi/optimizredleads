@@ -10,6 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from central_admin.models import Product
 from .models import ContactLead
+from optimizedleads.send_mail import register_mail
 
 User = get_user_model()
 
@@ -72,6 +73,7 @@ def register(request):
         )
         
         user.save()
+        register_mail(email,password,industry)
 
         messages.success(request, "Account created successfully! Please login.")
         return redirect('/login/')
