@@ -38,6 +38,11 @@ urlpatterns = [
 
     # Order success page
     path('checkout/success/', views.order_success, name='order_success'),
+    
+    
+    # ----------------------------------------
+    path('terms/', views.terms , name="terms"),
+    path('policy/', views.policy , name="policy"),
 ]
 
 # Serve media files in DEBUG mode

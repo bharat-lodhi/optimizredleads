@@ -11,5 +11,12 @@ urlpatterns = [
     path('submit-ticket/', views.submit_ticket, name='submit_ticket'),
     path('tickets/', views.my_tickets, name='tickets'),
     path('celender/', views.celender, name='celender'),
-
+    
+    #-----Celender --------------------
+    path('create_calendar_event/', views.create_calendar_event, name='create_calendar_event'),
+    path('get_calendar_events/', views.get_calendar_events, name='get_calendar_events'),
+    
+    path('connect-google-calendar/', views.connect_google_calendar, name='connect_google_calendar'),
+    path('google-auth-callback/', views.google_auth_callback, name='google_auth_callback'),
 ]
+

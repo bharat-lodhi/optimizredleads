@@ -474,4 +474,9 @@ def start_free_trail(request):
     return redirect('/register/')
 
 
+def terms(request):
+    return render(request,"landing/terms.html")
+
+def policy(request):
+    return render(request,"landing/policy.html")
 # ------------------------------------------------------------------------------
