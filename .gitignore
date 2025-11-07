@@ -1,6 +1,11 @@
 # Python virtual environment
 venv/
 
+<<<<<<< HEAD
+=======
+.env
+
+>>>>>>> f8edcb12e3ff2bfa7181978e0c21436a4357e17d
 # Database
 db.sqlite3
 
@@ -9,3 +14,5 @@ __pycache__/
 
 # Google service account key
 google-calendar-key.json
+__pycache__/
+*.pyc

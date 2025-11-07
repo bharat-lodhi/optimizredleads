@@ -12,10 +12,37 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+<<<<<<< HEAD
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 import os
+=======
+
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# BASE_DIR already defined? agar nahi to define karo
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+# Now get variables
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
+GOOGLE_PROJECT_ID = os.getenv("GOOGLE_PROJECT_ID")
+
+
+
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+>>>>>>> f8edcb12e3ff2bfa7181978e0c21436a4357e17d
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -24,15 +51,24 @@ import os
 SECRET_KEY = 'django-insecure-o^9*r(fcxn)6%hg(-*li(x*&tab1!y27sj+2q=dbugsmim2vk('
 
 # SECURITY WARNING: don't run with debug turned on in production!
+<<<<<<< HEAD
 DEBUG = False
+=======
+DEBUG = True
+>>>>>>> f8edcb12e3ff2bfa7181978e0c21436a4357e17d
 
 # For local development - allow HTTP
 if DEBUG:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 
+<<<<<<< HEAD
 ALLOWED_HOSTS = ['31.97.60.181','optimizedleads.in']
 #ALLOWED_HOSTS = ['*']
+=======
+# ALLOWED_HOSTS = ['31.97.60.181','optimizedleads.in']
+ALLOWED_HOSTS = ['*']
+>>>>>>> f8edcb12e3ff2bfa7181978e0c21436a4357e17d
 
 
 # Application definition
@@ -156,15 +192,27 @@ RAZORPAY_KEY_SECRET = 'C0dPheXZM3v2bS7rXPRR32u1'
 # -------------------------------------------------
 
 # tracking ke liye 
+<<<<<<< HEAD
 #BASE_URL = "https://14d3a1fbf26d.ngrok-free.app"  # 👈 local testing
+=======
+BASE_URL = "https://14d3a1fbf26d.ngrok-free.app"  # 👈 local testing
+>>>>>>> f8edcb12e3ff2bfa7181978e0c21436a4357e17d
 # Hosting ke baad change kar dena:
 # BASE_URL = "https://yourdomain.com"
 
 
 
+<<<<<<< HEAD
 #CSRF_TRUSTED_ORIGINS = [
 #    "https://14d3a1fbf26d.ngrok-free.app",
 #    "http://127.0.0.1:8000",
 #    "http://localhost:8000",
 #]
+=======
+CSRF_TRUSTED_ORIGINS = [
+    "https://14d3a1fbf26d.ngrok-free.app",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
+>>>>>>> f8edcb12e3ff2bfa7181978e0c21436a4357e17d
 # ---------------------------------------------------------------------------------------
