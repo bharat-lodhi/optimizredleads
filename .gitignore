@@ -11,3 +11,6 @@ __pycache__/
 
 # Google service account key
 google-calendar-key.json
+
+__pycache__/
+*.pyc
