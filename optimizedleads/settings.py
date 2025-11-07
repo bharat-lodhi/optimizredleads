@@ -24,15 +24,15 @@ import os
 SECRET_KEY = 'django-insecure-o^9*r(fcxn)6%hg(-*li(x*&tab1!y27sj+2q=dbugsmim2vk('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # For local development - allow HTTP
 if DEBUG:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 
-# ALLOWED_HOSTS = ['31.97.60.181','optimizedleads.in']
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['31.97.60.181','optimizedleads.in']
+#ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -156,15 +156,15 @@ RAZORPAY_KEY_SECRET = 'C0dPheXZM3v2bS7rXPRR32u1'
 # -------------------------------------------------
 
 # tracking ke liye 
-BASE_URL = "https://14d3a1fbf26d.ngrok-free.app"  # 👈 local testing
+#BASE_URL = "https://14d3a1fbf26d.ngrok-free.app"  # 👈 local testing
 # Hosting ke baad change kar dena:
 # BASE_URL = "https://yourdomain.com"
 
 
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://14d3a1fbf26d.ngrok-free.app",
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
-]
+#CSRF_TRUSTED_ORIGINS = [
+#    "https://14d3a1fbf26d.ngrok-free.app",
+#    "http://127.0.0.1:8000",
+#    "http://localhost:8000",
+#]
 # ---------------------------------------------------------------------------------------
