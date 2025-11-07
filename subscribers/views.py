@@ -97,6 +97,85 @@ def dashboard(request):
 #     return render(request, 'subscribers/dashboard.html', context)
 
 
+# @login_required
+# def my_leads(request):
+#     user = request.user
+
+#     # Collect all leads assigned to this user
+#     real_estate_leads = RealEstateLead.objects.filter(assigned_to=user)
+#     mba_leads = OnlineMBA.objects.filter(assigned_to=user)
+#     study_abroad_leads = StudyAbroad.objects.filter(assigned_to=user)
+#     forex_trade_leads = ForexTrade.objects.filter(assigned_to=user)  # NEW LINE
+
+#     # Combine all in one list (category tagged)
+#     all_leads = []
+
+#     for lead in real_estate_leads:
+#         all_leads.append({
+#             'id': f'realestate_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'realestate',
+#             'category': lead.sub_industry or 'Real Estate',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',  # REMARK FIELD ADD KIYA
+#         })
+
+#     for lead in mba_leads:
+#         all_leads.append({
+#             'id': f'mba_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'mba',
+#             'category': 'Online MBA',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.course or '-'}/{lead.university or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',  # REMARK FIELD ADD KIYA
+#         })
+
+#     for lead in study_abroad_leads:
+#         all_leads.append({
+#             'id': f'abroad_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'abroad',
+#             'category': 'Study Abroad',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.country or '-'}/{lead.university or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',  # REMARK FIELD ADD KIYA
+#         })
+
+#     # NEW: Forex Trade Leads
+#     for lead in forex_trade_leads:
+#         all_leads.append({
+#             'id': f'forex_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'forex',
+#             'category': 'Forex Trade',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',  # REMARK FIELD ADD KIYA
+#         })
+
+#     # Sort by latest first
+#     all_leads.sort(key=lambda x: x['created_at'], reverse=True)
+
+#     return render(request, 'subscribers/my_leads.html', {'leads': all_leads})
+
 @login_required
 def my_leads(request):
     user = request.user
@@ -105,7 +184,7 @@ def my_leads(request):
     real_estate_leads = RealEstateLead.objects.filter(assigned_to=user)
     mba_leads = OnlineMBA.objects.filter(assigned_to=user)
     study_abroad_leads = StudyAbroad.objects.filter(assigned_to=user)
-    forex_trade_leads = ForexTrade.objects.filter(assigned_to=user)  # NEW LINE
+    forex_trade_leads = ForexTrade.objects.filter(assigned_to=user)
 
     # Combine all in one list (category tagged)
     all_leads = []
@@ -122,7 +201,7 @@ def my_leads(request):
             'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
             'status': lead.status,
             'created_at': lead.created_at,
-            'remark': lead.remark or '',  # REMARK FIELD ADD KIYA
+            'remark': lead.remark or '',
         })
 
     for lead in mba_leads:
@@ -137,7 +216,7 @@ def my_leads(request):
             'extra': f"{lead.course or '-'}/{lead.university or '-'}",
             'status': lead.status,
             'created_at': lead.created_at,
-            'remark': lead.remark or '',  # REMARK FIELD ADD KIYA
+            'remark': lead.remark or '',
         })
 
     for lead in study_abroad_leads:
@@ -152,10 +231,9 @@ def my_leads(request):
             'extra': f"{lead.country or '-'}/{lead.university or '-'}",
             'status': lead.status,
             'created_at': lead.created_at,
-            'remark': lead.remark or '',  # REMARK FIELD ADD KIYA
+            'remark': lead.remark or '',
         })
 
-    # NEW: Forex Trade Leads
     for lead in forex_trade_leads:
         all_leads.append({
             'id': f'forex_{lead.id}',
@@ -168,15 +246,26 @@ def my_leads(request):
             'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
             'status': lead.status,
             'created_at': lead.created_at,
-            'remark': lead.remark or '',  # REMARK FIELD ADD KIYA
+            'remark': lead.remark or '',
         })
 
     # Sort by latest first
     all_leads.sort(key=lambda x: x['created_at'], reverse=True)
 
-    return render(request, 'subscribers/my_leads.html', {'leads': all_leads})
+    # ✅ YEH 5 LINES EXTRA ADD KI HAIN (BASIC CHECK)
+    calendar_connected = False
+    try:
+        auth = GoogleCalendarAuth.objects.filter(user=user).first()
+        if auth and auth.is_connected:
+            calendar_connected = True
+    except Exception as e:
+        print(f"Error checking calendar status: {e}")
 
-
+    # ✅ YEH LINE UPDATE KI HAIN (EXTRA VARIABLE ADD KARKE)
+    return render(request, 'subscribers/my_leads.html', {
+        'leads': all_leads,
+        'calendar_connected': calendar_connected  # ✅ YEH EXTRA ADD HUA HAI
+    })
 
 @login_required
 def update_lead_status(request):
@@ -531,7 +620,7 @@ def google_auth_callback(request):
         auth.save()
         
         # Success page par redirect karo
-        return redirect('/subscribers/my_leads/?connected=success')
+        return redirect('/subscribers/my-leads/?connected=success')
         
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
