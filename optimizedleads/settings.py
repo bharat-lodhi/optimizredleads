@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'sub_admin',
     'subscribers',
     'landing',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
