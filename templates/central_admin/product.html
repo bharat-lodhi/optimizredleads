@@ -11,6 +11,282 @@
 {% block content %}
 <div class="space-y-8">
     
+    {% if messages %}
+    <div class="max-w-md mx-auto mt-4">
+        {% for message in messages %}
+        <div class="p-3 rounded-md text-center 
+            {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Add Product Form -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6">Add New Product</h2>
+        
+        <form id="productForm" class="space-y-6" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- First Row: Category, Unit, Plan Type -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Category -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select id="category" name="category" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Select Category</option>
+                        <option value="Buyers Leads">Buyers Leads</option>
+                        <option value="Tenant Leads">Tenant Leads</option>
+                        <option value="Study Abroad">Study Abroad</option>
+                        <option value="Online MBA">Online MBA</option>
+                        <option value="Certification">Certification</option>
+                        <option value="Phd/doctorate">Phd/doctorate</option>
+                        <option value="Forex Market">Forex Market</option>
+                    </select>
+                </div>
+
+                <!-- Unit -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Unit</label>
+                    <input type="text" id="unit" name="unit" required 
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                           placeholder="Enter unit (e.g., 10 leads, 5 consultations)">
+                </div>
+
+                <!-- Plan Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Plan Type</label>
+                    <select id="planType" name="plan_type" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Select Plan Type</option>
+                        <option value="basic">Basic</option>
+                        <option value="premium">Premium</option>
+                        <option value="pro">Pro</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Second Row: Country and Price -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Country -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                    <select id="country" name="country" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Select Country</option>
+                        <option value="Australia">Australia</option>
+                        <option value="UK">UK</option>
+                        <option value="Poland">Poland</option>
+                        <option value="Malaysia">Malaysia</option>
+                        <option value="Dubai">Dubai</option>
+                        <option value="Oman">Oman</option>
+                        <option value="Qatar">Qatar</option>
+                        <option value="Kuwait">Kuwait</option>
+                        <option value="Jordan">Jordan</option>
+                        <option value="Bahrain">Bahrain</option>
+                        <option value="India" selected>India</option>
+                    </select>
+                </div>
+
+                <!-- Price -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                    <input type="number" id="price" name="price" required 
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                           placeholder="Enter price (e.g., 999.99)" step="0.01" min="0">
+                </div>
+            </div>
+
+            <!-- Third Row: Heading -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Heading</label>
+                <input type="text" id="heading" name="heading" required 
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                       placeholder="Enter product heading">
+            </div>
+
+            <!-- Fourth Row: Short Description -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Short Description</label>
+                <textarea id="shortDescription" name="short_description" required 
+                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24" 
+                          placeholder="Brief description of the product"></textarea>
+            </div>
+
+            <!-- Fifth Row: Features with CKEditor -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Features</label>
+                <textarea id="features" name="features" required 
+                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-32" 
+                          placeholder="List the product features"></textarea>
+            </div>
+
+            <!-- Sixth Row: Long Description with CKEditor -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Long Description</label>
+                <textarea id="longDescription" name="long_description" required 
+                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-32" 
+                          placeholder="Detailed description of the product"></textarea>
+            </div>
+
+            <!-- Seventh Row: Image Upload -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+                <div class="flex items-center justify-center w-full">
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                            </svg>
+                            <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                            <p class="text-xs text-gray-500">PNG, JPG, GIF (MAX. 5MB)</p>
+                        </div>
+                        <input id="productImage" name="product_image" type="file" class="hidden" accept="image/*" />
+                    </label>
+                </div>
+                <div id="imagePreview" class="mt-3 hidden">
+                    <img id="previewImage" class="h-20 w-20 object-cover rounded-lg border border-gray-300">
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex space-x-4 pt-4">
+                <button type="button" onclick="resetForm()" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-all">
+                    Reset Form
+                </button>
+                <button type="submit" class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-medium hover:shadow-lg transition-all">
+                    Add Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+<script>
+    // Initialize CKEditor for features and long description
+    CKEDITOR.replace('features', {
+        toolbar: [
+            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript'],
+            ['NumberedList', 'BulletedList', 'Outdent', 'Indent'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink', 'Image'],
+            ['Styles', 'Format', 'Font', 'FontSize'],
+            ['TextColor', 'BGColor'],
+            ['Undo', 'Redo'],
+            ['Source']
+        ],
+        height: 200
+    });
+
+    CKEDITOR.replace('longDescription', {
+        toolbar: [
+            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript'],
+            ['NumberedList', 'BulletedList', 'Outdent', 'Indent'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink', 'Image'],
+            ['Styles', 'Format', 'Font', 'FontSize'],
+            ['TextColor', 'BGColor'],
+            ['Undo', 'Redo'],
+            ['Source']
+        ],
+        height: 200
+    });
+
+    // Image preview functionality
+    document.getElementById('productImage').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                preview.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+        } else {
+            preview.classList.add('hidden');
+        }
+    });
+
+    // Form reset functionality
+    function resetForm() {
+        document.getElementById('productForm').reset();
+        document.getElementById('imagePreview').classList.add('hidden');
+        CKEDITOR.instances.features.setData('');
+        CKEDITOR.instances.longDescription.setData('');
+        // Reset country to India
+        document.getElementById('country').value = 'India';
+    }
+
+    // Form submission
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+        // Get CKEditor data
+        const features = CKEDITOR.instances.features.getData();
+        const longDescription = CKEDITOR.instances.longDescription.getData();
+        
+        // Basic validation
+        const requiredFields = ['category', 'unit', 'shortDescription', 'planType', 'price', 'heading', 'country'];
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            const element = document.getElementById(field);
+            if (!element.value.trim()) {
+                isValid = false;
+                element.classList.add('border-red-500');
+            } else {
+                element.classList.remove('border-red-500');
+            }
+        });
+
+        if (!features.trim()) {
+            isValid = false;
+            alert('Please fill the features field.');
+        }
+
+        if (!longDescription.trim()) {
+            isValid = false;
+            alert('Please fill the long description field.');
+        }
+
+        if (isValid) {
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Adding Product...';
+            submitBtn.disabled = true;
+        } else {
+            e.preventDefault();
+            alert('Please fill all required fields.');
+        }
+    });
+
+    // Remove error styling when user starts typing
+    document.querySelectorAll('input, select, textarea').forEach(element => {
+        element.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+        });
+    });
+</script>
+{% endblock %}
+
+
+{% comment %} {% extends "central_admin_base.html" %}
+
+{% load static %}
+
+{% block title %}Products - Admin Panel{% endblock %}
+
+{% block page_title %}Products Management{% endblock %}
+
+{% block page_subtitle %}Add new products and manage existing ones{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    
              {% if messages %}
                 <div class="max-w-md mx-auto mt-4">
                     {% for message in messages %}
@@ -265,4 +541,4 @@
         });
     });
 </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

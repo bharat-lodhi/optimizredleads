@@ -32,12 +32,14 @@ def add_product(request):
         price = request.POST.get('price')
         features = request.POST.get('features')
         heading = request.POST.get('heading')
+        country = request.POST.get('country') 
         
         # Save product
         product = Product(
             category=category,
             unit=unit,
             plan_type=plan_type,
+            country=country,
             price = price,
             features = features,
             short_description=short_description,

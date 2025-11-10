@@ -16,6 +16,19 @@ class Product(models.Model):
         ('premium', 'Premium'),
         ('pro', 'Pro'),
     ]
+    COUNTRY_CHOICES = [
+        ('Australia', 'Australia'),
+        ('UK', 'UK'),
+        ('Poland', 'Poland'),
+        ('Malaysia', 'Malaysia'),
+        ('Dubai', 'Dubai'),
+        ('Oman', 'Oman'),
+        ('Qatar', 'Qatar'),
+        ('Kuwait', 'Kuwait'),
+        ('Jordan', 'Jordan'),
+        ('Bahrain', 'Bahrain'),
+        ('India', 'India'),
+    ]
 
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     unit = models.CharField(max_length=50)
@@ -27,10 +40,11 @@ class Product(models.Model):
     long_description = models.TextField()
     product_image = models.ImageField(upload_to='products/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    country = models.CharField(max_length=50, choices=COUNTRY_CHOICES, default='India')
 
     def __str__(self):
         return f"{self.category} - {self.plan_type}"
 
 
 
-# --------------------------Ticket--------------------------------------------------------
+ 

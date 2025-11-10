@@ -424,13 +424,35 @@ def certification(request):
 def phd_doctorate(request):
     return render(request,'landing/phd_doctorate.html')
 
+# def forex_trader(request):
+#     forex_market = Product.objects.filter(category='Forex Market').order_by('plan_type')
+#     print(tenant_leads,"-------------------------------------------")
+#     context = {
+#         'forex_market': forex_market,
+#     }
+#     return render(request,'landing/forex_trader.html',context)
+
+
 def forex_trader(request):
-    forex_market = Product.objects.filter(category='Forex Market').order_by('plan_type')
-    print(tenant_leads,"-------------------------------------------")
+    # Get all countries from products
+    countries = Product.objects.filter(category='Forex Market').values_list('country', flat=True).distinct()
+    
+    # Get selected country from request or default to first country
+    selected_country = request.GET.get('country', 'India')
+    
+    # Filter products by selected country and limit to 3
+    forex_market = Product.objects.filter(
+        category='Forex Market', 
+        country=selected_country
+    ).order_by('plan_type')[:3]
+    
     context = {
         'forex_market': forex_market,
+        'countries': countries,
+        'selected_country': selected_country,
     }
-    return render(request,'landing/forex_trader.html',context)
+    return render(request, 'landing/forex_trader.html', context)
+
 
 def about_us(request):
     return render(request,'landing/about_us.html')
