@@ -658,6 +658,8 @@ def update_lead_status(request):
         # Database se lead fetch karo - BOTH direct assignment AND assignment history check
         try:
             # Pehle direct assignment check karo
+            # ✅ IMPORT ContentType here
+            from django.contrib.contenttypes.models import ContentType
             lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
             print(f"DEBUG: Found lead via direct assignment")
         except model.DoesNotExist:
@@ -743,9 +745,12 @@ def add_lead_remark(request):
 
         # Database se lead fetch karo
         try:
+            # ✅ IMPORT ContentType here
+            from django.contrib.contenttypes.models import ContentType
             lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
         except model.DoesNotExist:
             try:
+                # ✅ IMPORT ContentType here
                 from django.contrib.contenttypes.models import ContentType
                 content_type = ContentType.objects.get_for_model(model)
                 
@@ -953,6 +958,8 @@ def get_lead_remarks(request):
 
         # Database se lead fetch karo
         try:
+            # ✅ IMPORT ContentType here
+            from django.contrib.contenttypes.models import ContentType
             lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
         except model.DoesNotExist:
             try:
@@ -1027,6 +1034,8 @@ def get_lead_status_history(request):
 
         # Database se lead fetch karo
         try:
+            # ✅ IMPORT ContentType here
+            from django.contrib.contenttypes.models import ContentType
             lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
         except model.DoesNotExist:
             try:
