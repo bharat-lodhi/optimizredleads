@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
-from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, BaseLead, ForexTrade
+from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, BaseLead, ForexTrade,LeadAssignmentLog,LeadStatusHistory,LeadRemarkHistory
 
 
 
@@ -176,19 +176,286 @@ def dashboard(request):
 
 #     return render(request, 'subscribers/my_leads.html', {'leads': all_leads})
 
+
+
+
+
+
+# @login_required
+# def my_leads(request):
+#     user = request.user
+
+#     # Method 1: Direct assigned_to se (single assignment)
+#     real_estate_leads = RealEstateLead.objects.filter(assigned_to=user)
+#     mba_leads = OnlineMBA.objects.filter(assigned_to=user)
+#     study_abroad_leads = StudyAbroad.objects.filter(assigned_to=user)
+#     forex_trade_leads = ForexTrade.objects.filter(assigned_to=user)
+
+#     # Method 2: Assignment history se (multiple assignment)
+#     from django.contrib.contenttypes.models import ContentType
+    
+#     # Get content types for all lead models
+#     real_estate_ct = ContentType.objects.get_for_model(RealEstateLead)
+#     mba_ct = ContentType.objects.get_for_model(OnlineMBA)
+#     study_abroad_ct = ContentType.objects.get_for_model(StudyAbroad)
+#     forex_ct = ContentType.objects.get_for_model(ForexTrade)
+
+#     # Get lead IDs from assignment logs for this user
+#     assignment_lead_ids = LeadAssignmentLog.objects.filter(
+#         assigned_to=user
+#     ).values_list('lead_object_id', 'lead_content_type')
+
+#     all_leads = []
+
+#     # Process direct assignments
+#     for lead in real_estate_leads:
+#         all_leads.append({
+#             'id': f'realestate_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'realestate',
+#             'category': lead.sub_industry or 'Real Estate',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'direct'
+#         })
+
+#     for lead in mba_leads:
+#         all_leads.append({
+#             'id': f'mba_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'mba',
+#             'category': 'Online MBA',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.course or '-'}/{lead.university or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'direct'
+#         })
+
+#     for lead in study_abroad_leads:
+#         all_leads.append({
+#             'id': f'abroad_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'abroad',
+#             'category': 'Study Abroad',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.country or '-'}/{lead.university or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'direct'
+#         })
+
+#     for lead in forex_trade_leads:
+#         all_leads.append({
+#             'id': f'forex_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'forex',
+#             'category': 'Forex Trade',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'direct'
+#         })
+
+#     # Process assignment history leads (remove duplicates)
+#     for lead_id, content_type_id in assignment_lead_ids:
+#         try:
+#             content_type = ContentType.objects.get_for_id(content_type_id)
+#             lead_model = content_type.model_class()
+#             lead = lead_model.objects.get(id=lead_id)
+            
+#             # Check if lead already exists in all_leads
+#             existing_lead = None
+#             for existing in all_leads:
+#                 if existing['original_id'] == lead.id and existing['model_type'] == content_type.model:
+#                     existing_lead = existing
+#                     break
+            
+#             if not existing_lead:
+#                 if isinstance(lead, RealEstateLead):
+#                     all_leads.append({
+#                         'id': f'realestate_{lead.id}',
+#                         'original_id': lead.id,
+#                         'model_type': 'realestate',
+#                         'category': lead.sub_industry or 'Real Estate',
+#                         'name': lead.full_name,
+#                         'phone': lead.phone_number,
+#                         'email': lead.email,
+#                         'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
+#                         'status': lead.status,
+#                         'created_at': lead.created_at,
+#                         'remark': lead.remark or '',
+#                         'assignment_type': 'history'
+#                     })
+#                 elif isinstance(lead, OnlineMBA):
+#                     all_leads.append({
+#                         'id': f'mba_{lead.id}',
+#                         'original_id': lead.id,
+#                         'model_type': 'mba',
+#                         'category': 'Online MBA',
+#                         'name': lead.full_name,
+#                         'phone': lead.phone_number,
+#                         'email': lead.email,
+#                         'extra': f"{lead.course or '-'}/{lead.university or '-'}",
+#                         'status': lead.status,
+#                         'created_at': lead.created_at,
+#                         'remark': lead.remark or '',
+#                         'assignment_type': 'history'
+#                     })
+#                 elif isinstance(lead, StudyAbroad):
+#                     all_leads.append({
+#                         'id': f'abroad_{lead.id}',
+#                         'original_id': lead.id,
+#                         'model_type': 'abroad',
+#                         'category': 'Study Abroad',
+#                         'name': lead.full_name,
+#                         'phone': lead.phone_number,
+#                         'email': lead.email,
+#                         'extra': f"{lead.country or '-'}/{lead.university or '-'}",
+#                         'status': lead.status,
+#                         'created_at': lead.created_at,
+#                         'remark': lead.remark or '',
+#                         'assignment_type': 'history'
+#                     })
+#                 elif isinstance(lead, ForexTrade):
+#                     all_leads.append({
+#                         'id': f'forex_{lead.id}',
+#                         'original_id': lead.id,
+#                         'model_type': 'forex',
+#                         'category': 'Forex Trade',
+#                         'name': lead.full_name,
+#                         'phone': lead.phone_number,
+#                         'email': lead.email,
+#                         'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
+#                         'status': lead.status,
+#                         'created_at': lead.created_at,
+#                         'remark': lead.remark or '',
+#                         'assignment_type': 'history'
+#                     })
+                    
+#         except Exception as e:
+#             print(f"Error processing lead from history: {e}")
+#             continue
+
+#     # Sort by latest first
+#     all_leads.sort(key=lambda x: x['created_at'], reverse=True)
+
+#     # Calendar connection check
+#     calendar_connected = False
+#     try:
+#         auth = GoogleCalendarAuth.objects.filter(user=user).first()
+#         if auth and auth.is_connected:
+#             calendar_connected = True
+#     except Exception as e:
+#         print(f"Error checking calendar status: {e}")
+
+#     return render(request, 'subscribers/my_leads.html', {
+#         'leads': all_leads,
+#         'calendar_connected': calendar_connected
+#     })
+    
+# @login_required
+# def update_lead_status(request):
+#     if request.method != "POST":
+#         return JsonResponse({"success": False, "error": "Invalid request method."})
+    
+#     try:
+#         data = json.loads(request.body)
+#         lead_id = data.get("lead_id")
+#         new_status = data.get("status")
+#         remark = data.get("remark", "").strip()  # REMARK FIELD ADD KIYA
+
+#         if not lead_id:
+#             return JsonResponse({"success": False, "error": "Missing lead ID."})
+
+#         # Validate status (agar status update ho raha hai)
+#         if new_status:
+#             valid_statuses = [choice[0] for choice in BaseLead.STATUS_CHOICES]
+#             if new_status not in valid_statuses:
+#                 return JsonResponse({"success": False, "error": "Invalid status value."})
+
+#         # Model aur original ID identify karo
+#         if lead_id.startswith('realestate_'):
+#             model = RealEstateLead
+#             original_id = lead_id.replace('realestate_', '')
+#         elif lead_id.startswith('mba_'):
+#             model = OnlineMBA
+#             original_id = lead_id.replace('mba_', '')
+#         elif lead_id.startswith('abroad_'):
+#             model = StudyAbroad
+#             original_id = lead_id.replace('abroad_', '')
+#         elif lead_id.startswith('forex_'):  # NEW: Forex Trade
+#             model = ForexTrade
+#             original_id = lead_id.replace('forex_', '')
+#         else:
+#             return JsonResponse({"success": False, "error": "Invalid lead ID format."})
+
+#         # Database se lead fetch karo
+#         try:
+#             lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
+#         except model.DoesNotExist:
+#             return JsonResponse({"success": False, "error": "Lead not found or not assigned to you."})
+
+#         # Update status aur remark
+#         if new_status:
+#             lead_obj.status = new_status
+#         if remark is not None:  
+#             lead_obj.remark = remark
+#         lead_obj.save()
+
+#         return JsonResponse({"success": True})
+
+#     except json.JSONDecodeError:
+#         return JsonResponse({"success": False, "error": "Invalid JSON."})
+#     except Exception as e:
+#         return JsonResponse({"success": False, "error": str(e)})
+    
+    
+    
+    
+    
 @login_required
 def my_leads(request):
     user = request.user
 
-    # Collect all leads assigned to this user
+    # Method 1: Direct assigned_to se (single assignment)
     real_estate_leads = RealEstateLead.objects.filter(assigned_to=user)
     mba_leads = OnlineMBA.objects.filter(assigned_to=user)
     study_abroad_leads = StudyAbroad.objects.filter(assigned_to=user)
     forex_trade_leads = ForexTrade.objects.filter(assigned_to=user)
 
-    # Combine all in one list (category tagged)
+    # Method 2: Assignment history se (multiple assignment)
+    from django.contrib.contenttypes.models import ContentType
+    
+    # Get content types for all lead models
+    real_estate_ct = ContentType.objects.get_for_model(RealEstateLead)
+    mba_ct = ContentType.objects.get_for_model(OnlineMBA)
+    study_abroad_ct = ContentType.objects.get_for_model(StudyAbroad)
+    forex_ct = ContentType.objects.get_for_model(ForexTrade)
+
+    # Get lead IDs from assignment logs for this user
+    assignment_lead_ids = LeadAssignmentLog.objects.filter(
+        assigned_to=user
+    ).values_list('lead_object_id', 'lead_content_type')
+
     all_leads = []
 
+    # Process direct assignments
     for lead in real_estate_leads:
         all_leads.append({
             'id': f'realestate_{lead.id}',
@@ -202,6 +469,7 @@ def my_leads(request):
             'status': lead.status,
             'created_at': lead.created_at,
             'remark': lead.remark or '',
+            'assignment_type': 'direct'
         })
 
     for lead in mba_leads:
@@ -217,6 +485,7 @@ def my_leads(request):
             'status': lead.status,
             'created_at': lead.created_at,
             'remark': lead.remark or '',
+            'assignment_type': 'direct'
         })
 
     for lead in study_abroad_leads:
@@ -232,6 +501,7 @@ def my_leads(request):
             'status': lead.status,
             'created_at': lead.created_at,
             'remark': lead.remark or '',
+            'assignment_type': 'direct'
         })
 
     for lead in forex_trade_leads:
@@ -247,12 +517,93 @@ def my_leads(request):
             'status': lead.status,
             'created_at': lead.created_at,
             'remark': lead.remark or '',
+            'assignment_type': 'direct'
         })
+
+    # Process assignment history leads (remove duplicates)
+    for lead_id, content_type_id in assignment_lead_ids:
+        try:
+            content_type = ContentType.objects.get_for_id(content_type_id)
+            lead_model = content_type.model_class()
+            lead = lead_model.objects.get(id=lead_id)
+            
+            # Check if lead already exists in all_leads
+            existing_lead = None
+            for existing in all_leads:
+                if existing['original_id'] == lead.id and existing['model_type'] == content_type.model:
+                    existing_lead = existing
+                    break
+            
+            if not existing_lead:
+                if isinstance(lead, RealEstateLead):
+                    all_leads.append({
+                        'id': f'realestate_{lead.id}',
+                        'original_id': lead.id,
+                        'model_type': 'realestate',
+                        'category': lead.sub_industry or 'Real Estate',
+                        'name': lead.full_name,
+                        'phone': lead.phone_number,
+                        'email': lead.email,
+                        'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
+                        'status': lead.status,
+                        'created_at': lead.created_at,
+                        'remark': lead.remark or '',
+                        'assignment_type': 'history'
+                    })
+                elif isinstance(lead, OnlineMBA):
+                    all_leads.append({
+                        'id': f'mba_{lead.id}',
+                        'original_id': lead.id,
+                        'model_type': 'mba',
+                        'category': 'Online MBA',
+                        'name': lead.full_name,
+                        'phone': lead.phone_number,
+                        'email': lead.email,
+                        'extra': f"{lead.course or '-'}/{lead.university or '-'}",
+                        'status': lead.status,
+                        'created_at': lead.created_at,
+                        'remark': lead.remark or '',
+                        'assignment_type': 'history'
+                    })
+                elif isinstance(lead, StudyAbroad):
+                    all_leads.append({
+                        'id': f'abroad_{lead.id}',
+                        'original_id': lead.id,
+                        'model_type': 'abroad',
+                        'category': 'Study Abroad',
+                        'name': lead.full_name,
+                        'phone': lead.phone_number,
+                        'email': lead.email,
+                        'extra': f"{lead.country or '-'}/{lead.university or '-'}",
+                        'status': lead.status,
+                        'created_at': lead.created_at,
+                        'remark': lead.remark or '',
+                        'assignment_type': 'history'
+                    })
+                elif isinstance(lead, ForexTrade):
+                    all_leads.append({
+                        'id': f'forex_{lead.id}',
+                        'original_id': lead.id,
+                        'model_type': 'forex',
+                        'category': 'Forex Trade',
+                        'name': lead.full_name,
+                        'phone': lead.phone_number,
+                        'email': lead.email,
+                        'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
+                        'status': lead.status,
+                        'created_at': lead.created_at,
+                        'remark': lead.remark or '',
+                        'assignment_type': 'history'
+                    })
+                    
+        except Exception as e:
+            print(f"Error processing lead from history: {e}")
+            continue
 
     # Sort by latest first
     all_leads.sort(key=lambda x: x['created_at'], reverse=True)
 
-    # ✅ YEH 5 LINES EXTRA ADD KI HAIN (BASIC CHECK)
+    # Calendar connection check
     calendar_connected = False
     try:
         auth = GoogleCalendarAuth.objects.filter(user=user).first()
@@ -261,10 +612,9 @@ def my_leads(request):
     except Exception as e:
         print(f"Error checking calendar status: {e}")
 
-    # ✅ YEH LINE UPDATE KI HAIN (EXTRA VARIABLE ADD KARKE)
     return render(request, 'subscribers/my_leads.html', {
         'leads': all_leads,
-        'calendar_connected': calendar_connected  # ✅ YEH EXTRA ADD HUA HAI
+        'calendar_connected': calendar_connected
     })
 
 @login_required
@@ -276,12 +626,14 @@ def update_lead_status(request):
         data = json.loads(request.body)
         lead_id = data.get("lead_id")
         new_status = data.get("status")
-        remark = data.get("remark", "").strip()  # REMARK FIELD ADD KIYA
+        remark = data.get("remark", "").strip()
+
+        print(f"DEBUG: Received data - lead_id: {lead_id}, status: {new_status}, remark: {remark}")
 
         if not lead_id:
             return JsonResponse({"success": False, "error": "Missing lead ID."})
 
-        # Validate status (agar status update ho raha hai)
+        # Validate status
         if new_status:
             valid_statuses = [choice[0] for choice in BaseLead.STATUS_CHOICES]
             if new_status not in valid_statuses:
@@ -297,7 +649,93 @@ def update_lead_status(request):
         elif lead_id.startswith('abroad_'):
             model = StudyAbroad
             original_id = lead_id.replace('abroad_', '')
-        elif lead_id.startswith('forex_'):  # NEW: Forex Trade
+        elif lead_id.startswith('forex_'):
+            model = ForexTrade
+            original_id = lead_id.replace('forex_', '')
+        else:
+            return JsonResponse({"success": False, "error": "Invalid lead ID format."})
+
+        # Database se lead fetch karo - BOTH direct assignment AND assignment history check
+        try:
+            # Pehle direct assignment check karo
+            lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
+            print(f"DEBUG: Found lead via direct assignment")
+        except model.DoesNotExist:
+            # Agar direct assignment nahi mila, toh assignment history check karo
+            try:
+                from django.contrib.contenttypes.models import ContentType
+                content_type = ContentType.objects.get_for_model(model)
+                
+                # Check if this lead was ever assigned to this user in assignment history
+                assignment_exists = LeadAssignmentLog.objects.filter(
+                    lead_content_type=content_type,
+                    lead_object_id=original_id,
+                    assigned_to=request.user
+                ).exists()
+                
+                if assignment_exists:
+                    # Agar assignment history mein hai, toh lead access de do
+                    lead_obj = model.objects.get(id=original_id)
+                    print(f"DEBUG: Found lead via assignment history")
+                else:
+                    return JsonResponse({"success": False, "error": "Lead not found or not assigned to you."})
+                    
+            except model.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Lead not found."})
+            except Exception as e:
+                print(f"DEBUG: Error in assignment history check: {str(e)}")
+                return JsonResponse({"success": False, "error": "Lead access verification failed."})
+
+        # NEW: Use the update_status method to track history
+        if new_status:
+            lead_obj.update_status(new_status, request.user, remark)
+        elif remark:
+            # If only remark is being added (without status change)
+            content_type = ContentType.objects.get_for_model(model)
+            LeadRemarkHistory.objects.create(
+                lead_content_type=content_type,
+                lead_object_id=original_id,
+                remark_text=remark,
+                created_by=request.user
+            )
+            # Update legacy remark field
+            lead_obj.remark = remark
+            lead_obj.save()
+
+        print(f"DEBUG: Successfully updated lead {lead_id} with status {new_status} and remark: {remark}")
+
+        return JsonResponse({"success": True})
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON."})
+    except Exception as e:
+        print(f"DEBUG: Error in update_lead_status: {str(e)}")
+        return JsonResponse({"success": False, "error": str(e)})
+
+@login_required
+def add_lead_remark(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Invalid request method."})
+    
+    try:
+        data = json.loads(request.body)
+        lead_id = data.get("lead_id")
+        remark_text = data.get("remark", "").strip()
+
+        if not lead_id or not remark_text:
+            return JsonResponse({"success": False, "error": "Missing lead ID or remark."})
+
+        # Model aur original ID identify karo
+        if lead_id.startswith('realestate_'):
+            model = RealEstateLead
+            original_id = lead_id.replace('realestate_', '')
+        elif lead_id.startswith('mba_'):
+            model = OnlineMBA
+            original_id = lead_id.replace('mba_', '')
+        elif lead_id.startswith('abroad_'):
+            model = StudyAbroad
+            original_id = lead_id.replace('abroad_', '')
+        elif lead_id.startswith('forex_'):
             model = ForexTrade
             original_id = lead_id.replace('forex_', '')
         else:
@@ -307,22 +745,337 @@ def update_lead_status(request):
         try:
             lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
         except model.DoesNotExist:
-            return JsonResponse({"success": False, "error": "Lead not found or not assigned to you."})
+            try:
+                from django.contrib.contenttypes.models import ContentType
+                content_type = ContentType.objects.get_for_model(model)
+                
+                assignment_exists = LeadAssignmentLog.objects.filter(
+                    lead_content_type=content_type,
+                    lead_object_id=original_id,
+                    assigned_to=request.user
+                ).exists()
+                
+                if assignment_exists:
+                    lead_obj = model.objects.get(id=original_id)
+                else:
+                    return JsonResponse({"success": False, "error": "Lead not found or not assigned to you."})
+                    
+            except model.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Lead not found."})
+            except Exception as e:
+                return JsonResponse({"success": False, "error": "Lead access verification failed."})
 
-        # Update status aur remark
-        if new_status:
-            lead_obj.status = new_status
-        if remark is not None:  
-            lead_obj.remark = remark
+        # Create remark history
+        content_type = ContentType.objects.get_for_model(model)
+        LeadRemarkHistory.objects.create(
+            lead_content_type=content_type,
+            lead_object_id=original_id,
+            remark_text=remark_text,
+            created_by=request.user
+        )
+        
+        # Update legacy remark field
+        lead_obj.remark = remark_text
         lead_obj.save()
+
+        print(f"DEBUG: Successfully added remark to lead {lead_id}")
 
         return JsonResponse({"success": True})
 
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "error": "Invalid JSON."})
     except Exception as e:
+        print(f"DEBUG: Error in add_lead_remark: {str(e)}")
         return JsonResponse({"success": False, "error": str(e)})
+
+# @login_required
+# def get_lead_remarks(request):
+#     lead_id = request.GET.get("lead_id")
     
+#     if not lead_id:
+#         return JsonResponse({"success": False, "error": "Missing lead ID."})
+
+#     try:
+#         # Model aur original ID identify karo
+#         if lead_id.startswith('realestate_'):
+#             model = RealEstateLead
+#             original_id = lead_id.replace('realestate_', '')
+#         elif lead_id.startswith('mba_'):
+#             model = OnlineMBA
+#             original_id = lead_id.replace('mba_', '')
+#         elif lead_id.startswith('abroad_'):
+#             model = StudyAbroad
+#             original_id = lead_id.replace('abroad_', '')
+#         elif lead_id.startswith('forex_'):
+#             model = ForexTrade
+#             original_id = lead_id.replace('forex_', '')
+#         else:
+#             return JsonResponse({"success": False, "error": "Invalid lead ID format."})
+
+#         # Database se lead fetch karo
+#         try:
+#             lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
+#         except model.DoesNotExist:
+#             try:
+#                 from django.contrib.contenttypes.models import ContentType
+#                 content_type = ContentType.objects.get_for_model(model)
+                
+#                 assignment_exists = LeadAssignmentLog.objects.filter(
+#                     lead_content_type=content_type,
+#                     lead_object_id=original_id,
+#                     assigned_to=request.user
+#                 ).exists()
+                
+#                 if assignment_exists:
+#                     lead_obj = model.objects.get(id=original_id)
+#                 else:
+#                     return JsonResponse({"success": False, "error": "Lead not found or not assigned to you."})
+                    
+#             except model.DoesNotExist:
+#                 return JsonResponse({"success": False, "error": "Lead not found."})
+#             except Exception as e:
+#                 return JsonResponse({"success": False, "error": "Lead access verification failed."})
+        
+#         # Get remarks from LeadRemarkHistory
+#         remarks_history = lead_obj.remark_history
+        
+#         remarks_list = []
+#         for remark in remarks_history:
+#             remarks_list.append({
+#                 'id': remark.id,
+#                 'text': remark.remark_text,
+#                 'created_by': remark.created_by.get_full_name() or remark.created_by.username,
+#                 'created_at': remark.created_at.strftime("%d %b %Y, %I:%M %p")
+#             })
+
+#         return JsonResponse({
+#             "success": True,
+#             "remarks": remarks_list
+#         })
+
+#     except Exception as e:
+#         print(f"DEBUG: Error in get_lead_remarks: {str(e)}")
+#         return JsonResponse({"success": False, "error": str(e)})
+
+# @login_required
+# def get_lead_status_history(request):
+#     lead_id = request.GET.get("lead_id")
+    
+#     if not lead_id:
+#         return JsonResponse({"success": False, "error": "Missing lead ID."})
+
+#     try:
+#         # Model aur original ID identify karo
+#         if lead_id.startswith('realestate_'):
+#             model = RealEstateLead
+#             original_id = lead_id.replace('realestate_', '')
+#         elif lead_id.startswith('mba_'):
+#             model = OnlineMBA
+#             original_id = lead_id.replace('mba_', '')
+#         elif lead_id.startswith('abroad_'):
+#             model = StudyAbroad
+#             original_id = lead_id.replace('abroad_', '')
+#         elif lead_id.startswith('forex_'):
+#             model = ForexTrade
+#             original_id = lead_id.replace('forex_', '')
+#         else:
+#             return JsonResponse({"success": False, "error": "Invalid lead ID format."})
+
+#         # Database se lead fetch karo
+#         try:
+#             lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
+#         except model.DoesNotExist:
+#             try:
+#                 from django.contrib.contenttypes.models import ContentType
+#                 content_type = ContentType.objects.get_for_model(model)
+                
+#                 assignment_exists = LeadAssignmentLog.objects.filter(
+#                     lead_content_type=content_type,
+#                     lead_object_id=original_id,
+#                     assigned_to=request.user
+#                 ).exists()
+                
+#                 if assignment_exists:
+#                     lead_obj = model.objects.get(id=original_id)
+#                 else:
+#                     return JsonResponse({"success": False, "error": "Lead not found or not assigned to you."})
+                    
+#             except model.DoesNotExist:
+#                 return JsonResponse({"success": False, "error": "Lead not found."})
+#             except Exception as e:
+#                 return JsonResponse({"success": False, "error": "Lead access verification failed."})
+        
+#         # Get status history from LeadStatusHistory
+#         status_history = lead_obj.status_history
+        
+#         history_list = []
+#         for history in status_history:
+#             history_list.append({
+#                 'id': history.id,
+#                 'old_status': history.old_status,
+#                 'new_status': history.new_status,
+#                 'changed_by': history.changed_by.get_full_name() or history.changed_by.username,
+#                 'created_at': history.created_at.strftime("%d %b %Y, %I:%M %p")
+#             })
+
+#         return JsonResponse({
+#             "success": True,
+#             "status_history": history_list
+#         })
+
+#     except Exception as e:
+#         print(f"DEBUG: Error in get_lead_status_history: {str(e)}")
+#         return JsonResponse({"success": False, "error": str(e)})
+    
+@login_required
+def get_lead_remarks(request):
+    lead_id = request.GET.get("lead_id")
+    
+    if not lead_id:
+        return JsonResponse({"success": False, "error": "Missing lead ID."})
+
+    try:
+        # Model aur original ID identify karo
+        if lead_id.startswith('realestate_'):
+            model = RealEstateLead
+            original_id = lead_id.replace('realestate_', '')
+        elif lead_id.startswith('mba_'):
+            model = OnlineMBA
+            original_id = lead_id.replace('mba_', '')
+        elif lead_id.startswith('abroad_'):
+            model = StudyAbroad
+            original_id = lead_id.replace('abroad_', '')
+        elif lead_id.startswith('forex_'):
+            model = ForexTrade
+            original_id = lead_id.replace('forex_', '')
+        else:
+            return JsonResponse({"success": False, "error": "Invalid lead ID format."})
+
+        # Database se lead fetch karo
+        try:
+            lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
+        except model.DoesNotExist:
+            try:
+                from django.contrib.contenttypes.models import ContentType
+                content_type = ContentType.objects.get_for_model(model)
+                
+                assignment_exists = LeadAssignmentLog.objects.filter(
+                    lead_content_type=content_type,
+                    lead_object_id=original_id,
+                    assigned_to=request.user
+                ).exists()
+                
+                if assignment_exists:
+                    lead_obj = model.objects.get(id=original_id)
+                else:
+                    return JsonResponse({"success": False, "error": "Lead not found or not assigned to you."})
+                    
+            except model.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Lead not found."})
+            except Exception as e:
+                return JsonResponse({"success": False, "error": "Lead access verification failed."})
+        
+        # Get remarks from LeadRemarkHistory - ONLY FOR CURRENT USER
+        content_type = ContentType.objects.get_for_model(model)
+        remarks_history = LeadRemarkHistory.objects.filter(
+            lead_content_type=content_type,
+            lead_object_id=original_id,
+            created_by=request.user  # YAHAN FILTER LAGAO - sirf current user ki remarks
+        ).order_by('-created_at')
+        
+        remarks_list = []
+        for remark in remarks_history:
+            remarks_list.append({
+                'id': remark.id,
+                'text': remark.remark_text,
+                'created_by': remark.created_by.get_full_name() or remark.created_by.username,
+                'created_at': remark.created_at.strftime("%d %b %Y, %I:%M %p")
+            })
+
+        return JsonResponse({
+            "success": True,
+            "remarks": remarks_list
+        })
+
+    except Exception as e:
+        print(f"DEBUG: Error in get_lead_remarks: {str(e)}")
+        return JsonResponse({"success": False, "error": str(e)})
+
+@login_required
+def get_lead_status_history(request):
+    lead_id = request.GET.get("lead_id")
+    
+    if not lead_id:
+        return JsonResponse({"success": False, "error": "Missing lead ID."})
+
+    try:
+        # Model aur original ID identify karo
+        if lead_id.startswith('realestate_'):
+            model = RealEstateLead
+            original_id = lead_id.replace('realestate_', '')
+        elif lead_id.startswith('mba_'):
+            model = OnlineMBA
+            original_id = lead_id.replace('mba_', '')
+        elif lead_id.startswith('abroad_'):
+            model = StudyAbroad
+            original_id = lead_id.replace('abroad_', '')
+        elif lead_id.startswith('forex_'):
+            model = ForexTrade
+            original_id = lead_id.replace('forex_', '')
+        else:
+            return JsonResponse({"success": False, "error": "Invalid lead ID format."})
+
+        # Database se lead fetch karo
+        try:
+            lead_obj = model.objects.get(id=original_id, assigned_to=request.user)
+        except model.DoesNotExist:
+            try:
+                from django.contrib.contenttypes.models import ContentType
+                content_type = ContentType.objects.get_for_model(model)
+                
+                assignment_exists = LeadAssignmentLog.objects.filter(
+                    lead_content_type=content_type,
+                    lead_object_id=original_id,
+                    assigned_to=request.user
+                ).exists()
+                
+                if assignment_exists:
+                    lead_obj = model.objects.get(id=original_id)
+                else:
+                    return JsonResponse({"success": False, "error": "Lead not found or not assigned to you."})
+                    
+            except model.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Lead not found."})
+            except Exception as e:
+                return JsonResponse({"success": False, "error": "Lead access verification failed."})
+        
+        # Get status history from LeadStatusHistory - ONLY FOR CURRENT USER
+        content_type = ContentType.objects.get_for_model(model)
+        status_history = LeadStatusHistory.objects.filter(
+            lead_content_type=content_type,
+            lead_object_id=original_id,
+            changed_by=request.user  # YAHAN FILTER LAGAO - sirf current user ki status changes
+        ).order_by('-created_at')
+        
+        history_list = []
+        for history in status_history:
+            history_list.append({
+                'id': history.id,
+                'old_status': history.old_status,
+                'new_status': history.new_status,
+                'changed_by': history.changed_by.get_full_name() or history.changed_by.username,
+                'created_at': history.created_at.strftime("%d %b %Y, %I:%M %p")
+            })
+
+        return JsonResponse({
+            "success": True,
+            "status_history": history_list
+        })
+
+    except Exception as e:
+        print(f"DEBUG: Error in get_lead_status_history: {str(e)}")
+        return JsonResponse({"success": False, "error": str(e)})
+
     
     
 

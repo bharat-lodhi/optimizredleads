@@ -5,8 +5,13 @@ app_name = 'subscribers'
 
 urlpatterns = [
     path('', views.dashboard, name='subscribers'),
+    # path('my-leads/', views.my_leads, name='my_leads'),
+    # path('update_lead_status/', views.update_lead_status, name='update_lead_status'),
     path('my-leads/', views.my_leads, name='my_leads'),
     path('update_lead_status/', views.update_lead_status, name='update_lead_status'),
+    path('add_lead_remark/', views.add_lead_remark, name='add_lead_remark'),
+    path('get_lead_remarks/', views.get_lead_remarks, name='get_lead_remarks'),
+    path('get_lead_status_history/', views.get_lead_status_history, name='get_lead_status_history'),
 
     path('submit-ticket/', views.submit_ticket, name='submit_ticket'),
     path('tickets/', views.my_tickets, name='tickets'),

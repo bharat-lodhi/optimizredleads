@@ -5,6 +5,962 @@
 
 {% block content %}
 
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">My Leads</h2>
+
+    <!-- Search Filter -->
+    <div class="mb-6">
+        <input type="text" id="searchInput" placeholder="Search by name, phone, email, location, course, country..." 
+               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base">
+    </div>
+
+    <!-- Google Calendar Connection Status -->
+    <div class="mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div class="flex-1">
+                <h3 class="text-lg font-semibold text-gray-800">Google Calendar Integration</h3>
+                <p class="text-sm text-gray-600 mt-1" id="calendarStatus">
+                    {% if calendar_connected %}
+                        ✅ Connected - You can schedule events in Google Calendar
+                    {% else %}
+                        🔴 Not connected - Connect to schedule events in Google Calendar
+                    {% endif %}
+                </p>
+            </div>
+            <div id="calendarButtons" class="flex-shrink-0">
+                {% if calendar_connected %}
+                    <button onclick="disconnectGoogleCalendar()" 
+                            class="w-full md:w-auto px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
+                        🚫 Disconnect
+                    </button>
+                {% else %}
+                    <button onclick="connectGoogleCalendar()" 
+                            class="w-full md:w-auto px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                        🔗 Connect Calendar
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leads Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="leadsContainer">
+  {% for lead in leads %}
+  <div class="lead-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer"
+       data-lead-id="{{ lead.id }}"
+       data-lead-name="{{ lead.name }}"
+       data-lead-category="{{ lead.category }}"
+       data-lead-phone="{{ lead.phone }}"
+       data-lead-email="{{ lead.email }}"
+       data-lead-extra="{{ lead.extra }}"
+       data-lead-status="{{ lead.status }}"
+       data-lead-date="{{ lead.created_at|date:'d M Y' }}"
+       data-lead-model="{{ lead.model_type }}"
+       data-lead-remark="{{ lead.remark }}"
+       data-original-id="{{ lead.original_id }}">
+    <div class="p-4 md:p-5">
+      <div class="flex justify-between items-start mb-3">
+        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full">{{ lead.category }}</span>
+        {% comment %} <span class="status-badge text-xs font-semibold px-2.5 py-1 rounded-full 
+              {% if lead.status == 'new' %}bg-blue-100 text-blue-600
+              {% elif lead.status == 'converted' %}bg-green-100 text-green-600
+              {% elif lead.status == 'not_converted' %}bg-yellow-100 text-yellow-600
+              {% else %}bg-green-100 text-green-600{% endif %}">
+          {{ lead.status|title }}
+        </span> {% endcomment %}
+      </div>
+
+      <h3 class="text-lg font-semibold text-gray-800 mb-2 truncate">{{ lead.name }}</h3>
+      <div class="text-sm text-gray-600 mb-1 flex items-center gap-2">
+        <span>📞</span>
+        <span class="truncate">{{ lead.phone }}</span>
+      </div>
+      <div class="text-sm text-gray-600 mb-3 flex items-center gap-2">
+        <span>✉️</span>
+        <span class="truncate">{{ lead.email }}</span>
+      </div>
+      <p class="text-sm text-gray-500 line-clamp-2 mb-3">{{ lead.extra }}</p>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-span-full text-center py-12">
+    <div class="max-w-md mx-auto">
+      <div class="text-6xl mb-4">📭</div>
+      <p class="text-gray-500 text-lg mb-2">No leads assigned yet</p>
+      <p class="text-gray-400 text-sm">Leads will appear here once they are assigned to you</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Lead Modal -->
+<div id="leadModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50 hidden">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col">
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center p-4 md:p-6 border-b border-gray-200 bg-white sticky top-0 z-10">
+      <h3 class="text-xl font-bold text-gray-800">Lead Details</h3>
+      <button onclick="closeLeadModal()" class="text-gray-400 hover:text-gray-500 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Modal Content (Scrollable) -->
+    <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6" style="margin-bottom:50px">
+      <!-- Lead Information -->
+      <div id="modalContent" data-lead-id="" data-category=""></div>
+
+      <!-- Status History Section -->
+      <div class="border-t border-gray-200 pt-6">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <span>🔄</span>
+            Status History
+          </h4>
+          <button onclick="toggleStatusHistorySection()" class="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors">
+            <span id="toggleStatusHistoryText">Hide</span>
+          </button>
+        </div>
+        
+        <div id="statusHistorySection" class="space-y-3">
+          <div id="statusHistory" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+            <!-- Status history will be loaded here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Remarks Section -->
+      <div class="border-t border-gray-200 pt-6">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <span>💬</span>
+            Remarks History
+          </h4>
+          <button onclick="toggleRemarksSection()" class="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors">
+            <span id="toggleRemarksText">Hide</span>
+          </button>
+        </div>
+        
+        <div id="remarksSection" class="space-y-3">
+          <div id="remarksHistory" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+            <!-- Remarks will be loaded here -->
+          </div>
+          
+          <!-- Add New Remark -->
+          <div class="border-t border-gray-100 pt-4">
+            <label for="leadRemark" class="block text-sm font-medium text-gray-700 mb-2">Add New Remark:</label>
+            <textarea id="leadRemark" rows="3" 
+                      class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                      placeholder="Enter your remark here..."></textarea>
+            <div class="flex justify-between items-center mt-2">
+              <span class="text-xs text-gray-500">Press Enter to add remark</span>
+              <button onclick="addRemark()" 
+                      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                Add Remark
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar Event Section -->
+      <div class="border-t border-gray-200 pt-6">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <span>📅</span>
+            Schedule Event
+          </h4>
+          <button onclick="toggleCalendarSection()" class="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors">
+            <span id="toggleCalendarText">Hide</span>
+          </button>
+        </div>
+        
+        <div id="calendarSection" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="eventTitle" class="block text-sm font-medium text-gray-700 mb-1">Event Title *</label>
+              <input type="text" id="eventTitle" 
+                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                     placeholder="Meeting with client">
+            </div>
+            <div>
+              <label for="eventDate" class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+              <input type="date" id="eventDate" 
+                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="eventTime" class="block text-sm font-medium text-gray-700 mb-1">Time *</label>
+              <input type="time" id="eventTime" 
+                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label for="eventDuration" class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+              <select id="eventDuration" 
+                      class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <option value="30">30 minutes</option>
+                <option value="60" selected>1 hour</option>
+                <option value="90">1.5 hours</option>
+                <option value="120">2 hours</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="eventDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea id="eventDescription" rows="3" 
+                      class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                      placeholder="Event description..."></textarea>
+          </div>
+
+          <button onclick="createCalendarEvent()" 
+                  class="w-full md:w-auto px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-medium">
+            <span>📅</span>
+            <span>Add to Calendar</span>
+          </button>
+
+          <!-- Calendar Events List -->
+          <div id="calendarEventsList" class="mt-4 space-y-3">
+            <!-- Existing events will be shown here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Update Section -->
+      <div class="border-t border-gray-200 pt-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div class="flex-1">
+            <label for="leadStatusSelect" class="block text-sm font-medium text-gray-700 mb-2">Update Lead Status:</label>
+            <select id="leadStatusSelect" 
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="new">New</option>
+              <option value="in_process">In Process</option>
+              <option value="lead_replacement">Lead Replacement</option>
+              <option value="converted">Converted</option>
+              <option value="not_converted">Not Converted</option>
+              <option value="trashed">Trashed</option>
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="updateLeadStatus()" 
+                    class="flex-1 sm:flex-none px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+              Update Status
+            </button>
+            <button onclick="closeLeadModal()" 
+                    class="flex-1 sm:flex-none px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Global variables
+let currentLeadId = null;
+let currentLeadData = null;
+
+// Open modal
+function openLeadModal(card) {
+  currentLeadData = {
+    id: card.dataset.leadId,
+    name: card.dataset.leadName,
+    category: card.dataset.leadCategory,
+    phone: card.dataset.leadPhone,
+    email: card.dataset.leadEmail,
+    extra: card.dataset.leadExtra,
+    status: card.dataset.leadStatus,
+    date: card.dataset.leadDate,
+    modelType: card.dataset.leadModel,
+    originalId: card.dataset.originalId,
+    remark: card.dataset.leadRemark
+  };
+
+  currentLeadId = currentLeadData.id;
+  
+  const modal = document.getElementById('leadModal');
+  const modalContent = document.getElementById('modalContent');
+  modalContent.dataset.leadId = currentLeadData.id;
+  modalContent.dataset.category = currentLeadData.category;
+
+  let extraHTML = '';
+  
+  // Real Estate Leads
+  if (currentLeadData.category.includes('Buyers Leads') || currentLeadData.category.includes('Tenant Leads') || currentLeadData.category.includes('Real Estate')) {
+    const parts = currentLeadData.extra.split('/');
+    extraHTML = `
+      <p class="flex justify-between py-2 border-b border-gray-100"><span class="font-medium text-gray-700">Location:</span> <span class="text-gray-900">${parts[0] || '-'}</span></p>
+      <p class="flex justify-between py-2 border-b border-gray-100"><span class="font-medium text-gray-700">Budget:</span> <span class="text-gray-900">${parts[1] || '-'}</span></p>
+      <p class="flex justify-between py-2"><span class="font-medium text-gray-700">Visit Day:</span> <span class="text-gray-900">${parts[2] || '-'}</span></p>
+    `;
+  } 
+  // Online MBA
+  else if (currentLeadData.category.includes('Online MBA')) {
+    const parts = currentLeadData.extra.split('/');
+    extraHTML = `
+      <p class="flex justify-between py-2 border-b border-gray-100"><span class="font-medium text-gray-700">Course:</span> <span class="text-gray-900">${parts[0] || '-'}</span></p>
+      <p class="flex justify-between py-2"><span class="font-medium text-gray-700">University:</span> <span class="text-gray-900">${parts[1] || '-'}</span></p>
+    `;
+  } 
+  // Study Abroad
+  else if (currentLeadData.category.includes('Study Abroad')) {
+    const parts = currentLeadData.extra.split('/');
+    extraHTML = `
+      <p class="flex justify-between py-2 border-b border-gray-100"><span class="font-medium text-gray-700">Country:</span> <span class="text-gray-900">${parts[0] || '-'}</span></p>
+      <p class="flex justify-between py-2"><span class="font-medium text-gray-700">University:</span> <span class="text-gray-900">${parts[1] || '-'}</span></p>
+    `;
+  } 
+  // Forex Trade
+  else if (currentLeadData.category.includes('Forex Trade')) {
+    const parts = currentLeadData.extra.split('/');
+    extraHTML = `
+      <p class="flex justify-between py-2 border-b border-gray-100"><span class="font-medium text-gray-700">Experience:</span> <span class="text-gray-900">${parts[0] || '-'}</span></p>
+      <p class="flex justify-between py-2 border-b border-gray-100"><span class="font-medium text-gray-700">Broker:</span> <span class="text-gray-900">${parts[1] || '-'}</span></p>
+      <p class="flex justify-between py-2"><span class="font-medium text-gray-700">Investment:</span> <span class="text-gray-900">${parts[2] || '-'}</span></p>
+    `;
+  }
+  // Default case
+  else {
+    extraHTML = `<p class="flex justify-between py-2"><span class="font-medium text-gray-700">Details:</span> <span class="text-gray-900">${currentLeadData.extra || '-'}</span></p>`;
+  }
+
+  modalContent.innerHTML = `
+    <div class="space-y-4">
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h4 class="text-xl font-bold text-gray-900 mb-3">${currentLeadData.name}</h4>
+        <div class="grid grid-cols-1 gap-2 text-sm">
+          <p class="flex justify-between"><span class="font-medium text-gray-700">Category:</span> <span class="text-gray-900">${currentLeadData.category}</span></p>
+          <p class="flex justify-between"><span class="font-medium text-gray-700">Phone:</span> <span class="text-gray-900">${currentLeadData.phone}</span></p>
+          <p class="flex justify-between"><span class="font-medium text-gray-700">Email:</span> <span class="text-gray-900">${currentLeadData.email}</span></p>
+          <p class="flex justify-between"><span class="font-medium text-gray-700">Status:</span> <span id="modalStatusText" class="font-semibold">${currentLeadData.status}</span></p>
+          <p class="flex justify-between"><span class="font-medium text-gray-700">Date:</span> <span class="text-gray-900">${currentLeadData.date}</span></p>
+        </div>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <h5 class="font-semibold text-gray-800 mb-3">Additional Information</h5>
+        <div class="space-y-0">
+          ${extraHTML}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('leadStatusSelect').value = currentLeadData.status;
+  document.getElementById('leadRemark').value = '';
+  
+  // Load remarks, status history and calendar events
+  loadRemarksHistory(currentLeadData.id);
+  loadStatusHistory(currentLeadData.id);
+  loadCalendarEvents(currentLeadData.id);
+  
+  // Reset sections to expanded
+  document.getElementById('remarksSection').style.display = 'block';
+  document.getElementById('toggleRemarksText').textContent = 'Hide';
+  document.getElementById('statusHistorySection').style.display = 'block';
+  document.getElementById('toggleStatusHistoryText').textContent = 'Hide';
+  document.getElementById('calendarSection').style.display = 'block';
+  document.getElementById('toggleCalendarText').textContent = 'Hide';
+  
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+// Close modal
+function closeLeadModal() {
+  document.getElementById('leadModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+  currentLeadId = null;
+  currentLeadData = null;
+}
+
+// Toggle sections
+function toggleRemarksSection() {
+  const section = document.getElementById('remarksSection');
+  const toggleText = document.getElementById('toggleRemarksText');
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    toggleText.textContent = 'Hide';
+  } else {
+    section.style.display = 'none';
+    toggleText.textContent = 'Show';
+  }
+}
+
+function toggleStatusHistorySection() {
+  const section = document.getElementById('statusHistorySection');
+  const toggleText = document.getElementById('toggleStatusHistoryText');
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    toggleText.textContent = 'Hide';
+  } else {
+    section.style.display = 'none';
+    toggleText.textContent = 'Show';
+  }
+}
+
+function toggleCalendarSection() {
+  const section = document.getElementById('calendarSection');
+  const toggleText = document.getElementById('toggleCalendarText');
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    toggleText.textContent = 'Hide';
+  } else {
+    section.style.display = 'none';
+    toggleText.textContent = 'Show';
+  }
+}
+
+// Load status history
+function loadStatusHistory(leadId) {
+  fetch(`/subscribers/get_lead_status_history/?lead_id=${leadId}`, {
+    method: "GET",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+  })
+  .then(res => res.json())
+  .then(data => {
+    const statusHistory = document.getElementById('statusHistory');
+    if (data.success && data.status_history.length > 0) {
+      statusHistory.innerHTML = data.status_history.map(history => `
+        <div class="bg-purple-50 border border-purple-100 rounded-lg p-3">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-medium text-purple-700">Status Changed</span>
+            <span class="text-xs text-purple-600">${history.created_at}</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm">
+            <span class="text-purple-800">From:</span>
+            <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">${history.old_status}</span>
+            <span class="text-purple-800">→</span>
+            <span class="px-2 py-1 bg-purple-200 text-purple-800 rounded text-xs font-medium">${history.new_status}</span>
+          </div>
+          <div class="text-xs text-purple-600 mt-1">By: ${history.changed_by}</div>
+        </div>
+      `).join('');
+    } else {
+      statusHistory.innerHTML = `
+        <div class="text-center py-6 text-gray-500">
+          <div class="text-4xl mb-2">🔄</div>
+          <p class="text-sm">No status history yet</p>
+          <p class="text-xs mt-1">Status changes will appear here</p>
+        </div>
+      `;
+    }
+  })
+  .catch(err => {
+    console.error('Error loading status history:', err);
+    document.getElementById('statusHistory').innerHTML = `
+      <div class="text-center py-4 text-red-500 text-sm">
+        Error loading status history
+      </div>
+    `;
+  });
+}
+
+// Load remarks history
+function loadRemarksHistory(leadId) {
+  fetch(`/subscribers/get_lead_remarks/?lead_id=${leadId}`, {
+    method: "GET",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+  })
+  .then(res => res.json())
+  .then(data => {
+    const remarksHistory = document.getElementById('remarksHistory');
+    if (data.success && data.remarks.length > 0) {
+      remarksHistory.innerHTML = data.remarks.map(remark => `
+        <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-medium text-blue-700">Remark</span>
+            <span class="text-xs text-blue-600">${remark.created_at}</span>
+          </div>
+          <p class="text-sm text-blue-800 leading-relaxed">${remark.text}</p>
+          <div class="text-xs text-blue-600 mt-1">By: ${remark.created_by}</div>
+        </div>
+      `).join('');
+    } else {
+      remarksHistory.innerHTML = `
+        <div class="text-center py-6 text-gray-500">
+          <div class="text-4xl mb-2">💬</div>
+          <p class="text-sm">No remarks yet</p>
+          <p class="text-xs mt-1">Add your first remark below</p>
+        </div>
+      `;
+    }
+  })
+  .catch(err => {
+    console.error('Error loading remarks:', err);
+    document.getElementById('remarksHistory').innerHTML = `
+      <div class="text-center py-4 text-red-500 text-sm">
+        Error loading remarks
+      </div>
+    `;
+  });
+}
+
+// Add new remark
+function addRemark() {
+  const remarkText = document.getElementById('leadRemark').value.trim();
+  if (!remarkText) {
+    showToast('❌ Please enter a remark', 'error');
+    return;
+  }
+
+  fetch("/subscribers/add_lead_remark/", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ 
+      lead_id: currentLeadId,
+      remark: remarkText
+    }),
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      // Clear textarea
+      document.getElementById('leadRemark').value = '';
+      
+      // Reload remarks history
+      loadRemarksHistory(currentLeadId);
+      
+      // Update card display
+      updateCardRemarkDisplay(remarkText);
+      
+      // Show success message
+      showToast('✅ Remark added successfully!', 'success');
+    } else {
+      showToast('❌ Failed to add remark: ' + (data.error || 'Unknown error'), 'error');
+    }
+  })
+  .catch(err => {
+    console.error('Error:', err);
+    showToast('❌ Error while adding remark!', 'error');
+  });
+}
+
+// Update card remark display
+function updateCardRemarkDisplay(remarkText) {
+  const card = document.querySelector(`.lead-card[data-lead-id="${currentLeadId}"]`);
+  if (card) {
+    card.dataset.leadRemark = remarkText;
+    
+    let remarksDiv = card.querySelector('.remarks-history');
+    if (!remarksDiv) {
+      remarksDiv = document.createElement('div');
+      remarksDiv.className = 'remarks-history mt-3';
+      card.querySelector('.p-4, .p-5').appendChild(remarksDiv);
+    }
+    
+    remarksDiv.innerHTML = `
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-medium text-gray-700">Recent Remarks:</span>
+        <span class="text-xs text-gray-400">${new Date().toLocaleDateString()}</span>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3 max-h-20 overflow-y-auto">
+        <p class="text-xs text-gray-600 leading-relaxed">${remarkText.substring(0, 100)}${remarkText.length > 100 ? '...' : ''}</p>
+      </div>
+    `;
+  }
+}
+
+// Update lead status
+function updateLeadStatus() {
+  const newStatus = document.getElementById('leadStatusSelect').value;
+  const modalContent = document.getElementById('modalContent');
+
+  fetch("/subscribers/update_lead_status/", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ 
+      lead_id: currentLeadId, 
+      category: modalContent.dataset.category, 
+      status: newStatus
+    }),
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      // Update modal display
+      document.getElementById('modalStatusText').textContent = newStatus;
+      
+      // Update card display
+      const badge = document.querySelector(`.lead-card[data-lead-id="${currentLeadId}"] .status-badge`);
+      if (badge) {
+        badge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+        badge.className = "status-badge text-xs font-semibold px-2.5 py-1 rounded-full " +
+          (newStatus=="new"?"bg-blue-100 text-blue-600":
+           newStatus=="converted"?"bg-green-100 text-green-600":
+           newStatus=="not_converted"?"bg-yellow-100 text-yellow-600":
+           "bg-red-100 text-red-600");
+      }
+      
+      // Reload status history
+      loadStatusHistory(currentLeadId);
+      
+      showToast('✅ Status updated successfully!', 'success');
+    } else {
+      showToast('❌ Failed to update status: ' + (data.error || 'Unknown error'), 'error');
+    }
+  })
+  .catch(err => {
+    console.error('Error:', err);
+    showToast('❌ Error while updating status!', 'error');
+  });
+}
+
+// Create Calendar Event
+function createCalendarEvent() {
+  const eventTitle = document.getElementById('eventTitle').value;
+  const eventDate = document.getElementById('eventDate').value;
+  const eventTime = document.getElementById('eventTime').value;
+  const eventDuration = document.getElementById('eventDuration').value;
+  const eventDescription = document.getElementById('eventDescription').value;
+
+  // Validation
+  if (!eventTitle || !eventDate || !eventTime) {
+    showToast('❌ Please fill all required fields (Title, Date, Time)', 'error');
+    return;
+  }
+
+  const eventData = {
+    lead_id: currentLeadId,
+    title: eventTitle,
+    description: eventDescription || `Meeting with ${currentLeadData.name}`,
+    event_date: eventDate,
+    event_time: eventTime,
+    duration: eventDuration
+  };
+
+  fetch("/subscribers/create_calendar_event/", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(eventData),
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showToast('✅ Event created successfully! Google Calendar notification will be sent.', 'success');
+      // Clear form
+      document.getElementById('eventTitle').value = '';
+      document.getElementById('eventDate').value = '';
+      document.getElementById('eventTime').value = '';
+      document.getElementById('eventDescription').value = '';
+      document.getElementById('eventDuration').value = '60';
+      // Reload events list
+      loadCalendarEvents(currentLeadId);
+    } else {
+      showToast('❌ Failed to create event: ' + (data.error || 'Unknown error'), 'error');
+    }
+  })
+  .catch(err => {
+    console.error('Error:', err);
+    showToast('❌ Error while creating event!', 'error');
+  });
+}
+
+// Load Calendar Events
+function loadCalendarEvents(leadId) {
+  fetch(`/subscribers/get_calendar_events/?lead_id=${leadId}`, {
+    method: "GET",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+  })
+  .then(res => res.json())
+  .then(data => {
+    const eventsList = document.getElementById('calendarEventsList');
+    if (data.success && data.events.length > 0) {
+      eventsList.innerHTML = data.events.map(event => `
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div class="flex justify-between items-start mb-2">
+            <div class="font-semibold text-green-800 text-sm">${event.title}</div>
+            <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">Scheduled</span>
+          </div>
+          <div class="text-green-700 text-xs mb-1">📅 ${event.event_date} ⏰ ${event.event_time}</div>
+          <div class="text-green-600 text-xs">${event.description || 'No description provided'}</div>
+        </div>
+      `).join('');
+    } else {
+      eventsList.innerHTML = `
+        <div class="text-center py-6 text-gray-500">
+          <div class="text-4xl mb-2">📅</div>
+          <p class="text-sm">No events scheduled yet</p>
+          <p class="text-xs mt-1">Schedule your first event above</p>
+        </div>
+      `;
+    }
+  })
+  .catch(err => {
+    console.error('Error loading events:', err);
+    eventsList.innerHTML = `
+      <div class="text-center py-4 text-red-500 text-sm">
+        Error loading events
+      </div>
+    `;
+  });
+}
+
+// Search Filter Function
+function filterLeads() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const leadCards = document.querySelectorAll('.lead-card');
+  const leadsContainer = document.getElementById('leadsContainer');
+  
+  let visibleCount = 0;
+  
+  leadCards.forEach(card => {
+    const name = card.dataset.leadName.toLowerCase();
+    const phone = card.dataset.leadPhone.toLowerCase();
+    const email = card.dataset.leadEmail.toLowerCase();
+    const category = card.dataset.leadCategory.toLowerCase();
+    const extra = card.dataset.leadExtra.toLowerCase();
+    const remark = card.dataset.leadRemark.toLowerCase();
+    
+    const matches = name.includes(searchTerm) || 
+                   phone.includes(searchTerm) || 
+                   email.includes(searchTerm) || 
+                   category.includes(searchTerm) || 
+                   extra.includes(searchTerm) ||
+                   remark.includes(searchTerm);
+    
+    if (matches || searchTerm === '') {
+      card.style.display = 'block';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  
+  // Show no results message
+  let noResultsMsg = document.getElementById('noResultsMessage');
+  if (visibleCount === 0 && searchTerm !== '') {
+    if (!noResultsMsg) {
+      noResultsMsg = document.createElement('div');
+      noResultsMsg.id = 'noResultsMessage';
+      noResultsMsg.className = 'col-span-full text-center py-12';
+      noResultsMsg.innerHTML = `
+        <div class="max-w-md mx-auto">
+          <div class="text-6xl mb-4">🔍</div>
+          <p class="text-gray-500 text-lg mb-2">No leads found</p>
+          <p class="text-gray-400 text-sm">No results matching "${searchTerm}"</p>
+        </div>
+      `;
+      leadsContainer.appendChild(noResultsMsg);
+    }
+  } else if (noResultsMsg) {
+    noResultsMsg.remove();
+  }
+}
+
+// Toast notification function
+function showToast(message, type = 'info') {
+  // Remove existing toast
+  const existingToast = document.getElementById('customToast');
+  if (existingToast) {
+    existingToast.remove();
+  }
+  
+  const toast = document.createElement('div');
+  toast.id = 'customToast';
+  toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium max-w-sm transform transition-all duration-300 ${
+    type === 'success' ? 'bg-green-500' : 
+    type === 'error' ? 'bg-red-500' : 
+    'bg-blue-500'
+  }`;
+  toast.textContent = message;
+  toast.style.transform = 'translateX(100%)';
+  
+  document.body.appendChild(toast);
+  
+  // Animate in
+  setTimeout(() => {
+    toast.style.transform = 'translateX(0)';
+  }, 10);
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    toast.style.transform = 'translateX(100%)';
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 300);
+  }, 3000);
+}
+
+// CSRF helper
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    document.cookie.split(';').forEach(cookie => {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+      }
+    });
+  }
+  return cookieValue;
+}
+
+// Google Calendar functions
+function connectGoogleCalendar() {
+  window.location.href = '/subscribers/connect-google-calendar/';
+}
+
+function disconnectGoogleCalendar() {
+  if (confirm('Are you sure you want to disconnect Google Calendar?')) {
+    fetch("/subscribers/disconnect-google-calendar/", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.reload();
+      } else {
+        showToast('❌ Failed to disconnect: ' + (data.error || 'Unknown error'), 'error');
+      }
+    })
+    .catch(err => {
+      console.error('Error disconnecting calendar:', err);
+      showToast('❌ Error while disconnecting!', 'error');
+    });
+  }
+}
+
+// Check Google Calendar connection status from URL parameters
+function checkCalendarStatus() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('connected') === 'success') {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    window.location.reload();
+  }
+}
+
+// Add click listeners and search functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Lead card click listeners
+  document.querySelectorAll('.lead-card').forEach(card => {
+    card.addEventListener('click', function() { 
+      openLeadModal(this); 
+    });
+  });
+  
+  // Search input listener
+  document.getElementById('searchInput').addEventListener('input', filterLeads);
+  
+  // Close modal on outside click
+  document.getElementById('leadModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeLeadModal();
+    }
+  });
+  
+  // Set minimum date to today for event date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('eventDate').min = today;
+  
+  // Check URL parameters for calendar connection status
+  checkCalendarStatus();
+  
+  // Add Enter key support for remark textarea
+  document.getElementById('leadRemark').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      addRemark();
+    }
+  });
+});
+</script>
+
+<style>
+.lead-card { 
+  transition: all 0.3s ease; 
+}
+.lead-card:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Custom scrollbar for modal */
+#leadModal .overflow-y-auto::-webkit-scrollbar { 
+  width: 6px; 
+}
+#leadModal .overflow-y-auto::-webkit-scrollbar-thumb { 
+  background: #c1c1c1; 
+  border-radius: 3px; 
+}
+#leadModal .overflow-y-auto::-webkit-scrollbar-thumb:hover { 
+  background: #a8a8a8; 
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .lead-card {
+    margin-bottom: 0.5rem;
+  }
+  
+  #leadModal {
+    padding: 0.5rem;
+  }
+  
+  #leadModal .max-w-2xl {
+    margin: 0;
+    border-radius: 0.75rem;
+  }
+}
+
+/* Animation for modal */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#leadModal .bg-white {
+  animation: slideIn 0.2s ease-out;
+}
+</style>
+
+{% endblock %}
+
+
+{% comment %} {% extends 'subscriber_base.html' %}
+{% load static %}
+
+{% block title %}My Leads{% endblock %}
+
+{% block content %}
+
 <h2 class="text-2xl font-bold text-gray-800 mb-6">My Leads</h2>
 
 <!-- Search Filter -->
@@ -545,535 +1501,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </style>
 
 {% endblock %}
-
-
-
-
-
-
-{% comment %} {% extends 'subscriber_base.html' %}
-{% load static %}
-
-{% block title %}My Leads{% endblock %}
-
-{% block content %}
-
-<h2 class="text-2xl font-bold text-gray-800 mb-6">My Leads</h2>
-
-<!-- Search Filter -->
-<div class="mb-6">
-    <input type="text" id="searchInput" placeholder="Search by name, phone, email, location, course, country..." 
-           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-</div>
-
-<!-- Google Calendar Connection Status -->
-<div class="mb-4 p-4 bg-white rounded-lg shadow-md border">
-    <div class="flex justify-between items-center">
-        <div>
-            <h3 class="text-lg font-semibold text-gray-800">Google Calendar Integration</h3>
-            <p class="text-sm text-gray-600" id="calendarStatus">
-                Not connected - Connect to schedule events in Google Calendar
-            </p>
-        </div>
-        <div id="calendarButtons">
-            <button onclick="connectGoogleCalendar()" 
-                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                🔗 Connect Google Calendar
-            </button>
-        </div>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="leadsContainer">
-  {% for lead in leads %}
-  <div class="lead-card bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-       data-lead-id="{{ lead.id }}"
-       data-lead-name="{{ lead.name }}"
-       data-lead-category="{{ lead.category }}"
-       data-lead-phone="{{ lead.phone }}"
-       data-lead-email="{{ lead.email }}"
-       data-lead-extra="{{ lead.extra }}"
-       data-lead-status="{{ lead.status }}"
-       data-lead-date="{{ lead.created_at|date:'d M Y' }}"
-       data-lead-model="{{ lead.model_type }}"
-       data-lead-remark="{{ lead.remark }}"
-       data-original-id="{{ lead.original_id }}">
-    <div class="p-4">
-      <div class="flex justify-between items-start mb-3">
-        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">{{ lead.category }}</span>
-        <span class="status-badge text-xs font-semibold px-2 py-1 rounded-full 
-              {% if lead.status == 'new' %}bg-blue-100 text-blue-600
-              {% elif lead.status == 'converted' %}bg-green-100 text-green-600
-              {% elif lead.status == 'not_converted' %}bg-yellow-100 text-yellow-600
-              {% else %}bg-red-100 text-red-600{% endif %}">
-          {{ lead.status|title }}
-        </span>
-      </div>
-
-      <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ lead.name }}</h3>
-      <div class="text-sm text-gray-600 mb-1"><b>📞</b> {{ lead.phone }}</div>
-      <div class="text-sm text-gray-600 mb-3"><b>✉️</b> {{ lead.email }}</div>
-      <p class="text-sm text-gray-500 truncate">{{ lead.extra }}</p>
-      {% if lead.remark %}
-      <div class="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
-        <b>Remark:</b> {{ lead.remark|truncatewords:10 }}
-      </div>
-      {% endif %}
-      <div class="mt-4 text-xs text-gray-400">{{ lead.created_at|date:"d M Y" }}</div>
-    </div>
-  </div>
-  {% empty %}
-  <div class="col-span-full text-center py-12">
-    <p class="text-gray-500 text-lg">No leads assigned yet.</p>
-  </div>
-  {% endfor %}
-</div>
-
-<!-- Lead Modal -->
-<div id="leadModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
-  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-    <div class="p-6">
-      <div class="flex justify-between items-start mb-6">
-        <h3 class="text-xl font-bold text-gray-800">Lead Details</h3>
-        <button onclick="closeLeadModal()" class="text-gray-400 hover:text-gray-500">✕</button>
-      </div>
-      
-      <div id="modalContent" data-lead-id="" data-category=""></div>
-
-      <!-- Calendar Event Section -->
-      <div class="mt-6 border-t pt-6">
-        <h4 class="text-lg font-semibold text-gray-800 mb-4">📅 Schedule Event</h4>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label for="eventTitle" class="block text-sm font-medium text-gray-700 mb-1">Event Title *</label>
-            <input type="text" id="eventTitle" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Meeting with client">
-          </div>
-          <div>
-            <label for="eventDate" class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
-            <input type="date" id="eventDate" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label for="eventTime" class="block text-sm font-medium text-gray-700 mb-1">Time *</label>
-            <input type="time" id="eventTime" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          </div>
-          <div>
-            <label for="eventDuration" class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-            <select id="eventDuration" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <option value="30">30 minutes</option>
-              <option value="60" selected>1 hour</option>
-              <option value="90">1.5 hours</option>
-              <option value="120">2 hours</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label for="eventDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea id="eventDescription" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Event description..."></textarea>
-        </div>
-
-        <button onclick="createCalendarEvent()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center">
-          <span>📅 Add to Google Calendar</span>
-        </button>
-
-        <!-- Calendar Events List -->
-        <div id="calendarEventsList" class="mt-4 space-y-2 max-h-40 overflow-y-auto">
-          <!-- Yahan existing events show honge -->
-        </div>
-      </div>
-
-      <!-- Remark Textarea -->
-      <div class="mt-6 border-t pt-6">
-        <label for="leadRemark" class="block text-sm font-medium text-gray-700 mb-2">Remark:</label>
-        <textarea id="leadRemark" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Add your remark here..."></textarea>
-      </div>
-
-      <div class="mt-8 flex justify-between items-center border-t pt-6">
-        <div>
-          <label for="leadStatusSelect" class="text-sm font-medium text-gray-700 mr-2">Update Status:</label>
-          <select id="leadStatusSelect" class="border border-gray-300 rounded-md px-3 py-1 text-sm">
-            <option value="new">New</option>
-            <option value="converted">Converted</option>
-            <option value="not_converted">Not Converted</option>
-            <option value="trashed">Trashed</option>
-          </select>
-        </div>
-        <div>
-          <button onclick="updateLeadStatus()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Update Status & Remark</button>
-          <button onclick="closeLeadModal()" class="ml-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-// Open modal
-function openLeadModal(card) {
-  const leadData = {
-    id: card.dataset.leadId,
-    name: card.dataset.leadName,
-    category: card.dataset.leadCategory,
-    phone: card.dataset.leadPhone,
-    email: card.dataset.leadEmail,
-    extra: card.dataset.leadExtra,
-    status: card.dataset.leadStatus,
-    date: card.dataset.leadDate,
-    modelType: card.dataset.leadModel,
-    originalId: card.dataset.originalId,
-    remark: card.dataset.leadRemark
-  };
-
-  const modal = document.getElementById('leadModal');
-  const modalContent = document.getElementById('modalContent');
-  modalContent.dataset.leadId = leadData.id;
-  modalContent.dataset.category = leadData.category;
-
-  let extraHTML = '';
-  
-  // Real Estate Leads (Buyers Leads, Tenant Leads)
-  if (leadData.category.includes('Buyers Leads') || leadData.category.includes('Tenant Leads') || leadData.category.includes('Real Estate')) {
-    const parts = leadData.extra.split('/');
-    extraHTML = `
-      <p><b>Location:</b> ${parts[0] || '-'}</p>
-      <p><b>Budget:</b> ${parts[1] || '-'}</p>
-      <p><b>Visit Day:</b> ${parts[2] || '-'}</p>
-    `;
-  } 
-  // Online MBA
-  else if (leadData.category.includes('Online MBA')) {
-    const parts = leadData.extra.split('/');
-    extraHTML = `
-      <p><b>Course:</b> ${parts[0] || '-'}</p>
-      <p><b>University:</b> ${parts[1] || '-'}</p>
-    `;
-  } 
-  // Study Abroad
-  else if (leadData.category.includes('Study Abroad')) {
-    const parts = leadData.extra.split('/');
-    extraHTML = `
-      <p><b>Country:</b> ${parts[0] || '-'}</p>
-      <p><b>University:</b> ${parts[1] || '-'}</p>
-    `;
-  } 
-
-  // Forex Trade
-  else if (leadData.category.includes('Forex Trade')) {
-    const parts = leadData.extra.split('/');
-    extraHTML = `
-      <p><b>Experience:</b> ${parts[0] || '-'}</p>
-      <p><b>Broker:</b> ${parts[1] || '-'}</p>
-      <p><b>Investment:</b> ${parts[2] || '-'}</p>
-    `;
-  }
-
-  // Default case
-  else {
-    extraHTML = `<p><b>Details:</b> ${leadData.extra || '-'}</p>`;
-  }
-
-  modalContent.innerHTML = `
-    <div class="space-y-4">
-      <h4 class="text-lg font-semibold text-gray-900">${leadData.name}</h4>
-      <p><b>Category:</b> ${leadData.category}</p>
-      <p><b>Phone:</b> ${leadData.phone}</p>
-      <p><b>Email:</b> ${leadData.email}</p>
-      ${extraHTML}
-      <p><b>Status:</b> <span id="modalStatusText">${leadData.status}</span></p>
-      <p><b>Date:</b> ${leadData.date}</p>
-    </div>
-  `;
-
-  document.getElementById('leadStatusSelect').value = leadData.status;
-  document.getElementById('leadRemark').value = leadData.remark || '';
-  
-  // Calendar events load karo
-  loadCalendarEvents(leadData.id);
-  
-  modal.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-}
-
-// Close modal
-function closeLeadModal() {
-  document.getElementById('leadModal').classList.add('hidden');
-  document.body.style.overflow = 'auto';
-}
-
-// Update status and remark
-function updateLeadStatus() {
-  const newStatus = document.getElementById('leadStatusSelect').value;
-  const remark = document.getElementById('leadRemark').value;
-  const modalContent = document.getElementById('modalContent');
-  const leadId = modalContent.dataset.leadId;
-  const category = modalContent.dataset.category;
-
-  fetch("/subscribers/update_lead_status/", {
-    method: "POST",
-    headers: {
-      "X-CSRFToken": getCookie("csrftoken"),
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ 
-      lead_id: leadId, 
-      category: category, 
-      status: newStatus,
-      remark: remark
-    }),
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      document.getElementById('modalStatusText').textContent = newStatus;
-      const badge = document.querySelector(`.lead-card[data-lead-id="${leadId}"] .status-badge`);
-      badge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-      badge.className = "status-badge text-xs font-semibold px-2 py-1 rounded-full " +
-        (newStatus=="new"?"bg-blue-100 text-blue-600":
-         newStatus=="converted"?"bg-green-100 text-green-600":
-         newStatus=="not_converted"?"bg-yellow-100 text-yellow-600":
-         "bg-red-100 text-red-600");
-      
-      // Update remark in card if exists
-      const card = document.querySelector(`.lead-card[data-lead-id="${leadId}"]`);
-      if (card) {
-        card.dataset.leadRemark = remark;
-        // Update remark display in card
-        let remarkDiv = card.querySelector('.remark-display');
-        if (!remarkDiv) {
-          remarkDiv = document.createElement('div');
-          remarkDiv.className = 'mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded';
-          card.querySelector('.p-4').appendChild(remarkDiv);
-        }
-        if (remark.trim()) {
-          remarkDiv.innerHTML = `<b>Remark:</b> ${remark.trim().substring(0, 50)}${remark.trim().length > 50 ? '...' : ''}`;
-        } else {
-          remarkDiv.innerHTML = '';
-        }
-      }
-      
-      alert("✅ Status and remark updated successfully!");
-    } else {
-      alert("❌ Failed to update: " + (data.error || "Unknown error"));
-    }
-  })
-  .catch(err => {
-    console.error('Error:', err);
-    alert("❌ Error while updating!");
-  });
-}
-
-// Create Calendar Event
-function createCalendarEvent() {
-    const modalContent = document.getElementById('modalContent');
-    const leadId = modalContent.dataset.leadId;
-    const leadName = modalContent.querySelector('h4').textContent;
-    
-    const eventTitle = document.getElementById('eventTitle').value;
-    const eventDate = document.getElementById('eventDate').value;
-    const eventTime = document.getElementById('eventTime').value;
-    const eventDuration = document.getElementById('eventDuration').value;
-    const eventDescription = document.getElementById('eventDescription').value;
-
-    // Validation
-    if (!eventTitle || !eventDate || !eventTime) {
-        alert('❌ Please fill all required fields (Title, Date, Time)');
-        return;
-    }
-
-    const eventData = {
-        lead_id: leadId,
-        title: eventTitle,
-        description: eventDescription || `Meeting with ${leadName}`,
-        event_date: eventDate,
-        event_time: eventTime,
-        duration: eventDuration
-    };
-
-    fetch("/subscribers/create_calendar_event/", {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": getCookie("csrftoken"),
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(eventData),
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert('✅ Event created successfully! Google Calendar notification will be sent.');
-            // Clear form
-            document.getElementById('eventTitle').value = '';
-            document.getElementById('eventDate').value = '';
-            document.getElementById('eventTime').value = '';
-            document.getElementById('eventDescription').value = '';
-            document.getElementById('eventDuration').value = '60';
-            // Reload events list
-            loadCalendarEvents(leadId);
-        } else {
-            alert('❌ Failed to create event: ' + (data.error || 'Unknown error'));
-        }
-    })
-    .catch(err => {
-        console.error('Error:', err);
-        alert('❌ Error while creating event!');
-    });
-}
-
-// Load Calendar Events for this lead
-function loadCalendarEvents(leadId) {
-    fetch(`/subscribers/get_calendar_events/?lead_id=${leadId}`, {
-        method: "GET",
-        headers: {
-            "X-CSRFToken": getCookie("csrftoken"),
-        },
-    })
-    .then(res => res.json())
-    .then(data => {
-        const eventsList = document.getElementById('calendarEventsList');
-        if (data.success && data.events.length > 0) {
-            eventsList.innerHTML = data.events.map(event => `
-                <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm">
-                    <div class="font-semibold">${event.title}</div>
-                    <div class="text-gray-600">📅 ${event.event_date} ⏰ ${event.event_time}</div>
-                    <div class="text-gray-500 text-xs mt-1">${event.description || 'No description'}</div>
-                </div>
-            `).join('');
-        } else {
-            eventsList.innerHTML = '<p class="text-gray-500 text-sm">No events scheduled yet.</p>';
-        }
-    })
-    .catch(err => {
-        console.error('Error loading events:', err);
-    });
-}
-
-// Search Filter Function
-function filterLeads() {
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-  const leadCards = document.querySelectorAll('.lead-card');
-  const leadsContainer = document.getElementById('leadsContainer');
-  
-  let visibleCount = 0;
-  
-  leadCards.forEach(card => {
-    const name = card.dataset.leadName.toLowerCase();
-    const phone = card.dataset.leadPhone.toLowerCase();
-    const email = card.dataset.leadEmail.toLowerCase();
-    const category = card.dataset.leadCategory.toLowerCase();
-    const extra = card.dataset.leadExtra.toLowerCase();
-    
-    const matches = name.includes(searchTerm) || 
-                   phone.includes(searchTerm) || 
-                   email.includes(searchTerm) || 
-                   category.includes(searchTerm) || 
-                   extra.includes(searchTerm);
-    
-    if (matches || searchTerm === '') {
-      card.style.display = 'block';
-      visibleCount++;
-    } else {
-      card.style.display = 'none';
-    }
-  });
-  
-  // Show no results message
-  let noResultsMsg = document.getElementById('noResultsMessage');
-  if (visibleCount === 0 && searchTerm !== '') {
-    if (!noResultsMsg) {
-      noResultsMsg = document.createElement('div');
-      noResultsMsg.id = 'noResultsMessage';
-      noResultsMsg.className = 'col-span-full text-center py-12';
-      noResultsMsg.innerHTML = `<p class="text-gray-500 text-lg">No leads found matching "${searchTerm}"</p>`;
-      leadsContainer.appendChild(noResultsMsg);
-    }
-  } else if (noResultsMsg) {
-    noResultsMsg.remove();
-  }
-}
-
-// CSRF helper
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    document.cookie.split(';').forEach(cookie => {
-      cookie = cookie.trim();
-      if (cookie.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
-      }
-    });
-  }
-  return cookieValue;
-}
-
-// Add click listeners and search functionality
-document.addEventListener('DOMContentLoaded', function() {
-  // Lead card click listeners
-  document.querySelectorAll('.lead-card').forEach(card => {
-    card.addEventListener('click', function() { 
-      openLeadModal(this); 
-    });
-  });
-  
-  // Search input listener
-  document.getElementById('searchInput').addEventListener('input', filterLeads);
-  
-  // Close modal on outside click
-  document.getElementById('leadModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-      closeLeadModal();
-    }
-  });
-  
-  // Set minimum date to today for event date
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('eventDate').min = today;
-});
-
-// Connect Google Calendar
-function connectGoogleCalendar() {
-    window.location.href = '/subscribers/connect-google-calendar/';
-}
-
-// Check Google Calendar connection status
-function checkCalendarStatus() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('connected') === 'success') {
-        const statusElement = document.getElementById('calendarStatus');
-        const buttonsElement = document.getElementById('calendarButtons');
-        
-        statusElement.innerHTML = '✅ Connected - You can schedule events in Google Calendar';
-        buttonsElement.innerHTML = `
-            <button onclick="disconnectGoogleCalendar()" 
-                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
-                🚫 Disconnect Google Calendar
-            </button>
-        `;
-        
-        // Remove parameter from URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-}
-
-// DOM loaded pe check karo
-document.addEventListener('DOMContentLoaded', function() {
-    checkCalendarStatus();
-});
-
-</script>
-
-<style>
-.lead-card { transition: all 0.3s ease; }
-.lead-card:hover { transform: translateY(-2px); }
-#leadModal .bg-white::-webkit-scrollbar { width: 6px; }
-#leadModal .bg-white::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
-#leadModal .bg-white::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-</style>
-
-{% endblock %}
  {% endcomment %}
-
 

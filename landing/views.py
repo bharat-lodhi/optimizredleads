@@ -497,7 +497,7 @@ def start_free_trail(request):
 
 
 def terms(request):
-    return render(request,"landing/terms.html")
+    return render(request,"landing/Terms.html")
 
 def policy(request):
     return render(request,"landing/policy.html")

@@ -9,6 +9,421 @@
 <form method="POST" id="bulkAssignForm">
 {% csrf_token %}
 
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-50 border border-red-200 text-red-700{% else %}bg-green-50 border border-green-200 text-green-700{% endif %} rounded-md p-4">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header Section -->
+    <div class="flex flex-col space-y-4 mb-6">
+        <!-- Add New Lead Button -->
+        <div class="flex justify-center sm:justify-start">
+            <a href="/central-admin/add_forex_trade/" 
+               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 w-full sm:w-auto justify-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+                </svg>
+                Add New Lead
+            </a>
+        </div>
+
+        <!-- Bulk Assign Section -->
+        <div class="bg-white p-4 rounded-lg border border-gray-200">
+            <div class="flex flex-col space-y-3">
+                <select name="assigned_to" class="border border-gray-300 rounded px-3 py-2 w-full" required>
+                    <option value="">Select User</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+                
+                <!-- Remarks Field -->
+                <input type="text" 
+                       name="remarks" 
+                       placeholder="Enter assignment remarks" 
+                       class="border border-gray-300 rounded px-3 py-2 w-full"
+                       maxlength="255">
+                
+                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded w-full sm:w-auto">Assign Selected Leads</button>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative">
+            <input type="text" 
+                   id="searchInput"
+                   placeholder="Search leads..." 
+                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+            <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Desktop Table (hidden on mobile) -->
+    <div class="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left">
+                            <input type="checkbox" id="selectAll">
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead ID</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Broker</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investment</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">History</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="leadsTable">
+                    {% for lead in leads %}
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm">
+                            <input type="checkbox" name="leads" value="{{ lead.id }}" class="lead-checkbox">
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ lead.id }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div class="font-medium">{{ lead.full_name|default:"-" }}</div>
+                            <div class="text-gray-500 text-xs">{{ lead.email|default:"" }}</div>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.phone_number|default:"-" }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.experience|default:"-" }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.broker|default:"-" }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.initial_investment|default:"-" }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ lead.country|default:"-" }}</td>
+                        
+                        <!-- Assignment History Button -->
+                        <td class="px-4 py-4 whitespace-nowrap text-sm">
+                            <button type="button" 
+                                    onclick="showAssignmentHistory({{ lead.id }})"
+                                    class="text-blue-600 hover:text-blue-900 text-sm bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors duration-200">
+                                View
+                            </button>
+                        </td>
+
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            {% if lead.status == 'new' %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">New</span>
+                            {% elif lead.status == 'converted' %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Converted</span>
+                            {% elif lead.status == 'not_converted' %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Not Converted</span>
+                            {% elif lead.status == 'trashed' %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Trashed</span>
+                            {% endif %}
+                        </td>
+                    
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <!-- Edit Button -->
+                                <a href="/central-admin/edit_forex_trade/{{ lead.id }}/" 
+                                class="text-blue-600 hover:text-blue-900 transition-colors duration-200"
+                                title="Edit Lead">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </a>
+                                
+                                <!-- Delete Button -->
+                                <button type="button" 
+                                        onclick="confirmDelete({{ lead.id }})"
+                                        class="text-red-600 hover:text-red-900 transition-colors duration-200"
+                                        title="Delete Lead">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="11" class="px-6 py-8 text-center">
+                            <div class="text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <p class="text-lg font-medium text-gray-900 mb-2">No Forex Trade leads found</p>
+                                <p class="mb-4">Get started by creating your first Forex Trade lead.</p>
+                                <a href="/central-admin/add_forex_trade/" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200">
+                                    Add New Lead
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Mobile Cards (hidden on desktop) -->
+    <div class="lg:hidden space-y-4">
+        {% for lead in leads %}
+        <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+            <!-- Checkbox and Lead ID -->
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                    <input type="checkbox" name="leads" value="{{ lead.id }}" class="lead-checkbox h-4 w-4">
+                    <span class="text-sm font-medium text-gray-900">#{{ lead.id }}</span>
+                </div>
+                <div class="flex space-x-2">
+                    <!-- Edit Button -->
+                    <a href="/central-admin/edit_forex_trade/{{ lead.id }}/" 
+                       class="text-blue-600 hover:text-blue-900 transition-colors duration-200"
+                       title="Edit Lead">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                    </a>
+                    
+                    <!-- Delete Button -->
+                    <button type="button" 
+                            onclick="confirmDelete({{ lead.id }})"
+                            class="text-red-600 hover:text-red-900 transition-colors duration-200"
+                            title="Delete Lead">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lead Details -->
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="col-span-2">
+                    <div class="font-medium text-gray-900">{{ lead.full_name|default:"Unnamed Lead" }}</div>
+                    <div class="text-gray-500 text-xs">{{ lead.email|default:"No email" }}</div>
+                </div>
+                
+                <div>
+                    <div class="text-gray-500">Phone</div>
+                    <div class="font-medium">{{ lead.phone_number|default:"-" }}</div>
+                </div>
+                
+                <div>
+                    <div class="text-gray-500">Experience</div>
+                    <div class="font-medium">{{ lead.experience|default:"-" }}</div>
+                </div>
+                
+                <div>
+                    <div class="text-gray-500">Broker</div>
+                    <div class="font-medium">{{ lead.broker|default:"-" }}</div>
+                </div>
+                
+                <div>
+                    <div class="text-gray-500">Investment</div>
+                    <div class="font-medium">{{ lead.initial_investment|default:"-" }}</div>
+                </div>
+
+                <div>
+                    <div class="text-gray-500">Country</div>
+                    <div class="font-medium">{{ lead.country|default:"-" }}</div>
+                </div>
+
+                <div>
+                    <div class="text-gray-500">Note</div>
+                    <div class="font-medium">{{ lead.note|default:"-"|truncatechars:30 }}</div>
+                </div>
+
+                <div>
+                    <div class="text-gray-500">Assigned To</div>
+                    <div class="font-medium">
+                        {% if lead.assigned_to %}
+                            {{ lead.assigned_to.username }}
+                        {% else %}
+                            <span class="text-gray-400 italic">Unassigned</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <div class="text-gray-500">Remark</div>
+                    <div class="font-medium">{{ lead.remark|default:"-" }}</div>
+                </div>
+
+                <div>
+                    <div class="text-gray-500">Created</div>
+                    <div class="font-medium">{{ lead.created_at|date:"d M Y" }}</div>
+                </div>
+            </div>
+
+            <!-- Status and Actions -->
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
+                <div>
+                    {% if lead.status == 'new' %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">New</span>
+                    {% elif lead.status == 'converted' %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Converted</span>
+                    {% elif lead.status == 'not_converted' %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Not Converted</span>
+                    {% elif lead.status == 'trashed' %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Trashed</span>
+                    {% endif %}
+                </div>
+                
+                <button type="button" 
+                        onclick="showAssignmentHistory({{ lead.id }})"
+                        class="text-blue-600 hover:text-blue-900 text-sm bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors duration-200">
+                    View History
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg border border-gray-200 p-8 text-center">
+            <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-lg font-medium text-gray-900 mb-2">No Forex Trade leads found</p>
+            <p class="mb-4 text-gray-600">Get started by creating your first Forex Trade lead.</p>
+            <a href="/central-admin/add_forex_trade/" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200">
+                Add New Lead
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</form>
+
+<!-- Assignment History Modal -->
+<div id="assignmentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-4 sm:top-20 mx-auto p-4 border w-11/12 sm:w-3/4 md:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center pb-3 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">Assignment History - Lead #<span id="modalLeadId"></span></h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mt-4 max-h-64 sm:max-h-96 overflow-y-auto">
+                <div id="assignmentHistoryContent">
+                    <!-- Assignment history will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition-colors duration-200">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const desktopRows = document.querySelectorAll('#leadsTable tr');
+        const mobileCards = document.querySelectorAll('.lg\\:hidden > div.bg-white');
+        
+        // Search in desktop table
+        desktopRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+        
+        // Search in mobile cards
+        mobileCards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Select All functionality
+    const selectAll = document.getElementById('selectAll');
+    const leadCheckboxes = document.querySelectorAll('.lead-checkbox');
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            leadCheckboxes.forEach(chk => chk.checked = selectAll.checked);
+        });
+    }
+
+    function confirmDelete(leadId) {
+        if (confirm('Are you sure you want to delete this lead? This action cannot be undone.')) {
+            window.location.href = "{% url 'central_admin:delete_forex_trade' 0 %}".replace('0', leadId);
+        }
+    }
+
+    // Assignment History Functions
+    function showAssignmentHistory(leadId) {
+        fetch(`/central-admin/get_assignment_history_forex_trade/${leadId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('modalLeadId').textContent = leadId;
+                const contentDiv = document.getElementById('assignmentHistoryContent');
+                
+                if (data.assignments && data.assignments.length > 0) {
+                    let html = '';
+                    data.assignments.forEach(assignment => {
+                        html += `
+                            <div class="border-b border-gray-200 pb-3 mb-3">
+                                <div class="flex justify-between items-start">
+                                    <div class="w-full">
+                                        <p class="font-semibold">Assigned to: ${assignment.assigned_to}</p>
+                                        <p class="text-sm text-gray-600">By: ${assignment.assigned_by}</p>
+                                        <p class="text-sm text-gray-500">Date: ${assignment.assigned_at}</p>
+                                        <p class="text-sm text-gray-500">Status: ${assignment.status}</p>
+                                    </div>
+                                </div>
+                                ${assignment.notes ? `<p class="mt-2 text-sm bg-gray-50 p-2 rounded break-words"><strong>Remarks:</strong> ${assignment.notes}</p>` : ''}
+                            </div>
+                        `;
+                    });
+                    contentDiv.innerHTML = html;
+                } else {
+                    contentDiv.innerHTML = '<p class="text-gray-500 text-center py-4">No assignment history found.</p>';
+                }
+                
+                document.getElementById('assignmentModal').classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('assignmentHistoryContent').innerHTML = '<p class="text-red-500 text-center py-4">Error loading assignment history.</p>';
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('assignmentModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('assignmentModal').addEventListener('click', function(e) {
+        if (e.target.id === 'assignmentModal') {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}
+
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Forex Trade Leads{% endblock %}
+{% block page_title %}Forex Trade Leads{% endblock %}
+{% block page_subtitle %}Manage all Forex Trading leads{% endblock %}
+
+{% block content %}
+<form method="POST" id="bulkAssignForm">
+{% csrf_token %}
+
             {% if messages %}
             <div class="mb-4">
                 {% for message in messages %}
@@ -189,4 +604,4 @@
                 }
             }
 </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

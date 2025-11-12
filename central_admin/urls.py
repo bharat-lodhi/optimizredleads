@@ -19,22 +19,27 @@ urlpatterns = [
     path('add_real_estate/', views.add_real_estate, name='add_real_estate'),
     path('edit_real_estate/<int:lead_id>/', views.edit_real_estate, name='edit_real_estate'),
     path('delete_real_estate/<int:lead_id>/', views.delete_real_estate, name='delete_real_estate'),
+    
+    path('get_assignment_history/<int:lead_id>/', views.get_assignment_history, name='get_assignment_history'),
     # -----------------------online_mba----------------------------------------
     path('online_mba/', views.online_mba, name='online_mba'),
     path('add_online_mba/', views.add_online_mba, name='add_online_mba'),
     path('edit_online_mba/<int:lead_id>/', views.edit_online_mba, name='edit_online_mba'),
     path('delete_online_mba/<int:lead_id>/', views.delete_online_mba, name='delete_online_mba'),
 
+    path('get_assignment_history_online_mba/<int:lead_id>/', views.get_assignment_history_online_mba, name='get_assignment_history_online_mba'),
     # -----------------------study_abroad----------------------------------------
     path('study_abroad/', views.study_abroad, name='study_abroad'),
     path('add_study_abroad/', views.add_study_abroad, name='add_study_abroad'),
     path('edit_study_abroad/<int:lead_id>/', views.edit_study_abroad, name='edit_study_abroad'),
     path('delete_study_abroad/<int:lead_id>/', views.delete_study_abroad, name='delete_study_abroad'),
+    path('get_assignment_history_study_abroad/<int:lead_id>/', views.get_assignment_history_study_abroad, name='get_assignment_history_study_abroad'),
     # -------------------------Forex-trade---------------------------------------------------
     path('add_forex_trade/', views.add_forex_trade, name='add_forex_trade'),
     path('forex_trade/', views.forex_trade, name='forex_trade'), 
     path('edit_forex_trade/<int:lead_id>/', views.edit_forex_trade, name='edit_forex_trade'),
     path('delete_forex_trade/<int:lead_id>/', views.delete_forex_trade, name='delete_forex_trade'),
+    path('get_assignment_history_forex_trade/<int:lead_id>/', views.get_assignment_history_forex_trade, name='get_assignment_history_forex_trade'),
     # ----------------------------User management------------------------------------------
     path('users/', views.users_list, name='users_list'),
     path('users/edit/<int:user_id>/', views.edit_user, name='edit_user'),
