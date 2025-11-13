@@ -429,6 +429,194 @@ def dashboard(request):
     
     
     
+# @login_required
+# def my_leads(request):
+#     user = request.user
+
+#     # Method 1: Direct assigned_to se (single assignment)
+#     real_estate_leads = RealEstateLead.objects.filter(assigned_to=user)
+#     mba_leads = OnlineMBA.objects.filter(assigned_to=user)
+#     study_abroad_leads = StudyAbroad.objects.filter(assigned_to=user)
+#     forex_trade_leads = ForexTrade.objects.filter(assigned_to=user)
+
+#     # Method 2: Assignment history se (multiple assignment)
+#     from django.contrib.contenttypes.models import ContentType
+    
+#     # Get content types for all lead models
+#     real_estate_ct = ContentType.objects.get_for_model(RealEstateLead)
+#     mba_ct = ContentType.objects.get_for_model(OnlineMBA)
+#     study_abroad_ct = ContentType.objects.get_for_model(StudyAbroad)
+#     forex_ct = ContentType.objects.get_for_model(ForexTrade)
+
+#     # Get lead IDs from assignment logs for this user
+#     assignment_lead_ids = LeadAssignmentLog.objects.filter(
+#         assigned_to=user
+#     ).values_list('lead_object_id', 'lead_content_type')
+
+#     all_leads = []
+
+#     # Process direct assignments
+#     for lead in real_estate_leads:
+#         all_leads.append({
+#             'id': f'realestate_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'realestate',
+#             'category': lead.sub_industry or 'Real Estate',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'direct'
+#         })
+
+#     for lead in mba_leads:
+#         all_leads.append({
+#             'id': f'mba_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'mba',
+#             'category': 'Online MBA',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.course or '-'}/{lead.university or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'direct'
+#         })
+
+#     for lead in study_abroad_leads:
+#         all_leads.append({
+#             'id': f'abroad_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'abroad',
+#             'category': 'Study Abroad',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.country or '-'}/{lead.university or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'direct'
+#         })
+
+#     for lead in forex_trade_leads:
+#         all_leads.append({
+#             'id': f'forex_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'forex',
+#             'category': 'Forex Trade',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'direct'
+#         })
+
+#     # Process assignment history leads (remove duplicates)
+#     for lead_id, content_type_id in assignment_lead_ids:
+#         try:
+#             content_type = ContentType.objects.get_for_id(content_type_id)
+#             lead_model = content_type.model_class()
+#             lead = lead_model.objects.get(id=lead_id)
+            
+#             # Check if lead already exists in all_leads
+#             existing_lead = None
+#             for existing in all_leads:
+#                 if existing['original_id'] == lead.id and existing['model_type'] == content_type.model:
+#                     existing_lead = existing
+#                     break
+            
+#             if not existing_lead:
+#                 if isinstance(lead, RealEstateLead):
+#                     all_leads.append({
+#                         'id': f'realestate_{lead.id}',
+#                         'original_id': lead.id,
+#                         'model_type': 'realestate',
+#                         'category': lead.sub_industry or 'Real Estate',
+#                         'name': lead.full_name,
+#                         'phone': lead.phone_number,
+#                         'email': lead.email,
+#                         'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
+#                         'status': lead.status,
+#                         'created_at': lead.created_at,
+#                         'remark': lead.remark or '',
+#                         'assignment_type': 'history'
+#                     })
+#                 elif isinstance(lead, OnlineMBA):
+#                     all_leads.append({
+#                         'id': f'mba_{lead.id}',
+#                         'original_id': lead.id,
+#                         'model_type': 'mba',
+#                         'category': 'Online MBA',
+#                         'name': lead.full_name,
+#                         'phone': lead.phone_number,
+#                         'email': lead.email,
+#                         'extra': f"{lead.course or '-'}/{lead.university or '-'}",
+#                         'status': lead.status,
+#                         'created_at': lead.created_at,
+#                         'remark': lead.remark or '',
+#                         'assignment_type': 'history'
+#                     })
+#                 elif isinstance(lead, StudyAbroad):
+#                     all_leads.append({
+#                         'id': f'abroad_{lead.id}',
+#                         'original_id': lead.id,
+#                         'model_type': 'abroad',
+#                         'category': 'Study Abroad',
+#                         'name': lead.full_name,
+#                         'phone': lead.phone_number,
+#                         'email': lead.email,
+#                         'extra': f"{lead.country or '-'}/{lead.university or '-'}",
+#                         'status': lead.status,
+#                         'created_at': lead.created_at,
+#                         'remark': lead.remark or '',
+#                         'assignment_type': 'history'
+#                     })
+#                 elif isinstance(lead, ForexTrade):
+#                     all_leads.append({
+#                         'id': f'forex_{lead.id}',
+#                         'original_id': lead.id,
+#                         'model_type': 'forex',
+#                         'category': 'Forex Trade',
+#                         'name': lead.full_name,
+#                         'phone': lead.phone_number,
+#                         'email': lead.email,
+#                         'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
+#                         'status': lead.status,
+#                         'created_at': lead.created_at,
+#                         'remark': lead.remark or '',
+#                         'assignment_type': 'history'
+#                     })
+                    
+#         except Exception as e:
+#             print(f"Error processing lead from history: {e}")
+#             continue
+
+#     # Sort by latest first
+#     all_leads.sort(key=lambda x: x['created_at'], reverse=True)
+
+#     # Calendar connection check
+#     calendar_connected = False
+#     try:
+#         auth = GoogleCalendarAuth.objects.filter(user=user).first()
+#         if auth and auth.is_connected:
+#             calendar_connected = True
+#     except Exception as e:
+#         print(f"Error checking calendar status: {e}")
+
+#     return render(request, 'subscribers/my_leads.html', {
+#         'leads': all_leads,
+#         'calendar_connected': calendar_connected
+#     })
+
 @login_required
 def my_leads(request):
     user = request.user
@@ -453,11 +641,22 @@ def my_leads(request):
         assigned_to=user
     ).values_list('lead_object_id', 'lead_content_type')
 
+    # Set to track already added leads
+    added_lead_ids = set()
     all_leads = []
+
+    # Helper function to add lead if not already added
+    def add_lead(lead_data, lead_id, model_type):
+        lead_key = f"{model_type}_{lead_id}"
+        if lead_key not in added_lead_ids:
+            added_lead_ids.add(lead_key)
+            all_leads.append(lead_data)
+            return True
+        return False
 
     # Process direct assignments
     for lead in real_estate_leads:
-        all_leads.append({
+        lead_data = {
             'id': f'realestate_{lead.id}',
             'original_id': lead.id,
             'model_type': 'realestate',
@@ -470,10 +669,11 @@ def my_leads(request):
             'created_at': lead.created_at,
             'remark': lead.remark or '',
             'assignment_type': 'direct'
-        })
+        }
+        add_lead(lead_data, lead.id, 'realestate')
 
     for lead in mba_leads:
-        all_leads.append({
+        lead_data = {
             'id': f'mba_{lead.id}',
             'original_id': lead.id,
             'model_type': 'mba',
@@ -486,10 +686,11 @@ def my_leads(request):
             'created_at': lead.created_at,
             'remark': lead.remark or '',
             'assignment_type': 'direct'
-        })
+        }
+        add_lead(lead_data, lead.id, 'mba')
 
     for lead in study_abroad_leads:
-        all_leads.append({
+        lead_data = {
             'id': f'abroad_{lead.id}',
             'original_id': lead.id,
             'model_type': 'abroad',
@@ -502,10 +703,11 @@ def my_leads(request):
             'created_at': lead.created_at,
             'remark': lead.remark or '',
             'assignment_type': 'direct'
-        })
+        }
+        add_lead(lead_data, lead.id, 'abroad')
 
     for lead in forex_trade_leads:
-        all_leads.append({
+        lead_data = {
             'id': f'forex_{lead.id}',
             'original_id': lead.id,
             'model_type': 'forex',
@@ -518,83 +720,90 @@ def my_leads(request):
             'created_at': lead.created_at,
             'remark': lead.remark or '',
             'assignment_type': 'direct'
-        })
+        }
+        add_lead(lead_data, lead.id, 'forex')
 
-    # Process assignment history leads (remove duplicates)
+    # Process assignment history leads (only add if not already present)
     for lead_id, content_type_id in assignment_lead_ids:
         try:
             content_type = ContentType.objects.get_for_id(content_type_id)
             lead_model = content_type.model_class()
             lead = lead_model.objects.get(id=lead_id)
             
-            # Check if lead already exists in all_leads
-            existing_lead = None
-            for existing in all_leads:
-                if existing['original_id'] == lead.id and existing['model_type'] == content_type.model:
-                    existing_lead = existing
-                    break
+            model_type = content_type.model
             
-            if not existing_lead:
-                if isinstance(lead, RealEstateLead):
-                    all_leads.append({
-                        'id': f'realestate_{lead.id}',
-                        'original_id': lead.id,
-                        'model_type': 'realestate',
-                        'category': lead.sub_industry or 'Real Estate',
-                        'name': lead.full_name,
-                        'phone': lead.phone_number,
-                        'email': lead.email,
-                        'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
-                        'status': lead.status,
-                        'created_at': lead.created_at,
-                        'remark': lead.remark or '',
-                        'assignment_type': 'history'
-                    })
-                elif isinstance(lead, OnlineMBA):
-                    all_leads.append({
-                        'id': f'mba_{lead.id}',
-                        'original_id': lead.id,
-                        'model_type': 'mba',
-                        'category': 'Online MBA',
-                        'name': lead.full_name,
-                        'phone': lead.phone_number,
-                        'email': lead.email,
-                        'extra': f"{lead.course or '-'}/{lead.university or '-'}",
-                        'status': lead.status,
-                        'created_at': lead.created_at,
-                        'remark': lead.remark or '',
-                        'assignment_type': 'history'
-                    })
-                elif isinstance(lead, StudyAbroad):
-                    all_leads.append({
-                        'id': f'abroad_{lead.id}',
-                        'original_id': lead.id,
-                        'model_type': 'abroad',
-                        'category': 'Study Abroad',
-                        'name': lead.full_name,
-                        'phone': lead.phone_number,
-                        'email': lead.email,
-                        'extra': f"{lead.country or '-'}/{lead.university or '-'}",
-                        'status': lead.status,
-                        'created_at': lead.created_at,
-                        'remark': lead.remark or '',
-                        'assignment_type': 'history'
-                    })
-                elif isinstance(lead, ForexTrade):
-                    all_leads.append({
-                        'id': f'forex_{lead.id}',
-                        'original_id': lead.id,
-                        'model_type': 'forex',
-                        'category': 'Forex Trade',
-                        'name': lead.full_name,
-                        'phone': lead.phone_number,
-                        'email': lead.email,
-                        'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
-                        'status': lead.status,
-                        'created_at': lead.created_at,
-                        'remark': lead.remark or '',
-                        'assignment_type': 'history'
-                    })
+            # Check if lead already exists using our tracking set
+            lead_key = f"{model_type}_{lead.id}"
+            if lead_key in added_lead_ids:
+                continue
+                
+            if isinstance(lead, RealEstateLead):
+                lead_data = {
+                    'id': f'realestate_{lead.id}',
+                    'original_id': lead.id,
+                    'model_type': 'realestate',
+                    'category': lead.sub_industry or 'Real Estate',
+                    'name': lead.full_name,
+                    'phone': lead.phone_number,
+                    'email': lead.email,
+                    'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
+                    'status': lead.status,
+                    'created_at': lead.created_at,
+                    'remark': lead.remark or '',
+                    'assignment_type': 'history'
+                }
+                add_lead(lead_data, lead.id, 'realestate')
+                
+            elif isinstance(lead, OnlineMBA):
+                lead_data = {
+                    'id': f'mba_{lead.id}',
+                    'original_id': lead.id,
+                    'model_type': 'mba',
+                    'category': 'Online MBA',
+                    'name': lead.full_name,
+                    'phone': lead.phone_number,
+                    'email': lead.email,
+                    'extra': f"{lead.course or '-'}/{lead.university or '-'}",
+                    'status': lead.status,
+                    'created_at': lead.created_at,
+                    'remark': lead.remark or '',
+                    'assignment_type': 'history'
+                }
+                add_lead(lead_data, lead.id, 'mba')
+                
+            elif isinstance(lead, StudyAbroad):
+                lead_data = {
+                    'id': f'abroad_{lead.id}',
+                    'original_id': lead.id,
+                    'model_type': 'abroad',
+                    'category': 'Study Abroad',
+                    'name': lead.full_name,
+                    'phone': lead.phone_number,
+                    'email': lead.email,
+                    'extra': f"{lead.country or '-'}/{lead.university or '-'}",
+                    'status': lead.status,
+                    'created_at': lead.created_at,
+                    'remark': lead.remark or '',
+                    'assignment_type': 'history'
+                }
+                add_lead(lead_data, lead.id, 'abroad')
+                
+            elif isinstance(lead, ForexTrade):
+                lead_data = {
+                    'id': f'forex_{lead.id}',
+                    'original_id': lead.id,
+                    'model_type': 'forex',
+                    'category': 'Forex Trade',
+                    'name': lead.full_name,
+                    'phone': lead.phone_number,
+                    'email': lead.email,
+                    'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
+                    'status': lead.status,
+                    'created_at': lead.created_at,
+                    'remark': lead.remark or '',
+                    'assignment_type': 'history'
+                }
+                add_lead(lead_data, lead.id, 'forex')
                     
         except Exception as e:
             print(f"Error processing lead from history: {e}")

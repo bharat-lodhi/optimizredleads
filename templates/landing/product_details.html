@@ -1,5 +1,373 @@
 {% extends "landing/landing.html" %}
 {% load static %}
+{% load humanize %}
+
+{% block hero %} {% endblock %}
+
+{% block content %}
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .product-image {
+        transition: transform 0.3s ease;
+    }
+    .product-image:hover {
+        transform: scale(1.05);
+    }
+    .equal-height-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 500px;
+    }
+    @media (min-width: 768px) {
+        .equal-height-container {
+            height: 100%;
+        }
+    }
+    /* Custom styling for HTML features */
+    .features-html-content {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .features-html-content .feature-item {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #374151;
+    }
+    .features-html-content .feature-item:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #10b981;
+        font-weight: bold;
+    }
+</style>
+
+<!-- Product Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 p-4 sm:p-6 lg:p-8">
+            <!-- Product Image - Equal Height -->
+            <div class="equal-height-container">
+                <div class="rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center flex-1">
+                    {% if product.product_image %}
+                        <img id="mainProductImage" src="{{ product.product_image.url }}" 
+                             alt="{{ product.category }}" class="product-image w-full h-full object-cover">
+                    {% else %}
+                        <img id="mainProductImage" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" 
+                             alt="{{ product.category }}" class="product-image w-full h-full object-cover">
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Product Details - Equal Height -->
+            <div class="equal-height-container">
+                <!-- Breadcrumb -->
+                <nav class="flex mb-2 sm:mb-0" aria-label="Breadcrumb">
+                    <ol class="flex items-center space-x-1 sm:space-x-2">
+                        <li>
+                            <div>
+                                <a href="/" class="text-gray-400 hover:text-gray-500">
+                                    <i class="fas fa-home text-xs sm:text-sm"></i>
+                                    <span class="sr-only">Home</span>
+                                </a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                                <a href="#" class="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-700">Products</a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                                <span class="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-black-700">{{ product.category }}</span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+                
+                <div class="flex-1 flex flex-col justify-between py-4">
+                    <div>
+                        <div class="flex flex-wrap items-center mb-2 gap-1 sm:gap-2">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                {{ product.category }}
+                            </span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                {{ product.plan_type|title }} Plan
+                            </span>
+                        </div>
+                        
+                        <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                            {% if product.heading %}
+                                {{ product.heading }}
+                            {% else %}
+                                {{ product.plan_type|title }} {{ product.category }} Package
+                            {% endif %}
+                        </h1>
+                        
+                        <p class="text-base sm:text-lg lg:text-xl text-gray-600 mb-4">
+                            {{ product.short_description }}
+                        </p>
+                        
+                        <div class="flex items-center mb-4 sm:mb-6">
+                            <div class="flex items-center text-green-600">
+                                <i class="fas fa-check-circle mr-1 text-sm sm:text-base"></i>
+                                <span class="text-xs sm:text-sm">In stock</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 sm:mb-6">
+                            <h2 class="text-xl sm:text-2xl font-bold text-gray-900">₹{{ product.price|intcomma }}</h2>
+                            <p class="text-gray-500 text-xs sm:text-sm">Billed monthly</p>
+                        </div>
+                        
+                        <div class="mb-4 sm:mb-6">
+                            <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2">Package Includes:</h3>
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                {% if product.features %}
+                                    <ul class="features-html-content text-gray-700 text-sm sm:text-base space-y-2">
+                                        {{ product.features|safe }}
+                                    </ul>
+                                {% else %}
+                                    <ul class="features-html-content text-gray-700 text-sm sm:text-base space-y-2">
+                                        <li class="feature-item">25 verified {{ product.category|lower }} per month</li>
+                                        <li class="feature-item">Detailed contact information</li>
+                                        <li class="feature-item">Lead scoring and prioritization</li>
+                                        <li class="feature-item">Direct contact details</li>
+                                        <li class="feature-item">Monthly performance reports</li>
+                                        <li class="feature-item">Dedicated account manager</li>
+                                    </ul>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-200 pt-4 sm:pt-6">
+                        <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 mb-4">
+                            <a href="/checkout/{{ product.id }}/" class="w-full sm:flex-1 inline-flex justify-center items-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>
+                                Check Out
+                            </a> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Description & Details -->
+    <div class="mt-6 sm:mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex overflow-x-auto">
+                <button id="description-tab" class="tab-button whitespace-nowrap border-b-2 border-indigo-500 text-indigo-600 w-full sm:w-1/4 py-3 sm:py-4 px-1 text-center text-sm font-medium" onclick="switchTab('description')">
+                    Description
+                </button>
+                <button id="specifications-tab" class="tab-button whitespace-nowrap border-b-2 border-transparent text-gray-500 w-full sm:w-1/4 py-3 sm:py-4 px-1 text-center text-sm font-medium" onclick="switchTab('specifications')">
+                    Specifications
+                </button>
+            </nav>
+        </div>
+        
+        <div class="p-4 sm:p-6 lg:p-8">
+            <div id="description-content" class="tab-content">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Product Description</h2>
+                <div class="prose max-w-none text-gray-700 text-sm sm:text-base">
+                    {{ product.long_description|safe }}
+                </div>
+            </div>
+            
+            <div id="specifications-content" class="tab-content hidden">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Specifications</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Category</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{{ product.category }}</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Plan Type</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{{ product.plan_type|title }}</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Price</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">₹{{ product.price|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Unit</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{{ product.unit }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Products -->
+    <div class="mt-8 sm:mt-12">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Related Products</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {% for related_product in related_products %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                <div class="h-32 sm:h-40 lg:h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                    {% if related_product.product_image %}
+                        <img src="{{ related_product.product_image.url }}" alt="{{ related_product.category }}" class="h-full w-full object-cover">
+                    {% else %}
+                        <span class="text-white text-lg sm:text-xl font-bold">{{ related_product.category|slice:":2"|upper }}</span>
+                    {% endif %}
+                </div>
+                <div class="p-3 sm:p-4">
+                    <h3 class="font-semibold text-base sm:text-lg text-gray-900 mb-1">
+                        {{ related_product.plan_type|title }} {{ related_product.category }}
+                    </h3>
+                    <p class="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3">{{ related_product.short_description|truncatewords:10 }}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-gray-900 text-sm sm:text-base">₹{{ related_product.price|intcomma }}</span>
+                        <a href="/product_details/?id={{ related_product.id }}" class="text-xs sm:text-sm bg-indigo-600 text-white px-2 sm:px-3 py-1 rounded hover:bg-indigo-700 transition-colors">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab switching functionality
+    function switchTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Remove active state from all tabs
+        document.querySelectorAll('.tab-button').forEach(tab => {
+            tab.classList.remove('border-indigo-500', 'text-indigo-600');
+            tab.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        // Show selected tab content
+        document.getElementById(`${tabName}-content`).classList.remove('hidden');
+        
+        // Activate selected tab
+        document.getElementById(`${tabName}-tab`).classList.remove('border-transparent', 'text-gray-500');
+        document.getElementById(`${tabName}-tab`).classList.add('border-indigo-500', 'text-indigo-600');
+    }
+    
+    // Format HTML features with proper bullet styling
+    function formatHTMLFeatures() {
+        const featuresContainer = document.querySelector('.features-html-content');
+        if (featuresContainer) {
+            // Get all direct child nodes
+            const children = featuresContainer.childNodes;
+            
+            // Create a new array to hold processed items
+            const processedItems = [];
+            
+            children.forEach(child => {
+                if (child.nodeType === Node.ELEMENT_NODE) {
+                    // For element nodes (like <li>, <p>, etc.)
+                    if (child.tagName === 'LI') {
+                        // If it's already an LI, just add the feature-item class
+                        child.classList.add('feature-item');
+                        processedItems.push(child.outerHTML);
+                    } else if (child.tagName === 'P') {
+                        // If it's a paragraph, convert to LI with feature-item class
+                        const li = document.createElement('li');
+                        li.className = 'feature-item';
+                        li.innerHTML = child.innerHTML;
+                        processedItems.push(li.outerHTML);
+                    } else if (child.tagName === 'BR') {
+                        // Skip BR tags, we'll handle line breaks differently
+                        return;
+                    } else {
+                        // For any other element, wrap in LI
+                        const li = document.createElement('li');
+                        li.className = 'feature-item';
+                        li.innerHTML = child.outerHTML;
+                        processedItems.push(li.outerHTML);
+                    }
+                } else if (child.nodeType === Node.TEXT_NODE) {
+                    // For text nodes, split by newlines and create LIs
+                    const textContent = child.textContent.trim();
+                    if (textContent) {
+                        // Split by newlines and process each line
+                        const lines = textContent.split('\n');
+                        lines.forEach(line => {
+                            const trimmedLine = line.trim();
+                            if (trimmedLine) {
+                                const li = document.createElement('li');
+                                li.className = 'feature-item';
+                                li.textContent = trimmedLine;
+                                processedItems.push(li.outerHTML);
+                            }
+                        });
+                    }
+                }
+            });
+            
+            // Replace the container content with processed items
+            if (processedItems.length > 0) {
+                featuresContainer.innerHTML = processedItems.join('');
+            }
+            
+            // Ensure all list items have the bullet styling
+            const listItems = featuresContainer.querySelectorAll('li');
+            listItems.forEach(li => {
+                if (!li.classList.contains('feature-item')) {
+                    li.classList.add('feature-item');
+                }
+            });
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        formatHTMLFeatures();
+        
+        // Equal height adjustment
+        function adjustHeights() {
+            if (window.innerWidth >= 768) {
+                const leftColumn = document.querySelector('.equal-height-container:first-child');
+                const rightColumn = document.querySelector('.equal-height-container:last-child');
+                
+                if (leftColumn && rightColumn) {
+                    const leftHeight = leftColumn.offsetHeight;
+                    const rightHeight = rightColumn.offsetHeight;
+                    const maxHeight = Math.max(leftHeight, rightHeight);
+                    
+                    leftColumn.style.height = maxHeight + 'px';
+                    rightColumn.style.height = maxHeight + 'px';
+                }
+            } else {
+                // Reset heights on mobile
+                document.querySelectorAll('.equal-height-container').forEach(container => {
+                    container.style.height = 'auto';
+                });
+            }
+        }
+        
+        // Adjust heights on load and resize
+        adjustHeights();
+        window.addEventListener('resize', adjustHeights);
+    });
+</script>
+{% endblock %}
+
+
+{% comment %} {% extends "landing/landing.html" %}
+{% load static %}
 
 {% block hero %} {% endblock %}
 
@@ -115,7 +483,7 @@
                             {% if product.features %}
                                 {% for feature in product.features_list %}
                                     {{ feature|safe }}
-                                    {% comment %} <li class="text-gray-700">{{ feature|safe }}</li> {% endcomment %}
+                                    
                                 {% endfor %}
                             {% else %}
                                 <li class="text-gray-700">25 verified {{ product.category|lower }} per month</li>
@@ -148,9 +516,7 @@
                 <button id="description-tab" class="tab-button whitespace-nowrap border-b-2 border-indigo-500 text-indigo-600 w-full sm:w-1/4 py-3 sm:py-4 px-1 text-center text-sm font-medium" onclick="switchTab('description')">
                     Description
                 </button>
-                {% comment %} <button id="features-tab" class="tab-button whitespace-nowrap border-b-2 border-transparent text-gray-500 w-full sm:w-1/4 py-3 sm:py-4 px-1 text-center text-sm font-medium" onclick="switchTab('features')">
-                    Features
-                </button> {% endcomment %}
+                
                 <button id="specifications-tab" class="tab-button whitespace-nowrap border-b-2 border-transparent text-gray-500 w-full sm:w-1/4 py-3 sm:py-4 px-1 text-center text-sm font-medium" onclick="switchTab('specifications')">
                     Specifications
                 </button>
@@ -164,49 +530,7 @@
                     {{ product.long_description|safe }}
                 </div>
             </div>
-            
-            {% comment %} <div id="features-content" class="tab-content hidden">
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Key Features</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-indigo-100 p-2 rounded-full mr-3">
-                                <i class="fas fa-user-check text-indigo-600"></i>
-                            </div>
-                            <h3 class="text-base sm:text-lg font-semibold">Verified {{ product.category }}</h3>
-                        </div>
-                        <p class="text-gray-700 text-sm sm:text-base">All {{ product.category|lower }} are verified through multiple channels to ensure authenticity and quality.</p>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-indigo-100 p-2 rounded-full mr-3">
-                                <i class="fas fa-chart-line text-indigo-600"></i>
-                            </div>
-                            <h3 class="text-base sm:text-lg font-semibold">Lead Scoring</h3>
-                        </div>
-                        <p class="text-gray-700 text-sm sm:text-base">Our algorithm scores {{ product.category|lower }} based on engagement and readiness to help you prioritize.</p>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-indigo-100 p-2 rounded-full mr-3">
-                                <i class="fas fa-mobile-alt text-indigo-600"></i>
-                            </div>
-                            <h3 class="text-base sm:text-lg font-semibold">Mobile Access</h3>
-                        </div>
-                        <p class="text-gray-700 text-sm sm:text-base">Access your {{ product.category|lower }} and dashboard from any device, anywhere.</p>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-indigo-100 p-2 rounded-full mr-3">
-                                <i class="fas fa-headset text-indigo-600"></i>
-                            </div>
-                            <h3 class="text-base sm:text-lg font-semibold">Dedicated Support</h3>
-                        </div>
-                        <p class="text-gray-700 text-sm sm:text-base">Get personalized assistance from our dedicated account managers.</p>
-                    </div>
-                </div>
-            </div> {% endcomment %}
-            
+                        
             <div id="specifications-content" class="tab-content hidden">
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Specifications</h2>
                 <div class="overflow-x-auto">
@@ -309,7 +633,7 @@
     });
 </script>
 {% endblock %}
-
+ {% endcomment %}
 
 
 {% comment %} {% extends "landing/landing.html" %}
