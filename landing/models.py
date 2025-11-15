@@ -62,64 +62,6 @@ class User(AbstractUser):
         return max(self.credit_limit - self.credits_used, 0)
 
 
-# from django.db import models
-# from django.contrib.auth.models import AbstractUser
-
-# class User(AbstractUser):
-#     ROLE_CHOICES = [
-#         ('central_admin', 'Central Admin'),
-#         ('sub_admin', 'Sub Admin'),
-#         ('subscriber', 'Subscriber'),
-#     ]
-
-#     PLAN_CHOICES = [
-#         ('basic', 'Basic'),
-#         ('premium', 'Premium'),
-#         ('enterprise', 'Enterprise'),
-#     ]
-
-#     role = models.CharField(
-#         max_length=20,
-#         choices=ROLE_CHOICES,
-#         default='subscriber'
-#     )
-#     phone = models.CharField(max_length=20, blank=True, null=True)
-#     industry = models.CharField(max_length=50, blank=True, null=True)
-#     sub_industry = models.CharField(max_length=50, blank=True, null=True)
-#     preferred_country = models.CharField(max_length=50, blank=True, null=True)
-
-#     # Credit / Wallet system
-#     credit_limit = models.PositiveIntegerField(default=8)  # Default 8 leads for new users
-#     credits_used = models.PositiveIntegerField(default=0)  # Credits used
-
-#     # Plan / Subscription
-#     plan_type = models.CharField(
-#         max_length=20,
-#         choices=PLAN_CHOICES,
-#         default='basic'
-#     )
-#     plan_start_date = models.DateField(blank=True, null=True)
-#     plan_end_date = models.DateField(blank=True, null=True)
-#     plan_status = models.CharField(
-#         max_length=20,
-#         choices=[('active', 'Active'), ('inactive', 'Inactive'), ('expired', 'Expired')],
-#         default='inactive'
-#     )
-
-#     # Admin / Tracking fields
-#     is_verified = models.BooleanField(default=False)  # Email/Phone verification
-#     last_activity = models.DateTimeField(blank=True, null=True)
-#     notes = models.TextField(blank=True, null=True)  
-
-#     def __str__(self):
-#         return self.username
-
-#     @property
-#     def available_credits(self):  
-#         return max(self.credit_limit - self.credits_used, 0)
-
-
-
 
 from django.conf import settings
 

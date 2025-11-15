@@ -20,7 +20,9 @@ urlpatterns = [
     path('edit_real_estate/<int:lead_id>/', views.edit_real_estate, name='edit_real_estate'),
     path('delete_real_estate/<int:lead_id>/', views.delete_real_estate, name='delete_real_estate'),
     
-    path('get_assignment_history/<int:lead_id>/', views.get_assignment_history, name='get_assignment_history'),
+    # path('get_assignment_history/<int:lead_id>/', views.get_assignment_history, name='get_assignment_history'),
+    path('lead_history/<int:lead_id>/', views.lead_history, name='lead_history'),
+
     # -----------------------online_mba----------------------------------------
     path('online_mba/', views.online_mba, name='online_mba'),
     path('add_online_mba/', views.add_online_mba, name='add_online_mba'),

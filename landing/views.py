@@ -235,7 +235,7 @@ client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_S
 def calculate_order_amount(product_price):
     base_price = Decimal(str(product_price))
     platform_fee = base_price * Decimal('0.02')  # 2% platform fee
-    gst_amount = 0 #(base_price + platform_fee) * Decimal('0.18') 
+    gst_amount = (base_price) * Decimal('0.18') 
     total_amount = base_price + gst_amount + platform_fee
     return {
         'base_price': round(base_price, 2),

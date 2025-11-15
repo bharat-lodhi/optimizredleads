@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect ,get_object_or_404
 from .models import Product
 from django.contrib import messages
 from django.contrib.auth import logout
-from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, LeadAssignmentLog,ForexTrade
+from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, LeadAssignmentLog,ForexTrade,LeadStatusHistory,LeadRemarkHistory
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 User = get_user_model()
@@ -202,10 +202,32 @@ def categories(request):
 #             messages.error(request, "Selected user does not exist.")
 #             return redirect('central_admin:real_estate')
 
+#         assigned_count = 0
+#         already_assigned_count = 0
+#         skipped_leads = []
+
 #         for lead_id in selected_leads:
 #             lead = RealEstateLead.objects.filter(id=lead_id).first()
 #             if lead:
-#                 # ✅ YEHTA LINE ADD KARO - assigned_to update karo
+#                 # ✅ CHECK: Agar lead already isi user ko assigned hai
+#                 if lead.assigned_to == assigned_user:
+#                     already_assigned_count += 1
+#                     skipped_leads.append(lead.full_name or f"Lead #{lead.id}")
+#                     continue
+                
+#                 # ✅ CHECK: Agar lead pehle kabhi isi user ko assign hui hai
+#                 previously_assigned = LeadAssignmentLog.objects.filter(
+#                     lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
+#                     lead_object_id=lead.id,
+#                     assigned_to=assigned_user
+#                 ).exists()
+                
+#                 if previously_assigned:
+#                     already_assigned_count += 1
+#                     skipped_leads.append(lead.full_name or f"Lead #{lead.id}")
+#                     continue
+
+#                 # ✅ Nahi toh assign karo
 #                 lead.assigned_to = assigned_user
 #                 lead.save()
 
@@ -218,9 +240,19 @@ def categories(request):
 #                     status_at_assignment=lead.status,
 #                     notes=remarks
 #                 )
+#                 assigned_count += 1
                 
+#         # Success message with details
+#         if assigned_count > 0:
+#             messages.success(request, f"{assigned_count} leads assigned to {assigned_user.username} successfully!")
+        
+#         if already_assigned_count > 0:
+#             skipped_names = ", ".join(skipped_leads[:5])  # Show first 5 skipped leads
+#             if len(skipped_leads) > 5:
+#                 skipped_names += f" and {len(skipped_leads) - 5} more"
+#             messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped: {skipped_names}")
+
 #         leadassign_mail(assigned_user.email)
-#         messages.success(request, f"{len(selected_leads)} leads assigned to {assigned_user.username} successfully!")
 #         return redirect('central_admin:real_estate')
     
 #     # GET request -> show all leads (assigned or unassigned)
@@ -241,8 +273,6 @@ def categories(request):
 #         'users': users,
 #     }
 #     return render(request, "central_admin/real_estate.html", context)
-
-
 
 def real_estate(request):
     if request.method == 'POST':
@@ -299,10 +329,19 @@ def real_estate(request):
                     notes=remarks
                 )
                 assigned_count += 1
+        
+        # ✅ CREDIT MANAGEMENT: Add credits_used for new assignments only
+        if assigned_count > 0:
+            assigned_user.credits_used += assigned_count
+            assigned_user.save()
                 
         # Success message with details
         if assigned_count > 0:
-            messages.success(request, f"{assigned_count} leads assigned to {assigned_user.username} successfully!")
+            messages.success(
+                request, 
+                f"{assigned_count} leads assigned to {assigned_user.username} successfully! "
+                f"({assigned_count} credits deducted)"
+            )
         
         if already_assigned_count > 0:
             skipped_names = ", ".join(skipped_leads[:5])  # Show first 5 skipped leads
@@ -336,28 +375,139 @@ def real_estate(request):
 from django.http import JsonResponse
 from django.contrib.contenttypes.models import ContentType
 
-def get_assignment_history(request, lead_id):
+
+        
+# def lead_history(request, lead_id):
+#     try:
+#         lead = RealEstateLead.objects.get(id=lead_id)
+        
+#         # Get all histories directly
+#         assignment_history = LeadAssignmentLog.objects.filter(
+#             lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
+#             lead_object_id=lead_id
+#         ).order_by('-assigned_at')
+        
+#         status_history = LeadStatusHistory.objects.filter(
+#             lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
+#             lead_object_id=lead_id
+#         ).order_by('-created_at')
+        
+#         remark_history = LeadRemarkHistory.objects.filter(
+#             lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
+#             lead_object_id=lead_id
+#         ).order_by('-created_at')
+        
+#         # Combine all histories for timeline
+#         all_histories = []
+        
+#         for assignment in assignment_history:
+#             all_histories.append({
+#                 'type': 'assignment',
+#                 'timestamp': assignment.assigned_at,
+#                 'assignment': assignment
+#             })
+        
+#         for status in status_history:
+#             all_histories.append({
+#                 'type': 'status_change', 
+#                 'timestamp': status.created_at,
+#                 'status': status
+#             })
+        
+#         for remark in remark_history:
+#             all_histories.append({
+#                 'type': 'remark',
+#                 'timestamp': remark.created_at,
+#                 'remark': remark
+#             })
+        
+#         # Sort by timestamp
+#         all_histories.sort(key=lambda x: x['timestamp'], reverse=True)
+
+#         user_name = request.session.get('user_name')
+#         user_email = request.session.get('user_email')
+#         user_role = request.session.get('user_role')
+#         short_name = user_name[:2].upper() if user_name else ""
+
+#         context = {
+#             'name': user_name,
+#             'email': user_email,
+#             'role': user_role,
+#             'short_name': short_name,
+#             'lead': lead,
+#             'assignment_history': assignment_history,
+#             'status_history': status_history,
+#             'remark_history': remark_history,
+#             'timeline_history': all_histories,
+#         }
+#         return render(request, "central_admin/lead_history.html", context)
+        
+#     except RealEstateLead.DoesNotExist:
+#         messages.error(request, "Lead not found.")
+#         return redirect('central_admin:real_estate')
+    
+   
+def lead_history(request, lead_id):
     try:
-        # Get all assignment logs for this lead
-        assignments = LeadAssignmentLog.objects.filter(
+        lead = RealEstateLead.objects.get(id=lead_id)
+        print(f"🔍 Lead found: {lead.id} - {lead.full_name}")
+        
+        # Get all histories
+        assignment_history = LeadAssignmentLog.objects.filter(
             lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
             lead_object_id=lead_id
         ).order_by('-assigned_at')
         
-        assignment_data = []
-        for assignment in assignments:
-            assignment_data.append({
-                'assigned_to': assignment.assigned_to.username if assignment.assigned_to else 'Unknown',
-                'assigned_by': assignment.assigned_by.username if assignment.assigned_by else 'Unknown',
-                'assigned_at': assignment.assigned_at.strftime("%d %b %Y %H:%M"),
-                'status': assignment.status_at_assignment,
-                'notes': assignment.notes or ''
-            })
+        status_history = LeadStatusHistory.objects.filter(
+            lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
+            lead_object_id=lead_id
+        ).order_by('-created_at')
         
-        return JsonResponse({'assignments': assignment_data})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        remark_history = LeadRemarkHistory.objects.filter(
+            lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
+            lead_object_id=lead_id
+        ).order_by('-created_at')
+        
+        print(f"📊 Assignment count: {assignment_history.count()}")
+        print(f"📊 Status count: {status_history.count()}")
+        print(f"📊 Remark count: {remark_history.count()}")
+        
+        # Check if we have any data
+        for i, assignment in enumerate(assignment_history):
+            print(f"Assignment {i}: {assignment.assigned_to} -> {assignment.assigned_by}")
+        
+        for i, status in enumerate(status_history):
+            print(f"Status {i}: {status.old_status} -> {status.new_status}")
+        
+        for i, remark in enumerate(remark_history):
+            print(f"Remark {i}: {remark.remark_text}")
 
+        user_name = request.session.get('user_name')
+        user_email = request.session.get('user_email')
+        user_role = request.session.get('user_role')
+        short_name = user_name[:2].upper() if user_name else ""
+
+        context = {
+            'name': user_name,
+            'email': user_email,
+            'role': user_role,
+            'short_name': short_name,
+            'lead': lead,
+            'assignment_history': assignment_history,
+            'status_history': status_history,
+            'remark_history': remark_history,
+        }
+        return render(request, "central_admin/lead_history.html", context)
+        
+    except RealEstateLead.DoesNotExist:
+        print(f"❌ Lead not found: {lead_id}")
+        messages.error(request, "Lead not found.")
+        return redirect('central_admin:real_estate')
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        messages.error(request, "Error loading lead history.")
+        return redirect('central_admin:real_estate')   
+ 
 def add_real_estate(request):
     if request.method == 'POST':
         try:
@@ -470,55 +620,6 @@ def delete_real_estate(request, lead_id):
 
 from django.contrib.contenttypes.models import ContentType
 
-# def online_mba(request):
-#     if request.method == 'POST':
-#         selected_leads = request.POST.getlist('leads')
-#         assigned_user_id = request.POST.get('assigned_to')
-
-#         if not selected_leads or not assigned_user_id:
-#             messages.error(request, "Please select leads and a user to assign.")
-#             return redirect('central_admin:online_mba')
-
-#         try:
-#             assigned_user = User.objects.get(id=assigned_user_id)
-#         except User.DoesNotExist:
-#             messages.error(request, "Selected user does not exist.")
-#             return redirect('central_admin:online_mba')
-
-#         for lead_id in selected_leads:
-#             lead = OnlineMBA.objects.filter(id=lead_id).first()
-#             if lead:
-                
-#                 # Check if lead is being assigned to a different user
-#                 if lead.assigned_to != assigned_user:
-#                     # Clear the remark when reassigning to a different user
-#                     lead.remark = ""
-                
-#                 lead.assigned_to = assigned_user  # Update existing assignment
-#                 lead.save()
-
-#                 # Log assignment
-#                 LeadAssignmentLog.objects.create(
-#                     lead_content_type=ContentType.objects.get_for_model(OnlineMBA),
-#                     lead_object_id=lead.id,
-#                     assigned_to=assigned_user,
-#                     assigned_by=request.user,
-#                     status_at_assignment=lead.status
-#                 )
-#         leadassign_mail(assigned_user.email) # mail send 
-#         messages.success(request, f"{len(selected_leads)} leads assigned to {assigned_user.username} successfully!")
-#         return redirect('central_admin:online_mba')
-
-#     # GET request -> show all leads (assigned or unassigned)
-#     leads = OnlineMBA.objects.all().order_by('-created_at')  # changed here
-#     users = User.objects.filter(industry='education')
-
-#     context = {
-#         'leads': leads,
-#         'users': users,
-#     }
-#     return render(request, "central_admin/online_mba.html", context)
-
 
 
 # def online_mba(request):
@@ -537,10 +638,32 @@ from django.contrib.contenttypes.models import ContentType
 #             messages.error(request, "Selected user does not exist.")
 #             return redirect('central_admin:online_mba')
 
+#         assigned_count = 0
+#         already_assigned_count = 0
+#         skipped_leads = []
+
 #         for lead_id in selected_leads:
 #             lead = OnlineMBA.objects.filter(id=lead_id).first()
 #             if lead:
-#                 # ✅ YEHTA LINE ADD KARO - assigned_to update karo
+#                 # ✅ CHECK: Agar lead already isi user ko assigned hai
+#                 if lead.assigned_to == assigned_user:
+#                     already_assigned_count += 1
+#                     skipped_leads.append(lead.full_name or f"Lead #{lead.id}")
+#                     continue
+                
+#                 # ✅ CHECK: Agar lead pehle kabhi isi user ko assign hui hai
+#                 previously_assigned = LeadAssignmentLog.objects.filter(
+#                     lead_content_type=ContentType.objects.get_for_model(OnlineMBA),
+#                     lead_object_id=lead.id,
+#                     assigned_to=assigned_user
+#                 ).exists()
+                
+#                 if previously_assigned:
+#                     already_assigned_count += 1
+#                     skipped_leads.append(lead.full_name or f"Lead #{lead.id}")
+#                     continue
+
+#                 # ✅ Nahi toh assign karo
 #                 lead.assigned_to = assigned_user
 #                 lead.save()
 
@@ -553,9 +676,19 @@ from django.contrib.contenttypes.models import ContentType
 #                     status_at_assignment=lead.status,
 #                     notes=remarks
 #                 )
+#                 assigned_count += 1
                 
+#         # Success message with details
+#         if assigned_count > 0:
+#             messages.success(request, f"{assigned_count} leads assigned to {assigned_user.username} successfully!")
+        
+#         if already_assigned_count > 0:
+#             skipped_names = ", ".join(skipped_leads[:5])  # Show first 5 skipped leads
+#             if len(skipped_leads) > 5:
+#                 skipped_names += f" and {len(skipped_leads) - 5} more"
+#             messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped: {skipped_names}")
+
 #         leadassign_mail(assigned_user.email)
-#         messages.success(request, f"{len(selected_leads)} leads assigned to {assigned_user.username} successfully!")
 #         return redirect('central_admin:online_mba')
 
 #     # GET request -> show all leads (assigned or unassigned)
@@ -567,7 +700,6 @@ from django.contrib.contenttypes.models import ContentType
 #         'users': users,
 #     }
 #     return render(request, "central_admin/online_mba.html", context)
-
 
 
 def online_mba(request):
@@ -625,10 +757,19 @@ def online_mba(request):
                     notes=remarks
                 )
                 assigned_count += 1
+        
+        # ✅ CREDIT MANAGEMENT: Add credits_used for new assignments only
+        if assigned_count > 0:
+            assigned_user.credits_used += assigned_count
+            assigned_user.save()
                 
         # Success message with details
         if assigned_count > 0:
-            messages.success(request, f"{assigned_count} leads assigned to {assigned_user.username} successfully!")
+            messages.success(
+                request, 
+                f"{assigned_count} leads assigned to {assigned_user.username} successfully! "
+                f"({assigned_count} credits deducted)"
+            )
         
         if already_assigned_count > 0:
             skipped_names = ", ".join(skipped_leads[:5])  # Show first 5 skipped leads
@@ -648,8 +789,6 @@ def online_mba(request):
         'users': users,
     }
     return render(request, "central_admin/online_mba.html", context)
-
-
 
 def get_assignment_history_online_mba(request, lead_id):
     try:
@@ -766,64 +905,6 @@ def delete_online_mba(request, lead_id):
     return redirect('central_admin:online_mba')
 
 
-
-# def study_abroad(request):
-#     if request.method == 'POST':
-#         selected_leads = request.POST.getlist('leads')
-#         assigned_user_id = request.POST.get('assigned_to')
-
-#         if not selected_leads or not assigned_user_id:
-#             messages.error(request, "Please select leads and a user to assign.")
-#             return redirect('central_admin:study_abroad')
-
-#         try:
-#             assigned_user = User.objects.get(id=assigned_user_id)
-#         except User.DoesNotExist:
-#             messages.error(request, "Selected user does not exist.")
-#             return redirect('central_admin:study_abroad')
-
-#         for lead_id in selected_leads:
-#             lead = StudyAbroad.objects.filter(id=lead_id).first()
-#             if lead:
-#                 # Check if lead is being assigned to a different user
-#                 if lead.assigned_to != assigned_user:
-#                     # Clear the remark when reassigning to a different user
-#                     lead.remark = ""
-                    
-#                 lead.assigned_to = assigned_user  # Update existing assignment
-#                 lead.save()
-
-#                 # Log assignment
-#                 LeadAssignmentLog.objects.create(
-#                     lead_content_type=ContentType.objects.get_for_model(StudyAbroad),
-#                     lead_object_id=lead.id,
-#                     assigned_to=assigned_user,
-#                     assigned_by=request.user,
-#                     status_at_assignment=lead.status
-#                 )
-#         leadassign_mail(assigned_user.email) # mail send 
-#         messages.success(request, f"{len(selected_leads)} leads assigned to {assigned_user.username} successfully!")
-#         return redirect('central_admin:study_abroad')
-
-#     # GET request -> show all leads (assigned or unassigned)
-#     leads = StudyAbroad.objects.all().order_by('-created_at')
-#     users = User.objects.filter(industry='study-abroad')  # ya phir jo bhi relevant filter hai
-
-#     user_name = request.session.get('user_name')
-#     user_email = request.session.get('user_email')
-#     user_role = request.session.get('user_role')
-#     short_name = user_name[:2].upper() if user_name else ""
-
-#     context = {
-#         'name': user_name,
-#         'email': user_email,
-#         'role': user_role,
-#         'short_name': short_name,
-#         'leads': leads,
-#         'users': users,  # yeh add karna important hai
-#     }
-#     return render(request, "central_admin/study_abroad.html", context)
-
 # def study_abroad(request):
 #     if request.method == 'POST':
 #         selected_leads = request.POST.getlist('leads')
@@ -840,25 +921,49 @@ def delete_online_mba(request, lead_id):
 #             messages.error(request, "Selected user does not exist.")
 #             return redirect('central_admin:study_abroad')
 
-#         for lead_id in selected_leads:
-#             lead = StudyAbroad.objects.filter(id=lead_id).first()
-#             if lead:
-#                 # ✅ YEHTA LINE ADD KARO - assigned_to update karo
-#                 lead.assigned_to = assigned_user
-#                 lead.save()
-
-#                 # Log assignment
-#                 LeadAssignmentLog.objects.create(
-#                     lead_content_type=ContentType.objects.get_for_model(StudyAbroad),
-#                     lead_object_id=lead.id,
-#                     assigned_to=assigned_user,
-#                     assigned_by=request.user,
-#                     status_at_assignment=lead.status,
-#                     notes=remarks
+#         assigned_count = 0
+#         already_assigned_count = 0
+        
+#         # ✅ SPEED OPTIMIZATION: Ek baar mein sab leads fetch karo
+#         lead_ids = [int(lead_id) for lead_id in selected_leads]
+#         leads = StudyAbroad.objects.filter(id__in=lead_ids)
+        
+#         # ✅ SPEED OPTIMIZATION: Pehle se assigned leads ki list bana lo
+#         already_assigned_leads = leads.filter(assigned_to=assigned_user)
+#         already_assigned_count = already_assigned_leads.count()
+        
+#         # ✅ SPEED OPTIMIZATION: Naye leads assign karo
+#         new_leads = leads.exclude(assigned_to=assigned_user)
+        
+#         # ✅ BULK UPDATE for assignment
+#         if new_leads.exists():
+#             new_leads.update(assigned_to=assigned_user)
+#             assigned_count = new_leads.count()
+            
+#             # ✅ BULK CREATE assignment logs
+#             content_type = ContentType.objects.get_for_model(StudyAbroad)
+#             assignment_logs = []
+#             for lead in new_leads:
+#                 assignment_logs.append(
+#                     LeadAssignmentLog(
+#                         lead_content_type=content_type,
+#                         lead_object_id=lead.id,
+#                         assigned_to=assigned_user,
+#                         assigned_by=request.user,
+#                         status_at_assignment=lead.status,
+#                         notes=remarks
+#                     )
 #                 )
-                
+#             LeadAssignmentLog.objects.bulk_create(assignment_logs)
+
+#         # Success message with details
+#         if assigned_count > 0:
+#             messages.success(request, f"{assigned_count} leads assigned to {assigned_user.username} successfully!")
+        
+#         if already_assigned_count > 0:
+#             messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped.")
+
 #         leadassign_mail(assigned_user.email)
-#         messages.success(request, f"{len(selected_leads)} leads assigned to {assigned_user.username} successfully!")
 #         return redirect('central_admin:study_abroad')
 
 #     # GET request -> show all leads (assigned or unassigned)
@@ -913,8 +1018,13 @@ def study_abroad(request):
         
         # ✅ BULK UPDATE for assignment
         if new_leads.exists():
-            new_leads.update(assigned_to=assigned_user)
             assigned_count = new_leads.count()
+            
+            # ✅ CREDIT MANAGEMENT: Add credits_used for new assignments only
+            assigned_user.credits_used += assigned_count
+            assigned_user.save()
+            
+            new_leads.update(assigned_to=assigned_user)
             
             # ✅ BULK CREATE assignment logs
             content_type = ContentType.objects.get_for_model(StudyAbroad)
@@ -934,7 +1044,11 @@ def study_abroad(request):
 
         # Success message with details
         if assigned_count > 0:
-            messages.success(request, f"{assigned_count} leads assigned to {assigned_user.username} successfully!")
+            messages.success(
+                request, 
+                f"{assigned_count} leads assigned to {assigned_user.username} successfully! "
+                f"({assigned_count} credits deducted)"
+            )
         
         if already_assigned_count > 0:
             messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped.")
@@ -960,6 +1074,9 @@ def study_abroad(request):
         'users': users,
     }
     return render(request, "central_admin/study_abroad.html", context)
+
+
+
 
 def get_assignment_history_study_abroad(request, lead_id):
     try:
@@ -1182,63 +1299,6 @@ def delete_forex_trade(request, lead_id):
 
 from django.contrib.contenttypes.models import ContentType
 
-# def forex_trade(request):
-#     if request.method == 'POST':
-#         selected_leads = request.POST.getlist('leads')
-#         assigned_user_id = request.POST.get('assigned_to')
-
-#         if not selected_leads or not assigned_user_id:
-#             messages.error(request, "Please select leads and a user to assign.")
-#             return redirect('central_admin:forex_trade')
-
-#         try:
-#             assigned_user = User.objects.get(id=assigned_user_id)
-#         except User.DoesNotExist:
-#             messages.error(request, "Selected user does not exist.")
-#             return redirect('central_admin:forex_trade')
-
-#         for lead_id in selected_leads:
-#             lead = ForexTrade.objects.filter(id=lead_id).first()
-#             if lead:
-#                 # Check if lead is being assigned to a different user
-#                 if lead.assigned_to != assigned_user:
-#                     # Clear the remark when reassigning to a different user
-#                     lead.remark = ""
-#                 lead.assigned_to = assigned_user  # Update existing assignment
-#                 lead.save()
-
-#                 # Log assignment
-#                 LeadAssignmentLog.objects.create(
-#                     lead_content_type=ContentType.objects.get_for_model(ForexTrade),
-#                     lead_object_id=lead.id,
-#                     assigned_to=assigned_user,
-#                     assigned_by=request.user,
-#                     status_at_assignment=lead.status
-#                 )
-#         leadassign_mail(assigned_user.email) # mail send 
-#         messages.success(request, f"{len(selected_leads)} Forex Trade leads assigned to {assigned_user.username} successfully!")
-#         return redirect('central_admin:forex_trade')
-
-#     # GET request -> show all leads (assigned or unassigned)
-#     leads = ForexTrade.objects.all().order_by('-created_at')
-#     users = User.objects.filter(industry='trading') 
-
-#     user_name = request.session.get('user_name')
-#     user_email = request.session.get('user_email')
-#     user_role = request.session.get('user_role')
-#     short_name = user_name[:2].upper() if user_name else ""
-
-#     context = {
-#         'leads': leads,
-#         'users': users,
-#         'name': user_name,
-#         'email': user_email,
-#         'role': user_role,
-#         'short_name': short_name,
-#     }
-#     return render(request, "central_admin/forex_trade.html", context)
-
-
 
 # def forex_trade(request):
 #     if request.method == 'POST':
@@ -1256,25 +1316,43 @@ from django.contrib.contenttypes.models import ContentType
 #             messages.error(request, "Selected user does not exist.")
 #             return redirect('central_admin:forex_trade')
 
-#         for lead_id in selected_leads:
-#             lead = ForexTrade.objects.filter(id=lead_id).first()
-#             if lead:
-#                 # ✅ YEHTA LINE ADD KARO - assigned_to update karo
-#                 lead.assigned_to = assigned_user
-#                 lead.save()
-
-#                 # Log assignment
-#                 LeadAssignmentLog.objects.create(
-#                     lead_content_type=ContentType.objects.get_for_model(ForexTrade),
+#         # ✅ SPEED OPTIMIZATION: Direct bulk operations
+#         lead_ids = [int(lead_id) for lead_id in selected_leads]
+        
+#         # Get leads that are NOT already assigned to this user
+#         leads_to_assign = ForexTrade.objects.filter(
+#             id__in=lead_ids
+#         ).exclude(
+#             assigned_to=assigned_user
+#         )
+        
+#         assigned_count = leads_to_assign.count()
+#         already_assigned_count = len(selected_leads) - assigned_count
+        
+#         if assigned_count > 0:
+#             # ✅ BULK UPDATE assignment
+#             leads_to_assign.update(assigned_to=assigned_user)
+            
+#             # ✅ BULK CREATE logs
+#             content_type = ContentType.objects.get_for_model(ForexTrade)
+#             logs = [
+#                 LeadAssignmentLog(
+#                     lead_content_type=content_type,
 #                     lead_object_id=lead.id,
 #                     assigned_to=assigned_user,
 #                     assigned_by=request.user,
 #                     status_at_assignment=lead.status,
 #                     notes=remarks
-#                 )
-                
+#                 ) for lead in leads_to_assign
+#             ]
+#             LeadAssignmentLog.objects.bulk_create(logs)
+            
+#             messages.success(request, f"{assigned_count} Forex Trade leads assigned to {assigned_user.username} successfully!")
+        
+#         if already_assigned_count > 0:
+#             messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped.")
+
 #         leadassign_mail(assigned_user.email)
-#         messages.success(request, f"{len(selected_leads)} Forex Trade leads assigned to {assigned_user.username} successfully!")
 #         return redirect('central_admin:forex_trade')
     
 #     # GET request -> show all leads (assigned or unassigned)
@@ -1295,7 +1373,6 @@ from django.contrib.contenttypes.models import ContentType
 #         'short_name': short_name,
 #     }
 #     return render(request, "central_admin/forex_trade.html", context)
-
 
 def forex_trade(request):
     if request.method == 'POST':
@@ -1327,6 +1404,10 @@ def forex_trade(request):
         already_assigned_count = len(selected_leads) - assigned_count
         
         if assigned_count > 0:
+            # ✅ CREDIT MANAGEMENT: Add credits_used for new assignments only
+            assigned_user.credits_used += assigned_count
+            assigned_user.save()
+            
             # ✅ BULK UPDATE assignment
             leads_to_assign.update(assigned_to=assigned_user)
             
@@ -1344,10 +1425,17 @@ def forex_trade(request):
             ]
             LeadAssignmentLog.objects.bulk_create(logs)
             
-            messages.success(request, f"{assigned_count} Forex Trade leads assigned to {assigned_user.username} successfully!")
+            messages.success(
+                request, 
+                f"{assigned_count} Forex Trade leads assigned to {assigned_user.username} successfully! "
+                f"({assigned_count} credits deducted)"
+            )
         
         if already_assigned_count > 0:
-            messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped.")
+            messages.warning(
+                request, 
+                f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped."
+            )
 
         leadassign_mail(assigned_user.email)
         return redirect('central_admin:forex_trade')
@@ -1370,8 +1458,6 @@ def forex_trade(request):
         'short_name': short_name,
     }
     return render(request, "central_admin/forex_trade.html", context)
-
-
 
 def get_assignment_history_forex_trade(request, lead_id):
     try:
@@ -1407,11 +1493,123 @@ User = get_user_model()
 def is_central_admin(user):
     return user.is_authenticated and user.role == 'central_admin'
 
+
+
+# @login_required
+# @user_passes_test(is_central_admin)
+# def users_list(request):
+#     users = User.objects.all().order_by('-date_joined')
+    
+#     # ✅ Get assigned leads count for each user from ALL TIME (assignment history)
+#     from django.contrib.contenttypes.models import ContentType
+    
+#     user_leads_data = {}
+    
+#     for user in users:
+#         # LeadAssignmentLog se TOTAL assigned leads count (all time)
+#         assigned_logs = LeadAssignmentLog.objects.filter(assigned_to=user)
+        
+#         # Unique leads count using phone+email combination (all time assignments)
+#         unique_leads = set()
+#         for log in assigned_logs:
+#             lead = log.lead
+#             if lead:
+#                 identifier = f"{getattr(lead, 'phone_number', '')}-{getattr(lead, 'email', '')}"
+#                 if identifier:
+#                     unique_leads.add(identifier)
+        
+#         user_leads_data[user.id] = len(unique_leads)
+
+#     # ✅ Add leads count to each user object
+#     for user in users:
+#         user.assigned_leads_count = user_leads_data.get(user.id, 0)
+
+#     user_name = request.session.get('user_name')
+#     user_email = request.session.get('user_email')
+#     user_role = request.session.get('user_role')
+#     short_name = user_name[:2].upper() if user_name else ""
+
+#     context = {
+#         'name': user_name,
+#         'email': user_email,
+#         'role': user_role,
+#         'short_name': short_name,
+#         'users': users,
+#         'user_leads_count': user_leads_data,
+#     }
+    
+#     return render(request, 'central_admin/users_list.html', context)
+
 @login_required
 @user_passes_test(is_central_admin)
 def users_list(request):
     users = User.objects.all().order_by('-date_joined')
-    
+
+    user_leads_data = {}   # user_id : total_leads_count
+
+    for user in users:
+
+        # ----------------------------------------------------
+        # SAME LOGIC AS SUBSCRIBER DASHBOARD (NO CHANGE)
+        # ----------------------------------------------------
+
+        # Direct assigned leads
+        direct_real = RealEstateLead.objects.filter(assigned_to=user)
+        direct_mba = OnlineMBA.objects.filter(assigned_to=user)
+        direct_abroad = StudyAbroad.objects.filter(assigned_to=user)
+        direct_forex = ForexTrade.objects.filter(assigned_to=user)
+
+        added = set()
+        total_leads_count = 0
+
+        # Helper: avoids duplicates like dashboard
+        def add_lead(lead, prefix):
+            key = f"{prefix}_{lead.id}"
+            if key not in added:
+                added.add(key)
+                return 1
+            return 0
+
+        # Direct lead counting
+        for l in direct_real:
+            total_leads_count += add_lead(l, "realestate")
+
+        for l in direct_mba:
+            total_leads_count += add_lead(l, "mba")
+
+        for l in direct_abroad:
+            total_leads_count += add_lead(l, "abroad")
+
+        for l in direct_forex:
+            total_leads_count += add_lead(l, "forex")
+
+        # Assignment history leads
+        history = LeadAssignmentLog.objects.filter(assigned_to=user).select_related("assigned_to")
+
+        for h in history:
+            lead = h.lead
+            if not lead:
+                continue
+
+            if isinstance(lead, RealEstateLead):
+                total_leads_count += add_lead(lead, "realestate")
+
+            elif isinstance(lead, OnlineMBA):
+                total_leads_count += add_lead(lead, "mba")
+
+            elif isinstance(lead, StudyAbroad):
+                total_leads_count += add_lead(lead, "abroad")
+
+            elif isinstance(lead, ForexTrade):
+                total_leads_count += add_lead(lead, "forex")
+
+        # FINAL unique count for this user
+        user_leads_data[user.id] = total_leads_count
+
+        # Attach to user object for template
+        user.assigned_leads_count = total_leads_count
+
+    # Session data
     user_name = request.session.get('user_name')
     user_email = request.session.get('user_email')
     user_role = request.session.get('user_role')
@@ -1421,11 +1619,12 @@ def users_list(request):
         'name': user_name,
         'email': user_email,
         'role': user_role,
-        'short_name':short_name,
+        'short_name': short_name,
         'users': users,
+        'user_leads_count': user_leads_data,
     }
-    
-    return render(request, 'central_admin/users_list.html', context,)
+
+    return render(request, 'central_admin/users_list.html', context)
 
 
 @login_required
@@ -1435,7 +1634,6 @@ def delete_user(request, user_id):
     user.delete()
     messages.success(request, f"{user.username} deleted successfully.")
     return redirect('/central-admin/users/')
-
 
 
 
@@ -1462,8 +1660,22 @@ def edit_user(request, user_id):
         user.role = request.POST.get('role')
         user.plan_type = request.POST.get('plan_type')
         user.plan_status = request.POST.get('plan_status')
-        user.credit_limit = request.POST.get('credit_limit') or 0
         user.is_verified = bool(request.POST.get('is_verified'))
+        
+        # Handle credit limit adjustment
+        adjustment_type = request.POST.get('credit_adjustment_type')
+        adjustment_amount = int(request.POST.get('credit_adjustment_amount') or 0)
+        
+        if adjustment_amount > 0:
+            if adjustment_type == 'increase':
+                user.credit_limit += adjustment_amount
+                messages.success(request, f"Credit limit increased by {adjustment_amount}. New limit: {user.credit_limit}")
+            elif adjustment_type == 'decrease':
+                user.credit_limit = max(0, user.credit_limit - adjustment_amount)
+                messages.success(request, f"Credit limit decreased by {adjustment_amount}. New limit: {user.credit_limit}")
+            elif adjustment_type == 'set':
+                user.credit_limit = max(0, adjustment_amount)
+                messages.success(request, f"Credit limit set to {user.credit_limit}")
         
         # Handle password change
         new_password = request.POST.get('new_password')
@@ -1499,7 +1711,10 @@ def edit_user(request, user_id):
                     'short_name': request.session.get('user_name')[:2].upper() if request.session.get('user_name') else "",
                 })
         else:
-            messages.success(request, "User details updated successfully!")
+            if adjustment_amount > 0:
+                messages.success(request, f"User details updated! Credit limit adjusted to {user.credit_limit}")
+            else:
+                messages.success(request, "User details updated successfully!")
         
         user.save()
         return redirect('central_admin:users_list')
@@ -1520,6 +1735,90 @@ def edit_user(request, user_id):
         'status_choices': status_choices,
     }
     return render(request, 'central_admin/edit_user.html', context)
+
+
+
+# @login_required
+# @user_passes_test(is_central_admin)
+# def edit_user(request, user_id):
+#     user = get_object_or_404(User, id=user_id)
+
+#     # Pass choices to template
+#     role_choices = User.ROLE_CHOICES
+#     plan_choices = User.PLAN_CHOICES
+#     status_choices = [
+#         ('active', 'Active'),
+#         ('inactive', 'Inactive'),
+#         ('expired', 'Expired'),
+#     ]
+
+#     if request.method == 'POST':
+#         # Update basic user information
+#         user.first_name = request.POST.get('first_name')
+#         user.last_name = request.POST.get('last_name')
+#         user.email = request.POST.get('email')
+#         user.username = request.POST.get('email')
+#         user.role = request.POST.get('role')
+#         user.plan_type = request.POST.get('plan_type')
+#         user.plan_status = request.POST.get('plan_status')
+#         user.credit_limit = request.POST.get('credit_limit') or 0
+#         user.is_verified = bool(request.POST.get('is_verified'))
+        
+#         # Handle password change
+#         new_password = request.POST.get('new_password')
+#         confirm_password = request.POST.get('confirm_password')
+        
+#         if new_password:
+#             if new_password == confirm_password:
+#                 if len(new_password) >= 8:  # Basic password strength check
+#                     user.set_password(new_password)
+#                     messages.success(request, "User details and password updated successfully!")
+#                 else:
+#                     messages.error(request, "Password must be at least 8 characters long.")
+#                     return render(request, 'central_admin/edit_user.html', {
+#                         'user': user,
+#                         'role_choices': role_choices,
+#                         'plan_choices': plan_choices,
+#                         'status_choices': status_choices,
+#                         'name': request.session.get('user_name'),
+#                         'email': request.session.get('user_email'),
+#                         'role': request.session.get('user_role'),
+#                         'short_name': request.session.get('user_name')[:2].upper() if request.session.get('user_name') else "",
+#                     })
+#             else:
+#                 messages.error(request, "Passwords do not match.")
+#                 return render(request, 'central_admin/edit_user.html', {
+#                     'user': user,
+#                     'role_choices': role_choices,
+#                     'plan_choices': plan_choices,
+#                     'status_choices': status_choices,
+#                     'name': request.session.get('user_name'),
+#                     'email': request.session.get('user_email'),
+#                     'role': request.session.get('user_role'),
+#                     'short_name': request.session.get('user_name')[:2].upper() if request.session.get('user_name') else "",
+#                 })
+#         else:
+#             messages.success(request, "User details updated successfully!")
+        
+#         user.save()
+#         return redirect('central_admin:users_list')
+    
+#     user_name = request.session.get('user_name')
+#     user_email = request.session.get('user_email')
+#     user_role = request.session.get('user_role')
+#     short_name = user_name[:2].upper() if user_name else ""
+
+#     context = {
+#         'name': user_name,
+#         'email': user_email,
+#         'role': user_role,
+#         'short_name': short_name,
+#         'user': user,
+#         'role_choices': role_choices,
+#         'plan_choices': plan_choices,
+#         'status_choices': status_choices,
+#     }
+#     return render(request, 'central_admin/edit_user.html', context)
 
 
 
