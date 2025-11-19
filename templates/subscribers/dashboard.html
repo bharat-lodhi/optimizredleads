@@ -45,7 +45,8 @@
             <div class="Pending-white rounded-xl p-6 shadow-lg border border-gray-200 min-w-[280px] md:min-w-0 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <div class="text-2xl font-bold text-yellow-600 mb-1">{{ lead_replacement }}</div>
+                        {% comment %} <div class="text-2xl font-bold text-yellow-600 mb-1">{{ lead_replacement }}</div> {% endcomment %}
+                        <div class="text-2xl font-bold text-yellow-600 mb-1">{{ ticket_stats.lead_replacement|default:0 }}</div>
                         <div class="text-sm text-gray-600">Lead Replacement</div>
                     </div>
                     <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -75,7 +76,7 @@
 
     <!-- Industry Information and Ticket Overview -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Ticket Overview - Mobile: Upar, Desktop: Right -->
+        {% comment %} <!-- Ticket Overview - Mobile: Upar, Desktop: Right -->
         <div class="bg-white rounded-xl shadow-lg p-6 order-1 lg:order-2">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Ticket Overview</h3>
             <div class="space-y-3">
@@ -101,7 +102,44 @@
                     </a>
                 </div>
             </div>
+        </div> {% endcomment %}
+
+        <!-- Ticket Overview - Mobile: Upar, Desktop: Right -->
+<div class="bg-white rounded-xl shadow-lg p-6 order-1 lg:order-2">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4">Ticket Overview</h3>
+    <div class="space-y-3">
+        <div class="flex justify-between items-center">
+            <span class="text-gray-600">Total Tickets</span> 
+            <span id="total-count" class="font-semibold text-gray-900">{{ ticket_stats.total|default:0 }}</span>
         </div>
+        <div class="flex justify-between items-center">
+            <span class="text-gray-600">Open</span> 
+            <span id="open-count" class="font-semibold text-orange-600">{{ ticket_stats.open|default:0 }}</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-gray-600">In Progress</span> 
+            <span id="progress-count" class="font-semibold text-blue-600">{{ ticket_stats.in_progress|default:0 }}</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-gray-600">Resolved</span> 
+            <span id="resolved-count" class="font-semibold text-green-600">{{ ticket_stats.resolved|default:0 }}</span>
+        </div>
+        
+        <!-- NEW: Lead Replacement Tickets Count -->
+        <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+            <span class="text-gray-600">Lead Replacement</span> 
+            <span id="lead-replacement-count" class="font-semibold text-purple-600">
+                {{ ticket_stats.lead_replacement|default:0 }}
+            </span>
+        </div>
+        
+        <div class="pt-3 border-t border-gray-200">
+            <a href="{% url 'subscribers:submit_ticket' %}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold py-2 px-4 rounded-lg transition duration-200">
+                Submit New Ticket
+            </a>
+        </div>
+    </div>
+</div>
 
         <!-- Industry Information - Mobile: Neeche, Desktop: Left -->
         <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200 lg:col-span-2 order-2 lg:order-1">

@@ -55,6 +55,5 @@ urlpatterns = [
     path('tickets/', views.all_tickets, name='all_tickets'),
     path('tickets/<int:ticket_id>/', views.ticket_detail, name='ticket_detail'),
     path('tickets/update-status/<int:ticket_id>/', views.update_ticket_status, name='update_ticket_status'),
-
 ]
 
