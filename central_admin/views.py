@@ -2030,12 +2030,18 @@ def contact_leads_list(request):
 
 
 
+
+from django.http import JsonResponse
+from django.db.models import Count
+from django.utils import timezone
+
+
 def all_tickets(request):
+    """Sabh tickets ko list kare with filters"""
     # Get filter parameters
     status_filter = request.GET.get('status', '')
     priority_filter = request.GET.get('priority', '')
     category_filter = request.GET.get('category', '')
-
     
     # Start with all tickets
     tickets = Ticket.objects.select_related('user', 'assigned_to').all()
@@ -2053,12 +2059,11 @@ def all_tickets(request):
     priority_counts = Ticket.objects.values('priority').annotate(count=Count('priority'))
     category_counts = Ticket.objects.values('category').annotate(count=Count('category'))
     
-    
+    # Session data
     user_name = request.session.get('user_name')
     user_email = request.session.get('user_email')
     user_role = request.session.get('user_role')
     short_name = user_name[:2].upper() if user_name else ""
-
     
     context = {
         'tickets': tickets,
@@ -2074,12 +2079,75 @@ def all_tickets(request):
         'name': user_name,
         'email': user_email,
         'role': user_role,
-        'short_name':short_name,
+        'short_name': short_name,
     }
     
     return render(request, 'central_admin/tickets.html', context)
 
+def ticket_detail(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    
+    lead_details = []
+    if ticket.category == 'lead' and ticket.replacement_leads:
+        raw_data = str(ticket.replacement_leads).strip()
+        print(f"DEBUG - Raw data: '{raw_data}'")
+        
+        # Multiple format handle karo
+        if raw_data.startswith('[') and raw_data.endswith(']'):
+            # Remove brackets and process
+            content = raw_data[1:-1]  # Remove [ and ]
+            lead_ids = [id.strip().strip("'\"") for id in content.split(',') if id.strip()]
+        else:
+            # Direct comma separated
+            lead_ids = [id.strip() for id in raw_data.split(',') if id.strip()]
+        
+        print(f"DEBUG - Lead IDs: {lead_ids}")
+        
+        # Load leads from database
+        for lead_id in lead_ids:
+            try:
+                if lead_id.startswith('realestate_'):
+                    lead = RealEstateLead.objects.get(id=lead_id.replace('realestate_', ''))
+                    lead_details.append({
+                        'id': lead_id, 'name': lead.full_name, 'phone': lead.phone_number,
+                        'email': lead.email, 'category': lead.sub_industry or 'Real Estate', 'status': lead.status
+                    })
+                elif lead_id.startswith('mba_'):
+                    lead = OnlineMBA.objects.get(id=lead_id.replace('mba_', ''))
+                    lead_details.append({
+                        'id': lead_id, 'name': lead.full_name, 'phone': lead.phone_number,
+                        'email': lead.email, 'category': 'Online MBA', 'status': lead.status
+                    })
+                elif lead_id.startswith('abroad_'):
+                    lead = StudyAbroad.objects.get(id=lead_id.replace('abroad_', ''))
+                    lead_details.append({
+                        'id': lead_id, 'name': lead.full_name, 'phone': lead.phone_number,
+                        'email': lead.email, 'category': 'Study Abroad', 'status': lead.status
+                    })
+                elif lead_id.startswith('forex_'):
+                    lead = ForexTrade.objects.get(id=lead_id.replace('forex_', ''))
+                    lead_details.append({
+                        'id': lead_id, 'name': lead.full_name, 'phone': lead.phone_number,
+                        'email': lead.email, 'category': 'Forex Trade', 'status': lead.status
+                    })
+            except Exception as e:
+                print(f"Error loading lead {lead_id}: {e}")
+                continue
+    
+    print(f"DEBUG - Final lead details: {lead_details}")
+    
+    context = {
+        'ticket': ticket,
+        'lead_details': lead_details,
+        'name': request.session.get('user_name'),
+        'email': request.session.get('user_email'),
+        'role': request.session.get('user_role'),
+        'short_name': request.session.get('user_name', '')[:2].upper(),
+    }
+    
+    return render(request, 'central_admin/ticket_detail.html', context)
 def update_ticket_status(request, ticket_id):
+    """Ticket status update kare"""
     if request.method == 'POST':
         ticket = get_object_or_404(Ticket, id=ticket_id)
         new_status = request.POST.get('status')
@@ -2099,5 +2167,159 @@ def update_ticket_status(request, ticket_id):
         else:
             messages.error(request, 'Invalid status selected.')
     
-    return redirect('central_admin:all_tickets')
+    return redirect('central_admin:ticket_detail', ticket_id=ticket_id)
 
+# def all_tickets(request):
+#     # Get filter parameters
+#     status_filter = request.GET.get('status', '')
+#     priority_filter = request.GET.get('priority', '')
+#     category_filter = request.GET.get('category', '')
+
+    
+#     # Start with all tickets
+#     tickets = Ticket.objects.select_related('user', 'assigned_to').all()
+    
+#     # Apply filters
+#     if status_filter:
+#         tickets = tickets.filter(status=status_filter)
+#     if priority_filter:
+#         tickets = tickets.filter(priority=priority_filter)
+#     if category_filter:
+#         tickets = tickets.filter(category=category_filter)
+    
+#     # Get counts for filters
+#     status_counts = Ticket.objects.values('status').annotate(count=Count('status'))
+#     priority_counts = Ticket.objects.values('priority').annotate(count=Count('priority'))
+#     category_counts = Ticket.objects.values('category').annotate(count=Count('category'))
+    
+    
+#     user_name = request.session.get('user_name')
+#     user_email = request.session.get('user_email')
+#     user_role = request.session.get('user_role')
+#     short_name = user_name[:2].upper() if user_name else ""
+
+    
+#     context = {
+#         'tickets': tickets,
+#         'status_filter': status_filter,
+#         'priority_filter': priority_filter,
+#         'category_filter': category_filter,
+#         'status_counts': status_counts,
+#         'priority_counts': priority_counts,
+#         'category_counts': category_counts,
+#         'STATUS_CHOICES': Ticket.STATUS_CHOICES,
+#         'PRIORITY_CHOICES': Ticket.PRIORITY_CHOICES,
+#         'CATEGORY_CHOICES': Ticket.CATEGORY_CHOICES,
+#         'name': user_name,
+#         'email': user_email,
+#         'role': user_role,
+#         'short_name':short_name,
+#     }
+    
+#     return render(request, 'central_admin/tickets.html', context)
+
+# def update_ticket_status(request, ticket_id):
+#     if request.method == 'POST':
+#         ticket = get_object_or_404(Ticket, id=ticket_id)
+#         new_status = request.POST.get('status')
+#         admin_notes = request.POST.get('admin_notes', '')
+        
+#         if new_status in dict(Ticket.STATUS_CHOICES):
+#             ticket.status = new_status
+#             if admin_notes:
+#                 ticket.admin_notes = admin_notes
+            
+#             # Set resolved_at if status is resolved or closed
+#             if new_status in ['resolved', 'closed'] and not ticket.resolved_at:
+#                 ticket.resolved_at = timezone.now()
+            
+#             ticket.save()
+#             messages.success(request, f'Ticket {ticket.ticket_id} status updated to {new_status}.')
+#         else:
+#             messages.error(request, 'Invalid status selected.')
+    
+#     return redirect('central_admin:all_tickets')
+
+# @login_required
+# def get_lead_details(request):
+#     """AJAX endpoint to get lead details for admin"""
+#     lead_ids = request.GET.getlist('lead_ids[]')
+#     lead_details = []
+    
+#     print(f"Received lead IDs: {lead_ids}")  # Debugging ke liye
+    
+#     for lead_id in lead_ids:
+#         try:
+#             if not lead_id or not isinstance(lead_id, str):
+#                 continue
+                
+#             # Parse lead ID (format: "modeltype_id")
+#             if lead_id.startswith('realestate_'):
+#                 lead_obj_id = lead_id.replace('realestate_', '')
+#                 print(f"Looking for RealEstateLead with ID: {lead_obj_id}")  # Debug
+#                 lead = RealEstateLead.objects.get(id=lead_obj_id)
+#                 lead_details.append({
+#                     'id': lead_id,
+#                     'name': lead.full_name,
+#                     'phone': lead.phone_number,
+#                     'email': lead.email,
+#                     'category': lead.sub_industry or 'Real Estate',
+#                     'status': lead.status
+#                 })
+                
+#             elif lead_id.startswith('mba_'):
+#                 lead_obj_id = lead_id.replace('mba_', '')
+#                 lead = OnlineMBA.objects.get(id=lead_obj_id)
+#                 lead_details.append({
+#                     'id': lead_id,
+#                     'name': lead.full_name,
+#                     'phone': lead.phone_number,
+#                     'email': lead.email,
+#                     'category': 'Online MBA',
+#                     'status': lead.status
+#                 })
+                
+#             elif lead_id.startswith('abroad_'):
+#                 lead_obj_id = lead_id.replace('abroad_', '')
+#                 lead = StudyAbroad.objects.get(id=lead_obj_id)
+#                 lead_details.append({
+#                     'id': lead_id,
+#                     'name': lead.full_name,
+#                     'phone': lead.phone_number,
+#                     'email': lead.email,
+#                     'category': 'Study Abroad',
+#                     'status': lead.status
+#                 })
+                
+#             elif lead_id.startswith('forex_'):
+#                 lead_obj_id = lead_id.replace('forex_', '')
+#                 lead = ForexTrade.objects.get(id=lead_obj_id)
+#                 lead_details.append({
+#                     'id': lead_id,
+#                     'name': lead.full_name,
+#                     'phone': lead.phone_number,
+#                     'email': lead.email,
+#                     'category': 'Forex Trade',
+#                     'status': lead.status
+#                 })
+#             else:
+#                 print(f"Unknown lead ID format: {lead_id}")
+                
+#         except RealEstateLead.DoesNotExist:
+#             print(f"RealEstateLead not found with ID: {lead_obj_id}")
+#             continue
+#         except OnlineMBA.DoesNotExist:
+#             print(f"OnlineMBA not found with ID: {lead_obj_id}")
+#             continue
+#         except StudyAbroad.DoesNotExist:
+#             print(f"StudyAbroad not found with ID: {lead_obj_id}")
+#             continue
+#         except ForexTrade.DoesNotExist:
+#             print(f"ForexTrade not found with ID: {lead_obj_id}")
+#             continue
+#         except Exception as e:
+#             print(f"Error processing lead ID {lead_id}: {str(e)}")
+#             continue
+    
+#     print(f"Returning lead details: {lead_details}")  # Debug
+#     return JsonResponse({'leads': lead_details})

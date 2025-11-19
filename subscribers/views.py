@@ -2,14 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
-from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, BaseLead, ForexTrade,LeadAssignmentLog,LeadStatusHistory,LeadRemarkHistory
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-import json
 from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, BaseLead, ForexTrade, LeadAssignmentLog, LeadStatusHistory, LeadRemarkHistory
 from django.contrib.contenttypes.models import ContentType
-
+from django.db.models import Q
 
 @login_required
 def dashboard(request):
@@ -1367,6 +1362,43 @@ from django.views.decorators.csrf import csrf_protect
 import json
 from .models import Ticket
 
+# @login_required
+# def submit_ticket(request):
+#     if request.method == 'POST':
+#         try:
+#             category = request.POST.get('category')
+#             priority = request.POST.get('priority')
+#             description = request.POST.get('description')
+            
+#             # Validate required fields
+#             if not all([category, priority, description]):
+#                 messages.error(request, 'All fields are required')
+#                 return render(request, 'subscribers/submit_ticket.html')
+            
+#             # Create new ticket
+#             ticket = Ticket.objects.create(
+#                 user=request.user,
+#                 category=category,
+#                 priority=priority,
+#                 description=description
+#             )
+            
+#             messages.success(request, f'Ticket #{ticket.ticket_id} created successfully! We will get back to you within 24 hours.')
+#             return redirect('/subscribers/submit-ticket/')
+            
+#         except Exception as e:
+#             messages.error(request, 'Error creating ticket. Please try again.')
+#             return render(request, 'subscribers/submit_ticket.html')
+#     user = request.user
+#     if user.industry == "trading":
+#         return render(request, 'subscribers/submit_ticket_trading.html')
+#     return render(request, 'subscribers/submit_ticket.html')
+
+
+
+
+# -----------------------------------Ticket-- starts------------------------------------------
+    
 @login_required
 def submit_ticket(request):
     if request.method == 'POST':
@@ -1374,6 +1406,7 @@ def submit_ticket(request):
             category = request.POST.get('category')
             priority = request.POST.get('priority')
             description = request.POST.get('description')
+            selected_leads = request.POST.getlist('selected_leads')  # Multiple leads
             
             # Validate required fields
             if not all([category, priority, description]):
@@ -1388,23 +1421,199 @@ def submit_ticket(request):
                 description=description
             )
             
+            # If lead replacement category and leads selected, save them
+            if category == 'lead' and selected_leads:
+                # Store selected leads as JSON
+                ticket.replacement_leads = selected_leads
+                ticket.save()
+            
             messages.success(request, f'Ticket #{ticket.ticket_id} created successfully! We will get back to you within 24 hours.')
             return redirect('/subscribers/submit-ticket/')
             
         except Exception as e:
+            print(f"Error: {e}")
             messages.error(request, 'Error creating ticket. Please try again.')
             return render(request, 'subscribers/submit_ticket.html')
-    user = request.user
-    if user.industry == "trading":
-        return render(request, 'subscribers/submit_ticket_trading.html')
-    return render(request, 'subscribers/submit_ticket.html')
     
+    # GET request - fetch user's leads for dropdown
+    user_leads = get_user_leads_data(request.user)
+    
+    user = request.user
+    context = {
+        'user_leads': user_leads
+    }
+    
+    if user.industry == "trading":
+        return render(request, 'subscribers/submit_ticket_trading.html', context)
+    return render(request, 'subscribers/submit_ticket.html', context)
 
+def get_user_leads_data(user):
+    """User की सभी leads को एक structured format में return करता है"""
+    all_leads = []
+    
+    # Real Estate Leads
+    real_estate_leads = RealEstateLead.objects.filter(assigned_to=user)
+    for lead in real_estate_leads:
+        all_leads.append({
+            'id': f'realestate_{lead.id}',
+            'original_id': lead.id,
+            'model_type': 'realestate',
+            'category': lead.sub_industry or 'Real Estate',
+            'name': lead.full_name or 'No Name',
+            'phone': lead.phone_number or 'No Phone',
+            'email': lead.email or 'No Email',
+            'status': lead.status,
+            'created_at': lead.created_at.strftime('%Y-%m-%d'),
+            'display_text': f"{lead.full_name} - {lead.phone_number} - {lead.sub_industry or 'Real Estate'}"
+        })
+    
+    # Online MBA Leads
+    mba_leads = OnlineMBA.objects.filter(assigned_to=user)
+    for lead in mba_leads:
+        all_leads.append({
+            'id': f'mba_{lead.id}',
+            'original_id': lead.id,
+            'model_type': 'mba',
+            'category': 'Online MBA',
+            'name': lead.full_name or 'No Name',
+            'phone': lead.phone_number or 'No Phone',
+            'email': lead.email or 'No Email',
+            'status': lead.status,
+            'created_at': lead.created_at.strftime('%Y-%m-%d'),
+            'display_text': f"{lead.full_name} - {lead.phone_number} - Online MBA"
+        })
+    
+    # Study Abroad Leads
+    study_abroad_leads = StudyAbroad.objects.filter(assigned_to=user)
+    for lead in study_abroad_leads:
+        all_leads.append({
+            'id': f'abroad_{lead.id}',
+            'original_id': lead.id,
+            'model_type': 'abroad',
+            'category': 'Study Abroad',
+            'name': lead.full_name or 'No Name',
+            'phone': lead.phone_number or 'No Phone',
+            'email': lead.email or 'No Email',
+            'status': lead.status,
+            'created_at': lead.created_at.strftime('%Y-%m-%d'),
+            'display_text': f"{lead.full_name} - {lead.phone_number} - Study Abroad"
+        })
+    
+    # Forex Trade Leads
+    forex_trade_leads = ForexTrade.objects.filter(assigned_to=user)
+    for lead in forex_trade_leads:
+        all_leads.append({
+            'id': f'forex_{lead.id}',
+            'original_id': lead.id,
+            'model_type': 'forex',
+            'category': 'Forex Trade',
+            'name': lead.full_name or 'No Name',
+            'phone': lead.phone_number or 'No Phone',
+            'email': lead.email or 'No Email',
+            'status': lead.status,
+            'created_at': lead.created_at.strftime('%Y-%m-%d'),
+            'display_text': f"{lead.full_name} - {lead.phone_number} - Forex Trade"
+        })
+    
+    return all_leads
+
+@login_required
+def search_leads_ajax(request):
+    """AJAX endpoint for searching leads by name, email, or phone"""
+    search_term = request.GET.get('search', '').strip()
+    
+    if not search_term:
+        return JsonResponse({'leads': []})
+    
+    user = request.user
+    results = []
+    
+    # Search in all lead types
+    # Real Estate
+    real_estate_leads = RealEstateLead.objects.filter(
+        assigned_to=user
+    ).filter(
+        Q(full_name__icontains=search_term) |
+        Q(email__icontains=search_term) |
+        Q(phone_number__icontains=search_term)
+    )
+    
+    for lead in real_estate_leads:
+        results.append({
+            'id': f'realestate_{lead.id}',
+            'display_text': f"{lead.full_name} - {lead.phone_number} - {lead.sub_industry or 'Real Estate'}",
+            'name': lead.full_name,
+            'phone': lead.phone_number,
+            'email': lead.email,
+            'category': lead.sub_industry or 'Real Estate'
+        })
+    
+    # Online MBA
+    mba_leads = OnlineMBA.objects.filter(
+        assigned_to=user
+    ).filter(
+        Q(full_name__icontains=search_term) |
+        Q(email__icontains=search_term) |
+        Q(phone_number__icontains=search_term)
+    )
+    
+    for lead in mba_leads:
+        results.append({
+            'id': f'mba_{lead.id}',
+            'display_text': f"{lead.full_name} - {lead.phone_number} - Online MBA",
+            'name': lead.full_name,
+            'phone': lead.phone_number,
+            'email': lead.email,
+            'category': 'Online MBA'
+        })
+    
+    # Study Abroad
+    study_abroad_leads = StudyAbroad.objects.filter(
+        assigned_to=user
+    ).filter(
+        Q(full_name__icontains=search_term) |
+        Q(email__icontains=search_term) |
+        Q(phone_number__icontains=search_term)
+    )
+    
+    for lead in study_abroad_leads:
+        results.append({
+            'id': f'abroad_{lead.id}',
+            'display_text': f"{lead.full_name} - {lead.phone_number} - Study Abroad",
+            'name': lead.full_name,
+            'phone': lead.phone_number,
+            'email': lead.email,
+            'category': 'Study Abroad'
+        })
+    
+    # Forex Trade
+    forex_trade_leads = ForexTrade.objects.filter(
+        assigned_to=user
+    ).filter(
+        Q(full_name__icontains=search_term) |
+        Q(email__icontains=search_term) |
+        Q(phone_number__icontains=search_term)
+    )
+    
+    for lead in forex_trade_leads:
+        results.append({
+            'id': f'forex_{lead.id}',
+            'display_text': f"{lead.full_name} - {lead.phone_number} - Forex Trade",
+            'name': lead.full_name,
+            'phone': lead.phone_number,
+            'email': lead.email,
+            'category': 'Forex Trade'
+        })
+    
+    return JsonResponse({'leads': results})
 
 @login_required
 def my_tickets(request):
     tickets = Ticket.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'subscribers/tickets.html', {'tickets': tickets})
+
+
+# ----------------------------------Tickets logic end-------------------------------
 
 # def celender(request):
 #     return render(request,"subscribers/celender.html")

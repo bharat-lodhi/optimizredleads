@@ -15,6 +15,7 @@ urlpatterns = [
 
     path('submit-ticket/', views.submit_ticket, name='submit_ticket'),
     path('tickets/', views.my_tickets, name='tickets'),
+    path('search-leads/', views.search_leads_ajax, name='search_leads'),
     path('celender/', views.celender, name='celender'),
     
     #-----Celender --------------------

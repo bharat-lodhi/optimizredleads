@@ -1,6 +1,1330 @@
 {% extends 'central_admin_base.html' %}
 {% load static %}
 
+{% block title %}All Tickets - Admin{% endblock %}
+{% block page_title %}Support Tickets{% endblock %}
+{% block page_subtitle %}Manage and resolve customer support tickets{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Messages -->
+    {% if messages %}
+    <div class="max-w-4xl mx-auto">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg text-center {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200{% else %}bg-red-100 text-red-700 border border-red-200{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Filters & Stats -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-4">
+                <span class="text-lg font-semibold text-gray-700">Filters:</span>
+                
+                <select id="statusFilter" class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Status</option>
+                    {% for status, label in STATUS_CHOICES %}
+                    <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="priorityFilter" class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Priority</option>
+                    {% for priority, label in PRIORITY_CHOICES %}
+                    <option value="{{ priority }}" {% if priority_filter == priority %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="categoryFilter" class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Category</option>
+                    {% for category, label in CATEGORY_CHOICES %}
+                    <option value="{{ category }}" {% if category_filter == category %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+
+                <button id="applyFilters" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Apply Filters
+                </button>
+            </div>
+
+            <div class="flex items-center gap-6 text-sm">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-900">{{ tickets.count }}</div>
+                    <div class="text-gray-500">Total</div>
+                </div>
+                {% for status_count in status_counts %}
+                <div class="text-center">
+                    <div class="text-xl font-semibold {% if status_count.status == 'open' %}text-blue-600{% elif status_count.status == 'in_progress' %}text-yellow-600{% else %}text-green-600{% endif %}">
+                        {{ status_count.count }}
+                    </div>
+                    <div class="text-gray-500 text-xs">{{ status_count.status|title }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr class="text-left text-sm font-semibold text-gray-700">
+                        <th class="px-6 py-4">Ticket</th>
+                        <th class="px-6 py-4">User</th>
+                        <th class="px-6 py-4">Details</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Date</th>
+                        <th class="px-6 py-4 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for ticket in tickets %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="font-mono font-semibold text-gray-900">{{ ticket.ticket_id }}</div>
+                            {% if ticket.category == 'lead' and ticket.replacement_leads %}
+                            <div class="flex items-center gap-1 mt-1">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="text-xs text-green-600 font-medium">
+                                    {% with leads=ticket.replacement_leads %}
+                                        {{ leads|length }} lead(s)
+                                    {% endwith %}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-900">{{ ticket.user.get_full_name|default:ticket.user.username }}</div>
+                            <div class="text-sm text-gray-500">{{ ticket.user.email }}</div>
+                        </td>
+                        
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col gap-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
+                                    {{ ticket.get_category_display }}
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if ticket.priority == 'critical' %}bg-red-100 text-red-800{% elif ticket.priority == 'high' %}bg-orange-100 text-orange-800{% elif ticket.priority == 'medium' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                    {{ ticket.get_priority_display }}
+                                </span>
+                            </div>
+                        </td>
+                        
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {% if ticket.status == 'open' %}bg-blue-100 text-blue-800{% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800{% elif ticket.status == 'resolved' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ ticket.get_status_display }}
+                            </span>
+                        </td>
+                        
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ ticket.created_at|date:"M d, Y" }}</div>
+                            <div class="text-xs text-gray-500">{{ ticket.created_at|date:"H:i" }}</div>
+                        </td>
+                        
+                        <td class="px-6 py-4 text-center">
+                            <a href="{% url 'central_admin:ticket_detail' ticket.id %}" 
+                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="text-gray-400 mb-2">
+                                <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-1">No tickets found</h3>
+                            <p class="text-gray-500">Try adjusting your search filters</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const applyFilters = document.getElementById('applyFilters');
+    
+    if (applyFilters) {
+        applyFilters.addEventListener('click', function() {
+            const status = document.getElementById('statusFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            const params = new URLSearchParams();
+            if (status) params.append('status', status);
+            if (priority) params.append('priority', priority);
+            if (category) params.append('category', category);
+            
+            window.location.href = `?${params.toString()}`;
+        });
+    }
+});
+</script>
+{% endblock %}
+
+
+
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}All Tickets - Admin{% endblock %}
+{% block page_title %}Support Tickets{% endblock %}
+{% block page_subtitle %}Manage and resolve customer support tickets{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Messages -->
+    {% if messages %}
+    <div class="max-w-4xl mx-auto">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg text-center {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200{% else %}bg-red-100 text-red-700 border border-red-200{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Filters & Stats -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-4">
+                <span class="text-lg font-semibold text-gray-700">Filters:</span>
+                
+                <select id="statusFilter" class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Status</option>
+                    {% for status, label in STATUS_CHOICES %}
+                    <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="priorityFilter" class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Priority</option>
+                    {% for priority, label in PRIORITY_CHOICES %}
+                    <option value="{{ priority }}" {% if priority_filter == priority %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="categoryFilter" class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Category</option>
+                    {% for category, label in CATEGORY_CHOICES %}
+                    <option value="{{ category }}" {% if category_filter == category %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+
+                <button id="applyFilters" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Apply Filters
+                </button>
+            </div>
+
+            <div class="flex items-center gap-6 text-sm">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-900">{{ tickets.count }}</div>
+                    <div class="text-gray-500">Total</div>
+                </div>
+                {% for status_count in status_counts %}
+                <div class="text-center">
+                    <div class="text-xl font-semibold {% if status_count.status == 'open' %}text-blue-600{% elif status_count.status == 'in_progress' %}text-yellow-600{% else %}text-green-600{% endif %}">
+                        {{ status_count.count }}
+                    </div>
+                    <div class="text-gray-500 text-xs">{{ status_count.status|title }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr class="text-left text-sm font-semibold text-gray-700">
+                        <th class="px-6 py-4">Ticket</th>
+                        <th class="px-6 py-4">User</th>
+                        <th class="px-6 py-4">Details</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Date</th>
+                        <th class="px-6 py-4 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for ticket in tickets %}
+                    <tr class="hover:bg-gray-50 transition-colors group ticket-row"
+                        data-ticket-id="{{ ticket.id }}"
+                        data-ticket-data='{
+                            "id": "{{ ticket.id }}",
+                            "ticket_id": "{{ ticket.ticket_id }}",
+                            "user_name": "{{ ticket.user.get_full_name|default:ticket.user.username|escapejs }}",
+                            "user_email": "{{ ticket.user.email|escapejs }}",
+                            "user_phone": "{{ ticket.user.phone|default:"Not provided"|escapejs }}",
+                            "category": "{{ ticket.category }}",
+                            "category_display": "{{ ticket.get_category_display|escapejs }}",
+                            "priority": "{{ ticket.priority }}",
+                            "priority_display": "{{ ticket.get_priority_display|escapejs }}",
+                            "description": "{{ ticket.description|escapejs }}",
+                            "status": "{{ ticket.status }}",
+                            "status_display": "{{ ticket.get_status_display|escapejs }}",
+                            "created_at": "{{ ticket.created_at|date:"M d, Y H:i" }}",
+                            "updated_at": "{{ ticket.updated_at|date:"M d, Y H:i" }}",
+                            "resolved_at": "{% if ticket.resolved_at %}{{ ticket.resolved_at|date:"M d, Y H:i" }}{% else %}Not resolved{% endif %}",
+                            "assigned_to": "{% if ticket.assigned_to %}{{ ticket.assigned_to.get_full_name|default:ticket.assigned_to.username|escapejs }}{% else %}Unassigned{% endif %}",
+                            "admin_notes": "{{ ticket.admin_notes|default:""|escapejs }}",
+                            "replacement_leads": {% if ticket.replacement_leads %}"{{ ticket.replacement_leads|escapejs }}"{% else %}""{% endif %}
+                        }'>
+                        
+                        <td class="px-6 py-4">
+                            <div class="font-mono font-semibold text-gray-900">{{ ticket.ticket_id }}</div>
+                            {% if ticket.category == 'lead' and ticket.replacement_leads %}
+                            <div class="flex items-center gap-1 mt-1">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="text-xs text-green-600 font-medium">{{ ticket.replacement_leads|length }} lead(s)</span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-900">{{ ticket.user.get_full_name|default:ticket.user.username }}</div>
+                            <div class="text-sm text-gray-500">{{ ticket.user.email }}</div>
+                        </td>
+                        
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col gap-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
+                                    {{ ticket.get_category_display }}
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if ticket.priority == 'critical' %}bg-red-100 text-red-800{% elif ticket.priority == 'high' %}bg-orange-100 text-orange-800{% elif ticket.priority == 'medium' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                    {{ ticket.get_priority_display }}
+                                </span>
+                            </div>
+                        </td>
+                        
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {% if ticket.status == 'open' %}bg-blue-100 text-blue-800{% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800{% elif ticket.status == 'resolved' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ ticket.get_status_display }}
+                            </span>
+                        </td>
+                        
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ ticket.created_at|date:"M d, Y" }}</div>
+                            <div class="text-xs text-gray-500">{{ ticket.created_at|date:"H:i" }}</div>
+                        </td>
+                        
+                        <td class="px-6 py-4 text-center">
+                            <button class="view-ticket-btn inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="text-gray-400 mb-2">
+                                <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-1">No tickets found</h3>
+                            <p class="text-gray-500">Try adjusting your search filters</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Ticket Modal -->
+<div id="ticketModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900" id="modalTicketId">Loading...</h2>
+                <div class="flex items-center gap-2 mt-2">
+                    <span id="modalPriority" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
+                    <span id="modalCategory" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"></span>
+                    <span id="modalStatus" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
+                </div>
+            </div>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- User Info -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">User Information</h3>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="font-medium text-gray-500">Name:</span> <span id="modalUserName" class="text-gray-900"></span></div>
+                            <div><span class="font-medium text-gray-500">Email:</span> <span id="modalUserEmail" class="text-gray-900"></span></div>
+                            <div><span class="font-medium text-gray-500">Phone:</span> <span id="modalUserPhone" class="text-gray-900"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- Ticket Info -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">Ticket Information</h3>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="font-medium text-gray-500">Category:</span> <span id="modalCategoryDisplay" class="text-gray-900"></span></div>
+                            <div><span class="font-medium text-gray-500">Priority:</span> <span id="modalPriorityDisplay" class="text-gray-900"></span></div>
+                            <div><span class="font-medium text-gray-500">Assigned To:</span> <span id="modalAssignedTo" class="text-gray-900"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">Timeline</h3>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="font-medium text-gray-500">Created:</span> <span id="modalCreatedAt" class="text-gray-900"></span></div>
+                            <div><span class="font-medium text-gray-500">Updated:</span> <span id="modalUpdatedAt" class="text-gray-900"></span></div>
+                            <div><span class="font-medium text-gray-500">Resolved:</span> <span id="modalResolvedAt" class="text-gray-900"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Description -->
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-3">Description</h3>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p id="modalDescription" class="text-gray-700 whitespace-pre-line"></p>
+                        </div>
+                    </div>
+
+                    <!-- Selected Leads -->
+                    <div id="leadsSection" class="hidden">
+                        <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Selected Leads for Replacement
+                            <span id="leadsCount" class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">0</span>
+                        </h3>
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div id="leadsList" class="space-y-3 max-h-60 overflow-y-auto"></div>
+                            <div id="leadsEmpty" class="text-center py-4 text-gray-500">
+                                No leads selected for replacement
+                            </div>
+                            <div id="leadsLoading" class="text-center py-4 hidden">
+                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600 mx-auto"></div>
+                                <p class="text-sm text-gray-500 mt-2">Loading lead details...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Notes -->
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-3">Admin Notes</h3>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <p id="modalAdminNotes" class="text-gray-700 whitespace-pre-line">No admin notes yet</p>
+                        </div>
+                    </div>
+
+                    <!-- Status Update -->
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-3">Update Status</h3>
+                        <form id="statusForm" method="post" class="space-y-4">
+                            {% csrf_token %}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="statusSelect" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                    <select name="status" id="statusSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        {% for status, label in STATUS_CHOICES %}
+                                        <option value="{{ status }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label for="adminNotes" class="block text-sm font-medium text-gray-700 mb-2">Admin Notes</label>
+                                    <textarea name="admin_notes" id="adminNotes" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Add internal notes or comments..."></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+            <button id="cancelBtn" class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Cancel
+            </button>
+            <button id="updateBtn" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Update Status
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.ticket-row:hover {
+    background-color: #f8fafc;
+    cursor: pointer;
+}
+
+.lead-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
+
+.lead-item:hover {
+    border-color: #10b981;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const modal = document.getElementById('ticketModal');
+    const closeBtn = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const updateBtn = document.getElementById('updateBtn');
+    const statusForm = document.getElementById('statusForm');
+    const viewButtons = document.querySelectorAll('.view-ticket-btn');
+    const ticketRows = document.querySelectorAll('.ticket-row');
+    const applyFilters = document.getElementById('applyFilters');
+
+    let currentTicketId = null;
+
+    // Safe JSON parse with error handling
+    function parseTicketData(jsonString) {
+        try {
+            return JSON.parse(jsonString);
+        } catch (error) {
+            console.error('JSON Parse Error:', error);
+            return null;
+        }
+    }
+
+    // Load lead details
+    async function loadLeadDetails(leadIds) {
+        if (!leadIds || leadIds.length === 0) return [];
+        
+        try {
+            const response = await fetch(`/central-admin/get-lead-details/?lead_ids[]=${leadIds.join('&lead_ids[]=')}`);
+            const data = await response.json();
+            return data.leads || [];
+        } catch (error) {
+            console.error('Error loading lead details:', error);
+            return [];
+        }
+    }
+
+    // Display leads in modal
+    function displayLeads(leads) {
+        const list = document.getElementById('leadsList');
+        const empty = document.getElementById('leadsEmpty');
+        const loading = document.getElementById('leadsLoading');
+        const count = document.getElementById('leadsCount');
+        const section = document.getElementById('leadsSection');
+
+        list.innerHTML = '';
+        loading.classList.add('hidden');
+
+        if (leads.length === 0) {
+            empty.classList.remove('hidden');
+            section.classList.add('hidden');
+            return;
+        }
+
+        empty.classList.add('hidden');
+        section.classList.remove('hidden');
+        count.textContent = leads.length;
+
+        leads.forEach(lead => {
+            const item = document.createElement('div');
+            item.className = 'lead-item';
+            item.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="font-semibold text-gray-900 text-sm">${lead.name || 'No Name'}</div>
+                        <div class="text-xs text-gray-600 mt-1 space-y-1">
+                            <div class="flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                ${lead.phone || 'N/A'}
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                ${lead.email || 'N/A'}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">${lead.category}</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">${lead.status}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    // Open modal with ticket data
+    async function openTicketModal(ticketData) {
+        if (!modal) return;
+
+        currentTicketId = ticketData.id;
+
+        // Set basic info
+        document.getElementById('modalTicketId').textContent = ticketData.ticket_id;
+        document.getElementById('modalUserName').textContent = ticketData.user_name;
+        document.getElementById('modalUserEmail').textContent = ticketData.user_email;
+        document.getElementById('modalUserPhone').textContent = ticketData.user_phone;
+        document.getElementById('modalCategoryDisplay').textContent = ticketData.category_display;
+        document.getElementById('modalPriorityDisplay').textContent = ticketData.priority_display;
+        document.getElementById('modalAssignedTo').textContent = ticketData.assigned_to;
+        document.getElementById('modalDescription').textContent = ticketData.description;
+        document.getElementById('modalCreatedAt').textContent = ticketData.created_at;
+        document.getElementById('modalUpdatedAt').textContent = ticketData.updated_at;
+        document.getElementById('modalResolvedAt').textContent = ticketData.resolved_at;
+        document.getElementById('modalAdminNotes').textContent = ticketData.admin_notes || 'No admin notes yet';
+
+        // Set form values
+        document.getElementById('statusSelect').value = ticketData.status;
+        document.getElementById('adminNotes').value = ticketData.admin_notes || '';
+
+        // Set status form action
+        statusForm.action = `/central-admin/tickets/update-status/${currentTicketId}/`;
+        
+
+        // Handle priority badge
+        const priorityBadge = document.getElementById('modalPriority');
+        priorityBadge.textContent = ticketData.priority_display;
+        priorityBadge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            ticketData.priority === 'critical' ? 'bg-red-100 text-red-800' :
+            ticketData.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+            ticketData.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-green-100 text-green-800'
+        }`;
+
+        // Handle status badge
+        const statusBadge = document.getElementById('modalStatus');
+        statusBadge.textContent = ticketData.status_display;
+        statusBadge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            ticketData.status === 'open' ? 'bg-blue-100 text-blue-800' :
+            ticketData.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+            ticketData.status === 'resolved' ? 'bg-green-100 text-green-800' :
+            'bg-gray-100 text-gray-800'
+        }`;
+
+        // Handle leads section
+        if (ticketData.category === 'lead' && ticketData.replacement_leads && ticketData.replacement_leads.length > 0) {
+            document.getElementById('leadsLoading').classList.remove('hidden');
+            const leads = await loadLeadDetails(ticketData.replacement_leads);
+            displayLeads(leads);
+        } else {
+            document.getElementById('leadsSection').classList.add('hidden');
+        }
+
+        // Show modal
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close modal
+    function closeModal() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        currentTicketId = null;
+    }
+
+    // Event listeners for view buttons
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const row = this.closest('.ticket-row');
+            const ticketData = parseTicketData(row.getAttribute('data-ticket-data'));
+            if (ticketData) openTicketModal(ticketData);
+        });
+    });
+
+    // Event listeners for row clicks
+    ticketRows.forEach(row => {
+        row.addEventListener('click', function(e) {
+            if (e.target.closest('button')) return;
+            const ticketData = parseTicketData(this.getAttribute('data-ticket-data'));
+            if (ticketData) openTicketModal(ticketData);
+        });
+    });
+
+    // Modal event listeners
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    updateBtn.addEventListener('click', () => statusForm.submit());
+
+    // Close modal on outside click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    });
+
+    // Filter functionality
+    if (applyFilters) {
+        applyFilters.addEventListener('click', function() {
+            const status = document.getElementById('statusFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            const params = new URLSearchParams();
+            if (status) params.append('status', status);
+            if (priority) params.append('priority', priority);
+            if (category) params.append('category', category);
+            
+            window.location.href = `?${params.toString()}`;
+        });
+    }
+});
+
+
+// Handle leads section - YE CHANGE KARO
+if (ticketData.category === 'lead' && ticketData.replacement_leads) {
+    document.getElementById('leadsLoading').classList.remove('hidden');
+    
+    let leadIds = ticketData.replacement_leads;
+    // Agar string hai to parse karo
+    if (typeof leadIds === 'string') {
+        try {
+            leadIds = JSON.parse(leadIds);
+        } catch (e) {
+            console.error('Error parsing replacement_leads:', e);
+            leadIds = [];
+        }
+    }
+    
+    if (leadIds.length > 0) {
+        const leads = await loadLeadDetails(leadIds);
+        displayLeads(leads);
+    } else {
+        document.getElementById('leadsSection').classList.add('hidden');
+    }
+} else {
+    document.getElementById('leadsSection').classList.add('hidden');
+}
+</script>
+{% endblock %}  {% endcomment %}
+
+
+
+
+
+
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}All Tickets{% endblock %}
+{% block page_title %}All Tickets{% endblock %}
+{% block page_subtitle %}Manage all support tickets{% endblock %}
+
+{% block content %}
+    {% if messages %}
+    <div class="max-w-md mx-auto mt-4">
+        {% for message in messages %}
+        <div class="p-3 rounded-md text-center 
+            {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Filters -->
+    <div class="max-w-7xl mx-auto bg-white shadow-md rounded-xl p-4 md:p-6 mb-6">
+        <div class="flex flex-wrap gap-4 items-center">
+            <h3 class="text-lg font-semibold text-gray-700">Filters:</h3>
+            
+            <!-- Status Filter -->
+            <div class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-600">Status:</label>
+                <select id="statusFilter" class="border border-gray-300 rounded-md px-3 py-1 text-sm">
+                    <option value="">All</option>
+                    {% for status, label in STATUS_CHOICES %}
+                    <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Priority Filter -->
+            <div class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-600">Priority:</label>
+                <select id="priorityFilter" class="border border-gray-300 rounded-md px-3 py-1 text-sm">
+                    <option value="">All</option>
+                    {% for priority, label in PRIORITY_CHOICES %}
+                    <option value="{{ priority }}" {% if priority_filter == priority %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Category Filter -->
+            <div class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-600">Category:</label>
+                <select id="categoryFilter" class="border border-gray-300 rounded-md px-3 py-1 text-sm">
+                    <option value="">All</option>
+                    {% for category, label in CATEGORY_CHOICES %}
+                    <option value="{{ category }}" {% if category_filter == category %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <button id="applyFilters" class="px-4 py-1 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+                Apply
+            </button>
+        </div>
+        
+        <!-- Counts Display -->
+        <div class="mt-4 flex flex-wrap gap-4 text-sm">
+            <div class="flex items-center space-x-2">
+                <span class="font-medium text-gray-600">Total Tickets:</span>
+                <span class="bg-gray-100 px-2 py-1 rounded">{{ tickets.count }}</span>
+            </div>
+            {% for status_count in status_counts %}
+            <div class="flex items-center space-x-2">
+                <span class="font-medium text-gray-600">{{ status_count.status|title }}:</span>
+                <span class="bg-blue-100 px-2 py-1 rounded text-blue-800">{{ status_count.count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="max-w-7xl mx-auto bg-white shadow-md rounded-xl p-4 md:p-6 overflow-x-auto">
+        <table class="min-w-full border border-gray-200 rounded-xl">
+            <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                    <th class="px-4 py-3 text-left">Ticket ID</th>
+                    <th class="px-4 py-3 text-left">User Details</th>
+                    <th class="px-4 py-3 text-left">Category & Priority</th>
+                    <th class="px-4 py-3 text-left">Description</th>
+                    <th class="px-4 py-3 text-left">Status</th>
+                    <th class="px-4 py-3 text-left">Dates</th>
+                    <th class="px-4 py-3 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr class="border-t hover:bg-gray-50 transition cursor-pointer ticket-row" 
+                    data-ticket-id="{{ ticket.id }}"
+                    data-ticket-data='{
+                        "ticket_id": "{{ ticket.ticket_id }}",
+                        "user_name": "{{ ticket.user.first_name }}",
+                        "user_email": "{{ ticket.user.email }}",
+                        "user_phone": "{{ ticket.user.phone|default:'Not provided' }}",
+                        "category": "{{ ticket.category }}",
+                        "category_display": "{{ ticket.get_category_display }}",
+                        "priority": "{{ ticket.priority }}",
+                        "priority_display": "{{ ticket.get_priority_display }}",
+                        "description": "{{ ticket.description|escapejs }}",
+                        "status": "{{ ticket.status }}",
+                        "status_display": "{{ ticket.get_status_display }}",
+                        "created_at": "{{ ticket.created_at|date:'M d, Y H:i' }}",
+                        "updated_at": "{{ ticket.updated_at|date:'M d, Y H:i' }}",
+                        "resolved_at": "{% if ticket.resolved_at %}{{ ticket.resolved_at|date:'M d, Y H:i' }}{% else %}Not resolved{% endif %}",
+                        "assigned_to": "{% if ticket.assigned_to %}{{ ticket.assigned_to.first_name }}{% else %}Unassigned{% endif %}",
+                        "admin_notes": "{{ ticket.admin_notes|default:'No admin notes'|escapejs }}",
+                        "replacement_leads": {{ ticket.replacement_leads|default:"[]"|escapejs }}
+                    }'>
+                    
+                    <!-- Ticket ID -->
+                    <td class="px-4 py-3">
+                        <div class="font-mono font-medium text-gray-900">{{ ticket.ticket_id }}</div>
+                        {% if ticket.category == 'lead' and ticket.replacement_leads %}
+                        <div class="text-xs text-green-600 font-semibold mt-1">
+                            {{ ticket.replacement_leads|length }} Lead(s) Selected
+                        </div>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- User Details -->
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-900">{{ ticket.user.first_name }}</div>
+                        <div class="text-sm text-gray-500">{{ ticket.user.email }}</div>
+                        <div class="text-xs text-gray-400">{{ ticket.user.phone|default:"No phone" }}</div>
+                    </td>
+                    
+                    <!-- Category & Priority -->
+                    <td class="px-4 py-3">
+                        <div class="mb-1">
+                            <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                                {{ ticket.get_category_display }}
+                            </span>
+                        </div>
+                        <div>
+                            {% if ticket.priority == 'high' %}
+                                <span class="inline-block px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">
+                                    {{ ticket.get_priority_display }}
+                                </span>
+                            {% elif ticket.priority == 'medium' %}
+                                <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
+                                    {{ ticket.get_priority_display }}
+                                </span>
+                            {% else %}
+                                <span class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                                    {{ ticket.get_priority_display }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    
+                    <!-- Description -->
+                    <td class="px-4 py-3">
+                        <div class="text-sm text-gray-900 line-clamp-2">{{ ticket.description|truncatewords:15 }}</div>
+                        {% if ticket.category == 'lead' and ticket.replacement_leads %}
+                        <div class="text-xs text-gray-600 mt-1">
+                            <i>Includes lead replacement request</i>
+                        </div>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- Status -->
+                    <td class="px-4 py-3">
+                        {% if ticket.status == 'open' %}
+                            <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                                {{ ticket.get_status_display }}
+                            </span>
+                        {% elif ticket.status == 'in_progress' %}
+                            <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
+                                {{ ticket.get_status_display }}
+                            </span>
+                        {% elif ticket.status == 'resolved' %}
+                            <span class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                                {{ ticket.get_status_display }}
+                            </span>
+                        {% else %}
+                            <span class="inline-block px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">
+                                {{ ticket.get_status_display }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- Dates -->
+                    <td class="px-4 py-3">
+                        <div class="text-xs text-gray-500">Created: {{ ticket.created_at|date:"M d, Y" }}</div>
+                        <div class="text-xs text-gray-500">Updated: {{ ticket.updated_at|date:"M d, Y" }}</div>
+                    </td>
+                    
+                    <!-- Actions -->
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex flex-col space-y-1">
+                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs font-semibold transition-colors view-ticket-btn">
+                                View
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="px-4 py-4 text-center text-gray-500">No tickets found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Ticket Details Modal -->
+    <div id="ticketModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900" id="modal-ticket-id">Ticket Details</h3>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <span id="modal-priority" class="text-xs font-semibold px-2 py-1 rounded-full"></span>
+                        <span id="modal-category" class="text-xs font-semibold px-2 py-1 rounded-full"></span>
+                    </div>
+                </div>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- User Information -->
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">User Information</h4>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Name:</span>
+                                <span class="text-sm text-gray-900" id="modal-user-name">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Email:</span>
+                                <span class="text-sm text-gray-900" id="modal-user-email">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Phone:</span>
+                                <span class="text-sm text-gray-900" id="modal-user-phone">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ticket Information -->
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Ticket Information</h4>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Category:</span>
+                                <span class="text-sm text-gray-900" id="modal-category-display">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Priority:</span>
+                                <span class="text-sm font-semibold" id="modal-priority-display">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Assigned To:</span>
+                                <span class="text-sm text-gray-900" id="modal-assigned-to">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="space-y-4 md:col-span-2">
+                        <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Description</h4>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-700 whitespace-pre-line" id="modal-description">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Selected Leads for Replacement (Only for Lead Replacement category) -->
+                    <div class="space-y-4 md:col-span-2 hidden" id="leadsReplacementSection">
+                        <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Selected Leads for Replacement</h4>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <div id="selectedLeadsList" class="space-y-2">
+                                <!-- Leads will be dynamically inserted here -->
+                            </div>
+                            <div id="noLeadsMessage" class="text-sm text-gray-500 text-center py-2">
+                                No leads selected for replacement
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Update -->
+                    <div class="space-y-4 md:col-span-2">
+                        <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Update Status</h4>
+                        
+                        <form id="statusUpdateForm" method="post">
+                            {% csrf_token %}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <select name="status" id="status" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                        {% for status, label in STATUS_CHOICES %}
+                                        <option value="{{ status }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="admin_notes" class="block text-sm font-medium text-gray-700 mb-1">Admin Notes</label>
+                                    <textarea name="admin_notes" id="admin_notes" rows="3" 
+                                              class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" 
+                                              placeholder="Add any notes or comments..."></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="space-y-4 md:col-span-2">
+                        <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Timeline</h4>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Created:</span>
+                                <span class="text-sm text-gray-900" id="modal-created-at">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Last Updated:</span>
+                                <span class="text-sm text-gray-900" id="modal-updated-at">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Resolved:</span>
+                                <span class="text-sm text-gray-900" id="modal-resolved-at">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Notes -->
+                    <div class="space-y-4 md:col-span-2">
+                        <h4 class="text-lg font-semibold text-gray-900 border-b pb-2">Admin Notes</h4>
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-700 whitespace-pre-line" id="modal-admin-notes">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="flex justify-end space-x-3 p-6 border-t border-gray-200">
+                <button id="closeModalBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    Close
+                </button>
+                <button id="updateStatusBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                    Update Status
+                </button>
+            </div>
+        </div>
+    </div>
+
+<style>
+    .ticket-row:hover {
+        background-color: #f9fafb;
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+    
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .lead-badge {
+        background: #d1fae5;
+        border: 1px solid #a7f3d0;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin: 2px;
+        display: inline-block;
+        font-size: 11px;
+        color: #065f46;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('ticketModal');
+        const closeModal = document.getElementById('closeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const updateStatusBtn = document.getElementById('updateStatusBtn');
+        const statusUpdateForm = document.getElementById('statusUpdateForm');
+        const ticketRows = document.querySelectorAll('.ticket-row');
+        const viewTicketBtns = document.querySelectorAll('.view-ticket-btn');
+        const applyFiltersBtn = document.getElementById('applyFilters');
+        const leadsReplacementSection = document.getElementById('leadsReplacementSection');
+        const selectedLeadsList = document.getElementById('selectedLeadsList');
+        const noLeadsMessage = document.getElementById('noLeadsMessage');
+        
+        let currentTicketId = null;
+        
+        // Function to display selected leads
+        function displaySelectedLeads(leadsData) {
+            selectedLeadsList.innerHTML = '';
+            
+            if (!leadsData || leadsData.length === 0) {
+                noLeadsMessage.classList.remove('hidden');
+                leadsReplacementSection.classList.add('hidden');
+                return;
+            }
+            
+            noLeadsMessage.classList.add('hidden');
+            leadsReplacementSection.classList.remove('hidden');
+            
+            leadsData.forEach(leadId => {
+                // Create a simple display for lead IDs
+                // In a real scenario, you might want to fetch lead details from server
+                const leadElement = document.createElement('div');
+                leadElement.className = 'lead-badge';
+                leadElement.textContent = `Lead ID: ${leadId}`;
+                selectedLeadsList.appendChild(leadElement);
+            });
+        }
+        
+        // Function to open modal with ticket data
+        function openTicketModal(ticketData) {
+            currentTicketId = ticketData.ticketId;
+            
+            // Set modal header
+            document.getElementById('modal-ticket-id').textContent = ticketData.ticket_id;
+            
+            // Set priority badge
+            const priorityBadge = document.getElementById('modal-priority');
+            priorityBadge.textContent = ticketData.priority_display;
+            priorityBadge.className = 'text-xs font-semibold px-2 py-1 rounded-full ' +
+                (ticketData.priority === 'high' ? 'bg-red-100 text-red-800' :
+                 ticketData.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                 'bg-green-100 text-green-800');
+            
+            // Set category badge
+            const categoryBadge = document.getElementById('modal-category');
+            categoryBadge.textContent = ticketData.category_display;
+            categoryBadge.className = 'text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-800';
+            
+            // User Information
+            document.getElementById('modal-user-name').textContent = ticketData.user_name;
+            document.getElementById('modal-user-email').textContent = ticketData.user_email;
+            document.getElementById('modal-user-phone').textContent = ticketData.user_phone;
+            
+            // Ticket Information
+            document.getElementById('modal-category-display').textContent = ticketData.category_display;
+            document.getElementById('modal-priority-display').textContent = ticketData.priority_display;
+            document.getElementById('modal-assigned-to').textContent = ticketData.assigned_to;
+            
+            // Description
+            document.getElementById('modal-description').textContent = ticketData.description;
+            
+            // Show/hide leads replacement section based on category
+            if (ticketData.category === 'lead' && ticketData.replacement_leads) {
+                displaySelectedLeads(ticketData.replacement_leads);
+            } else {
+                leadsReplacementSection.classList.add('hidden');
+            }
+            
+            // Status form
+            document.getElementById('status').value = ticketData.status;
+            document.getElementById('admin_notes').value = ticketData.admin_notes || '';
+            
+            // Set form action
+            statusUpdateForm.action = `/central-admin/tickets/update-status/${currentTicketId}/`;
+            
+            // Timeline
+            document.getElementById('modal-created-at').textContent = ticketData.created_at;
+            document.getElementById('modal-updated-at').textContent = ticketData.updated_at;
+            document.getElementById('modal-resolved-at').textContent = ticketData.resolved_at;
+            
+            // Admin Notes
+            document.getElementById('modal-admin-notes').textContent = ticketData.admin_notes || 'No admin notes yet';
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Add click event to all ticket rows
+        ticketRows.forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Don't open modal if clicking on action buttons
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                    return;
+                }
+                
+                const ticketData = JSON.parse(this.getAttribute('data-ticket-data'));
+                ticketData.ticketId = this.getAttribute('data-ticket-id');
+                openTicketModal(ticketData);
+            });
+        });
+        
+        // Add click event to view buttons
+        viewTicketBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const row = this.closest('.ticket-row');
+                const ticketData = JSON.parse(row.getAttribute('data-ticket-data'));
+                ticketData.ticketId = row.getAttribute('data-ticket-id');
+                openTicketModal(ticketData);
+            });
+        });
+        
+        // Update status button
+        updateStatusBtn.addEventListener('click', function() {
+            statusUpdateForm.submit();
+        });
+        
+        // Close modal functions
+        function closeTicketModal() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentTicketId = null;
+        }
+        
+        closeModal.addEventListener('click', closeTicketModal);
+        closeModalBtn.addEventListener('click', closeTicketModal);
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeTicketModal();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeTicketModal();
+            }
+        });
+        
+        // Filter functionality
+        applyFiltersBtn.addEventListener('click', function() {
+            const status = document.getElementById('statusFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            let url = '{% url "central_admin:all_tickets" %}?';
+            const params = [];
+            
+            if (status) params.push(`status=${status}`);
+            if (priority) params.push(`priority=${priority}`);
+            if (category) params.push(`category=${category}`);
+            
+            window.location.href = url + params.join('&');
+        });
+    });
+</script>
+{% endblock %} {% endcomment %}
+
+
+
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
 {% block title %}All Tickets{% endblock %}
 {% block page_title %}All Tickets{% endblock %}
 {% block page_subtitle %}Manage all support tickets{% endblock %}
@@ -495,4 +1819,4 @@
         });
     });
 </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

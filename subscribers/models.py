@@ -53,6 +53,7 @@ class Ticket(models.Model):
         related_name='assigned_tickets'
     )
     admin_notes = models.TextField(blank=True, null=True)
+    replacement_leads = models.JSONField(blank=True, null=True) 
     
     def save(self, *args, **kwargs):
         if not self.ticket_id:

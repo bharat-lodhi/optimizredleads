@@ -51,7 +51,10 @@ urlpatterns = [
     path('upload-leads/<str:category>/', views.upload_leads, name='upload_leads'),
     path('contact-leads/', views.contact_leads_list, name='contact_leads_list'),
     #------------------------------tickets------------------------------------------
+    # Tickets URLs
     path('tickets/', views.all_tickets, name='all_tickets'),
+    path('tickets/<int:ticket_id>/', views.ticket_detail, name='ticket_detail'),
     path('tickets/update-status/<int:ticket_id>/', views.update_ticket_status, name='update_ticket_status'),
+
 ]
 
