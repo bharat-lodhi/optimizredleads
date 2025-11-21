@@ -55,5 +55,21 @@ urlpatterns = [
     path('tickets/', views.all_tickets, name='all_tickets'),
     path('tickets/<int:ticket_id>/', views.ticket_detail, name='ticket_detail'),
     path('tickets/update-status/<int:ticket_id>/', views.update_ticket_status, name='update_ticket_status'),
+    
+    # -------------------------- Lead Replacement --------------------------------------------
+    # path('lead-replacement/', views.lead_replacement_page, name='lead_replacement'),
+    # path('get-user-leads/', views.get_user_leads, name='get_user_leads'),
+    # path('get-available-leads/', views.get_available_leads, name='get_available_leads'), 
+    # path('replace-lead/', views.replace_lead, name='replace_lead'),
+    # path('replacement-history/', views.replacement_history, name='replacement_history'),
+    # path('get-subscriber-info/', views.get_subscriber_info, name='get_subscriber_info'),
+    
+    
+    # Lead Replacement System
+    path('lead-replacement/', views.lead_replacement_start, name='lead_replacement_start'),
+    path('lead-replacement/<int:user_id>/', views.lead_replacement_select_lead, name='lead_replacement_select_lead'),
+    path('lead-replacement/<int:user_id>/select-new/', views.lead_replacement_select_new_lead, name='lead_replacement_select_new_lead'),
+    path('lead-replacement/confirm/', views.lead_replacement_confirm, name='lead_replacement_confirm'),
+    path('replacement-history/<int:user_id>/', views.replacement_history, name='replacement_history'),
 ]
 

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect ,get_object_or_404
 from .models import Product
 from django.contrib import messages
 from django.contrib.auth import logout
-from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, LeadAssignmentLog,ForexTrade,LeadStatusHistory,LeadRemarkHistory
+from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, LeadAssignmentLog,ForexTrade,LeadStatusHistory,LeadRemarkHistory,LeadReplacementHistory
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 User = get_user_model()
@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.db.models import Count, Q
 from subscribers.models import Ticket
 from optimizedleads.send_mail import leadassign_mail
-
+from django.http import JsonResponse
 
 import openpyxl
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -186,94 +186,6 @@ def categories(request):
 
 
 
-# def real_estate(request):
-#     if request.method == 'POST':
-#         selected_leads = request.POST.getlist('leads')
-#         assigned_user_id = request.POST.get('assigned_to')
-#         remarks = request.POST.get('remarks', '')
-
-#         if not selected_leads or not assigned_user_id:
-#             messages.error(request, "Please select leads and a user to assign.")
-#             return redirect('central_admin:real_estate')
-
-#         try:
-#             assigned_user = User.objects.get(id=assigned_user_id)
-#         except User.DoesNotExist:
-#             messages.error(request, "Selected user does not exist.")
-#             return redirect('central_admin:real_estate')
-
-#         assigned_count = 0
-#         already_assigned_count = 0
-#         skipped_leads = []
-
-#         for lead_id in selected_leads:
-#             lead = RealEstateLead.objects.filter(id=lead_id).first()
-#             if lead:
-#                 # ✅ CHECK: Agar lead already isi user ko assigned hai
-#                 if lead.assigned_to == assigned_user:
-#                     already_assigned_count += 1
-#                     skipped_leads.append(lead.full_name or f"Lead #{lead.id}")
-#                     continue
-                
-#                 # ✅ CHECK: Agar lead pehle kabhi isi user ko assign hui hai
-#                 previously_assigned = LeadAssignmentLog.objects.filter(
-#                     lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
-#                     lead_object_id=lead.id,
-#                     assigned_to=assigned_user
-#                 ).exists()
-                
-#                 if previously_assigned:
-#                     already_assigned_count += 1
-#                     skipped_leads.append(lead.full_name or f"Lead #{lead.id}")
-#                     continue
-
-#                 # ✅ Nahi toh assign karo
-#                 lead.assigned_to = assigned_user
-#                 lead.save()
-
-#                 # Log assignment
-#                 LeadAssignmentLog.objects.create(
-#                     lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
-#                     lead_object_id=lead.id,
-#                     assigned_to=assigned_user,
-#                     assigned_by=request.user,
-#                     status_at_assignment=lead.status,
-#                     notes=remarks
-#                 )
-#                 assigned_count += 1
-                
-#         # Success message with details
-#         if assigned_count > 0:
-#             messages.success(request, f"{assigned_count} leads assigned to {assigned_user.username} successfully!")
-        
-#         if already_assigned_count > 0:
-#             skipped_names = ", ".join(skipped_leads[:5])  # Show first 5 skipped leads
-#             if len(skipped_leads) > 5:
-#                 skipped_names += f" and {len(skipped_leads) - 5} more"
-#             messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped: {skipped_names}")
-
-#         leadassign_mail(assigned_user.email)
-#         return redirect('central_admin:real_estate')
-    
-#     # GET request -> show all leads (assigned or unassigned)
-#     leads = RealEstateLead.objects.all().order_by('-created_at')
-#     users = User.objects.filter(industry='real-estate')
-
-#     user_name = request.session.get('user_name')
-#     user_email = request.session.get('user_email')
-#     user_role = request.session.get('user_role')
-#     short_name = user_name[:2].upper() if user_name else ""
-
-#     context = {
-#         'name': user_name,
-#         'email': user_email,
-#         'role': user_role,
-#         'short_name': short_name,
-#         'leads': leads,
-#         'users': users,
-#     }
-#     return render(request, "central_admin/real_estate.html", context)
-
 def real_estate(request):
     if request.method == 'POST':
         selected_leads = request.POST.getlist('leads')
@@ -372,80 +284,8 @@ def real_estate(request):
     return render(request, "central_admin/real_estate.html", context)
 
 
-from django.http import JsonResponse
-from django.contrib.contenttypes.models import ContentType
 
 
-        
-# def lead_history(request, lead_id):
-#     try:
-#         lead = RealEstateLead.objects.get(id=lead_id)
-        
-#         # Get all histories directly
-#         assignment_history = LeadAssignmentLog.objects.filter(
-#             lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
-#             lead_object_id=lead_id
-#         ).order_by('-assigned_at')
-        
-#         status_history = LeadStatusHistory.objects.filter(
-#             lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
-#             lead_object_id=lead_id
-#         ).order_by('-created_at')
-        
-#         remark_history = LeadRemarkHistory.objects.filter(
-#             lead_content_type=ContentType.objects.get_for_model(RealEstateLead),
-#             lead_object_id=lead_id
-#         ).order_by('-created_at')
-        
-#         # Combine all histories for timeline
-#         all_histories = []
-        
-#         for assignment in assignment_history:
-#             all_histories.append({
-#                 'type': 'assignment',
-#                 'timestamp': assignment.assigned_at,
-#                 'assignment': assignment
-#             })
-        
-#         for status in status_history:
-#             all_histories.append({
-#                 'type': 'status_change', 
-#                 'timestamp': status.created_at,
-#                 'status': status
-#             })
-        
-#         for remark in remark_history:
-#             all_histories.append({
-#                 'type': 'remark',
-#                 'timestamp': remark.created_at,
-#                 'remark': remark
-#             })
-        
-#         # Sort by timestamp
-#         all_histories.sort(key=lambda x: x['timestamp'], reverse=True)
-
-#         user_name = request.session.get('user_name')
-#         user_email = request.session.get('user_email')
-#         user_role = request.session.get('user_role')
-#         short_name = user_name[:2].upper() if user_name else ""
-
-#         context = {
-#             'name': user_name,
-#             'email': user_email,
-#             'role': user_role,
-#             'short_name': short_name,
-#             'lead': lead,
-#             'assignment_history': assignment_history,
-#             'status_history': status_history,
-#             'remark_history': remark_history,
-#             'timeline_history': all_histories,
-#         }
-#         return render(request, "central_admin/lead_history.html", context)
-        
-#     except RealEstateLead.DoesNotExist:
-#         messages.error(request, "Lead not found.")
-#         return redirect('central_admin:real_estate')
-    
    
 def lead_history(request, lead_id):
     try:
@@ -616,90 +456,6 @@ def delete_real_estate(request, lead_id):
     # If not POST, show confirmation page or handle differently
     return redirect('central_admin:real_estate')
 
-
-
-from django.contrib.contenttypes.models import ContentType
-
-
-
-# def online_mba(request):
-#     if request.method == 'POST':
-#         selected_leads = request.POST.getlist('leads')
-#         assigned_user_id = request.POST.get('assigned_to')
-#         remarks = request.POST.get('remarks', '')
-
-#         if not selected_leads or not assigned_user_id:
-#             messages.error(request, "Please select leads and a user to assign.")
-#             return redirect('central_admin:online_mba')
-
-#         try:
-#             assigned_user = User.objects.get(id=assigned_user_id)
-#         except User.DoesNotExist:
-#             messages.error(request, "Selected user does not exist.")
-#             return redirect('central_admin:online_mba')
-
-#         assigned_count = 0
-#         already_assigned_count = 0
-#         skipped_leads = []
-
-#         for lead_id in selected_leads:
-#             lead = OnlineMBA.objects.filter(id=lead_id).first()
-#             if lead:
-#                 # ✅ CHECK: Agar lead already isi user ko assigned hai
-#                 if lead.assigned_to == assigned_user:
-#                     already_assigned_count += 1
-#                     skipped_leads.append(lead.full_name or f"Lead #{lead.id}")
-#                     continue
-                
-#                 # ✅ CHECK: Agar lead pehle kabhi isi user ko assign hui hai
-#                 previously_assigned = LeadAssignmentLog.objects.filter(
-#                     lead_content_type=ContentType.objects.get_for_model(OnlineMBA),
-#                     lead_object_id=lead.id,
-#                     assigned_to=assigned_user
-#                 ).exists()
-                
-#                 if previously_assigned:
-#                     already_assigned_count += 1
-#                     skipped_leads.append(lead.full_name or f"Lead #{lead.id}")
-#                     continue
-
-#                 # ✅ Nahi toh assign karo
-#                 lead.assigned_to = assigned_user
-#                 lead.save()
-
-#                 # Log assignment
-#                 LeadAssignmentLog.objects.create(
-#                     lead_content_type=ContentType.objects.get_for_model(OnlineMBA),
-#                     lead_object_id=lead.id,
-#                     assigned_to=assigned_user,
-#                     assigned_by=request.user,
-#                     status_at_assignment=lead.status,
-#                     notes=remarks
-#                 )
-#                 assigned_count += 1
-                
-#         # Success message with details
-#         if assigned_count > 0:
-#             messages.success(request, f"{assigned_count} leads assigned to {assigned_user.username} successfully!")
-        
-#         if already_assigned_count > 0:
-#             skipped_names = ", ".join(skipped_leads[:5])  # Show first 5 skipped leads
-#             if len(skipped_leads) > 5:
-#                 skipped_names += f" and {len(skipped_leads) - 5} more"
-#             messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped: {skipped_names}")
-
-#         leadassign_mail(assigned_user.email)
-#         return redirect('central_admin:online_mba')
-
-#     # GET request -> show all leads (assigned or unassigned)
-#     leads = OnlineMBA.objects.all().order_by('-created_at')
-#     users = User.objects.filter(industry='education')
-
-#     context = {
-#         'leads': leads,
-#         'users': users,
-#     }
-#     return render(request, "central_admin/online_mba.html", context)
 
 
 def online_mba(request):
@@ -904,86 +660,6 @@ def delete_online_mba(request, lead_id):
     messages.success(request, "Online MBA lead deleted successfully!")
     return redirect('central_admin:online_mba')
 
-
-# def study_abroad(request):
-#     if request.method == 'POST':
-#         selected_leads = request.POST.getlist('leads')
-#         assigned_user_id = request.POST.get('assigned_to')
-#         remarks = request.POST.get('remarks', '')
-
-#         if not selected_leads or not assigned_user_id:
-#             messages.error(request, "Please select leads and a user to assign.")
-#             return redirect('central_admin:study_abroad')
-
-#         try:
-#             assigned_user = User.objects.get(id=assigned_user_id)
-#         except User.DoesNotExist:
-#             messages.error(request, "Selected user does not exist.")
-#             return redirect('central_admin:study_abroad')
-
-#         assigned_count = 0
-#         already_assigned_count = 0
-        
-#         # ✅ SPEED OPTIMIZATION: Ek baar mein sab leads fetch karo
-#         lead_ids = [int(lead_id) for lead_id in selected_leads]
-#         leads = StudyAbroad.objects.filter(id__in=lead_ids)
-        
-#         # ✅ SPEED OPTIMIZATION: Pehle se assigned leads ki list bana lo
-#         already_assigned_leads = leads.filter(assigned_to=assigned_user)
-#         already_assigned_count = already_assigned_leads.count()
-        
-#         # ✅ SPEED OPTIMIZATION: Naye leads assign karo
-#         new_leads = leads.exclude(assigned_to=assigned_user)
-        
-#         # ✅ BULK UPDATE for assignment
-#         if new_leads.exists():
-#             new_leads.update(assigned_to=assigned_user)
-#             assigned_count = new_leads.count()
-            
-#             # ✅ BULK CREATE assignment logs
-#             content_type = ContentType.objects.get_for_model(StudyAbroad)
-#             assignment_logs = []
-#             for lead in new_leads:
-#                 assignment_logs.append(
-#                     LeadAssignmentLog(
-#                         lead_content_type=content_type,
-#                         lead_object_id=lead.id,
-#                         assigned_to=assigned_user,
-#                         assigned_by=request.user,
-#                         status_at_assignment=lead.status,
-#                         notes=remarks
-#                     )
-#                 )
-#             LeadAssignmentLog.objects.bulk_create(assignment_logs)
-
-#         # Success message with details
-#         if assigned_count > 0:
-#             messages.success(request, f"{assigned_count} leads assigned to {assigned_user.username} successfully!")
-        
-#         if already_assigned_count > 0:
-#             messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped.")
-
-#         leadassign_mail(assigned_user.email)
-#         return redirect('central_admin:study_abroad')
-
-#     # GET request -> show all leads (assigned or unassigned)
-#     leads = StudyAbroad.objects.all().order_by('-created_at')
-#     users = User.objects.filter(industry='study-abroad')
-
-#     user_name = request.session.get('user_name')
-#     user_email = request.session.get('user_email')
-#     user_role = request.session.get('user_role')
-#     short_name = user_name[:2].upper() if user_name else ""
-
-#     context = {
-#         'name': user_name,
-#         'email': user_email,
-#         'role': user_role,
-#         'short_name': short_name,
-#         'leads': leads,
-#         'users': users,
-#     }
-#     return render(request, "central_admin/study_abroad.html", context)
 
 
 def study_abroad(request):
@@ -1300,80 +976,6 @@ def delete_forex_trade(request, lead_id):
 from django.contrib.contenttypes.models import ContentType
 
 
-# def forex_trade(request):
-#     if request.method == 'POST':
-#         selected_leads = request.POST.getlist('leads')
-#         assigned_user_id = request.POST.get('assigned_to')
-#         remarks = request.POST.get('remarks', '')
-
-#         if not selected_leads or not assigned_user_id:
-#             messages.error(request, "Please select leads and a user to assign.")
-#             return redirect('central_admin:forex_trade')
-
-#         try:
-#             assigned_user = User.objects.get(id=assigned_user_id)
-#         except User.DoesNotExist:
-#             messages.error(request, "Selected user does not exist.")
-#             return redirect('central_admin:forex_trade')
-
-#         # ✅ SPEED OPTIMIZATION: Direct bulk operations
-#         lead_ids = [int(lead_id) for lead_id in selected_leads]
-        
-#         # Get leads that are NOT already assigned to this user
-#         leads_to_assign = ForexTrade.objects.filter(
-#             id__in=lead_ids
-#         ).exclude(
-#             assigned_to=assigned_user
-#         )
-        
-#         assigned_count = leads_to_assign.count()
-#         already_assigned_count = len(selected_leads) - assigned_count
-        
-#         if assigned_count > 0:
-#             # ✅ BULK UPDATE assignment
-#             leads_to_assign.update(assigned_to=assigned_user)
-            
-#             # ✅ BULK CREATE logs
-#             content_type = ContentType.objects.get_for_model(ForexTrade)
-#             logs = [
-#                 LeadAssignmentLog(
-#                     lead_content_type=content_type,
-#                     lead_object_id=lead.id,
-#                     assigned_to=assigned_user,
-#                     assigned_by=request.user,
-#                     status_at_assignment=lead.status,
-#                     notes=remarks
-#                 ) for lead in leads_to_assign
-#             ]
-#             LeadAssignmentLog.objects.bulk_create(logs)
-            
-#             messages.success(request, f"{assigned_count} Forex Trade leads assigned to {assigned_user.username} successfully!")
-        
-#         if already_assigned_count > 0:
-#             messages.warning(request, f"{already_assigned_count} leads were already assigned to {assigned_user.username} and skipped.")
-
-#         leadassign_mail(assigned_user.email)
-#         return redirect('central_admin:forex_trade')
-    
-#     # GET request -> show all leads (assigned or unassigned)
-#     leads = ForexTrade.objects.all().order_by('-created_at')
-#     users = User.objects.filter(industry='trading') 
-
-#     user_name = request.session.get('user_name')
-#     user_email = request.session.get('user_email')
-#     user_role = request.session.get('user_role')
-#     short_name = user_name[:2].upper() if user_name else ""
-
-#     context = {
-#         'leads': leads,
-#         'users': users,
-#         'name': user_name,
-#         'email': user_email,
-#         'role': user_role,
-#         'short_name': short_name,
-#     }
-#     return render(request, "central_admin/forex_trade.html", context)
-
 def forex_trade(request):
     if request.method == 'POST':
         selected_leads = request.POST.getlist('leads')
@@ -1483,8 +1085,6 @@ def get_assignment_history_forex_trade(request, lead_id):
 
 # ---------------------------------------------------------------------------------------
 
-
-from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 User = get_user_model()
@@ -1493,52 +1093,6 @@ User = get_user_model()
 def is_central_admin(user):
     return user.is_authenticated and user.role == 'central_admin'
 
-
-
-# @login_required
-# @user_passes_test(is_central_admin)
-# def users_list(request):
-#     users = User.objects.all().order_by('-date_joined')
-    
-#     # ✅ Get assigned leads count for each user from ALL TIME (assignment history)
-#     from django.contrib.contenttypes.models import ContentType
-    
-#     user_leads_data = {}
-    
-#     for user in users:
-#         # LeadAssignmentLog se TOTAL assigned leads count (all time)
-#         assigned_logs = LeadAssignmentLog.objects.filter(assigned_to=user)
-        
-#         # Unique leads count using phone+email combination (all time assignments)
-#         unique_leads = set()
-#         for log in assigned_logs:
-#             lead = log.lead
-#             if lead:
-#                 identifier = f"{getattr(lead, 'phone_number', '')}-{getattr(lead, 'email', '')}"
-#                 if identifier:
-#                     unique_leads.add(identifier)
-        
-#         user_leads_data[user.id] = len(unique_leads)
-
-#     # ✅ Add leads count to each user object
-#     for user in users:
-#         user.assigned_leads_count = user_leads_data.get(user.id, 0)
-
-#     user_name = request.session.get('user_name')
-#     user_email = request.session.get('user_email')
-#     user_role = request.session.get('user_role')
-#     short_name = user_name[:2].upper() if user_name else ""
-
-#     context = {
-#         'name': user_name,
-#         'email': user_email,
-#         'role': user_role,
-#         'short_name': short_name,
-#         'users': users,
-#         'user_leads_count': user_leads_data,
-#     }
-    
-#     return render(request, 'central_admin/users_list.html', context)
 
 @login_required
 @user_passes_test(is_central_admin)
@@ -1737,138 +1291,6 @@ def edit_user(request, user_id):
     return render(request, 'central_admin/edit_user.html', context)
 
 
-
-# @login_required
-# @user_passes_test(is_central_admin)
-# def edit_user(request, user_id):
-#     user = get_object_or_404(User, id=user_id)
-
-#     # Pass choices to template
-#     role_choices = User.ROLE_CHOICES
-#     plan_choices = User.PLAN_CHOICES
-#     status_choices = [
-#         ('active', 'Active'),
-#         ('inactive', 'Inactive'),
-#         ('expired', 'Expired'),
-#     ]
-
-#     if request.method == 'POST':
-#         # Update basic user information
-#         user.first_name = request.POST.get('first_name')
-#         user.last_name = request.POST.get('last_name')
-#         user.email = request.POST.get('email')
-#         user.username = request.POST.get('email')
-#         user.role = request.POST.get('role')
-#         user.plan_type = request.POST.get('plan_type')
-#         user.plan_status = request.POST.get('plan_status')
-#         user.credit_limit = request.POST.get('credit_limit') or 0
-#         user.is_verified = bool(request.POST.get('is_verified'))
-        
-#         # Handle password change
-#         new_password = request.POST.get('new_password')
-#         confirm_password = request.POST.get('confirm_password')
-        
-#         if new_password:
-#             if new_password == confirm_password:
-#                 if len(new_password) >= 8:  # Basic password strength check
-#                     user.set_password(new_password)
-#                     messages.success(request, "User details and password updated successfully!")
-#                 else:
-#                     messages.error(request, "Password must be at least 8 characters long.")
-#                     return render(request, 'central_admin/edit_user.html', {
-#                         'user': user,
-#                         'role_choices': role_choices,
-#                         'plan_choices': plan_choices,
-#                         'status_choices': status_choices,
-#                         'name': request.session.get('user_name'),
-#                         'email': request.session.get('user_email'),
-#                         'role': request.session.get('user_role'),
-#                         'short_name': request.session.get('user_name')[:2].upper() if request.session.get('user_name') else "",
-#                     })
-#             else:
-#                 messages.error(request, "Passwords do not match.")
-#                 return render(request, 'central_admin/edit_user.html', {
-#                     'user': user,
-#                     'role_choices': role_choices,
-#                     'plan_choices': plan_choices,
-#                     'status_choices': status_choices,
-#                     'name': request.session.get('user_name'),
-#                     'email': request.session.get('user_email'),
-#                     'role': request.session.get('user_role'),
-#                     'short_name': request.session.get('user_name')[:2].upper() if request.session.get('user_name') else "",
-#                 })
-#         else:
-#             messages.success(request, "User details updated successfully!")
-        
-#         user.save()
-#         return redirect('central_admin:users_list')
-    
-#     user_name = request.session.get('user_name')
-#     user_email = request.session.get('user_email')
-#     user_role = request.session.get('user_role')
-#     short_name = user_name[:2].upper() if user_name else ""
-
-#     context = {
-#         'name': user_name,
-#         'email': user_email,
-#         'role': user_role,
-#         'short_name': short_name,
-#         'user': user,
-#         'role_choices': role_choices,
-#         'plan_choices': plan_choices,
-#         'status_choices': status_choices,
-#     }
-#     return render(request, 'central_admin/edit_user.html', context)
-
-
-
-
-
-# @login_required
-# @user_passes_test(is_central_admin)
-# def edit_user(request, user_id):
-#     user = get_object_or_404(User, id=user_id)
-
-#     # Pass choices to template
-#     role_choices = User.ROLE_CHOICES
-#     plan_choices = User.PLAN_CHOICES
-#     status_choices = [
-#         ('active', 'Active'),
-#         ('inactive', 'Inactive'),
-#         ('expired', 'Expired'),
-#     ]
-
-#     if request.method == 'POST':
-#         user.first_name = request.POST.get('first_name')
-#         user.last_name = request.POST.get('last_name')
-#         user.email = request.POST.get('email')
-#         user.role = request.POST.get('role')
-#         user.plan_type = request.POST.get('plan_type')
-#         user.plan_status = request.POST.get('plan_status')
-#         user.credit_limit = request.POST.get('credit_limit') or 0
-#         user.is_verified = bool(request.POST.get('is_verified'))
-#         user.save()
-#         messages.success(request, "User details updated successfully!")
-#         return redirect('central_admin:users_list')
-    
-#     user_name = request.session.get('user_name')
-#     user_email = request.session.get('user_email')
-#     user_role = request.session.get('user_role')
-#     short_name = user_name[:2].upper() if user_name else ""
-
-#     context = {
-#         'name': user_name,
-#         'email': user_email,
-#         'role': user_role,
-#         'short_name':short_name,
-#         'user': user,
-#         'role_choices': role_choices,
-#         'plan_choices': plan_choices,
-#         'status_choices': status_choices,
-        
-#     }
-#     return render(request, 'central_admin/edit_user.html', context)
-
 # ---------------------------------------Leads Upload---------------------------------------
 
 
@@ -1948,57 +1370,6 @@ def upload_leads(request, category):
     return render(request, 'central_admin/upload_leads.html', {'category': category})
 
 
-
-# @login_required
-# @user_passes_test(is_central_admin)
-# def upload_leads(request, category):
-#     model_map = {
-#         'real_estate': RealEstateLead,
-#         'online_mba': OnlineMBA,
-#         'study_abroad': StudyAbroad,
-#     }
-
-#     if category not in model_map:
-#         messages.error(request, "Invalid category.")
-#         return redirect('/central-admin/')
-
-#     Model = model_map[category]
-
-#     if request.method == 'POST' and request.FILES.get('excel_file'):
-#         excel_file = request.FILES['excel_file']
-
-#         # Check file type
-#         if not excel_file.name.endswith('.xlsx'):
-#             messages.error(request, "Please upload a valid .xlsx file")
-#             return redirect(request.path)
-
-#         # Load workbook
-#         wb = openpyxl.load_workbook(excel_file)
-#         sheet = wb.active
-
-#         # Get headers
-#         headers = [cell.value for cell in sheet[1]]
-
-#         created_count = 0
-#         skipped_count = 0
-
-#         # Iterate rows
-#         for row in sheet.iter_rows(min_row=2, values_only=True):
-#             data = dict(zip(headers, row))
-#             # Clean field keys to match model
-#             data = {k.strip().lower().replace(" ", "_"): v for k, v in data.items() if v is not None}
-
-#             try:
-#                 obj = Model.objects.create(**{k: v for k, v in data.items() if k in [f.name for f in Model._meta.fields]})
-#                 created_count += 1
-#             except Exception as e:
-#                 skipped_count += 1
-#                 print("Skipped:", e)
-
-#         messages.success(request, f"{created_count} leads uploaded, {skipped_count} skipped.")
-#         return redirect(request.path)
-
-#     return render(request, 'central_admin/upload_leads.html', {'category': category})
 
 # ------------------------------------------------------------------------------------------
 
@@ -2169,157 +1540,1414 @@ def update_ticket_status(request, ticket_id):
     
     return redirect('central_admin:ticket_detail', ticket_id=ticket_id)
 
-# def all_tickets(request):
-#     # Get filter parameters
-#     status_filter = request.GET.get('status', '')
-#     priority_filter = request.GET.get('priority', '')
-#     category_filter = request.GET.get('category', '')
 
-    
-#     # Start with all tickets
-#     tickets = Ticket.objects.select_related('user', 'assigned_to').all()
-    
-#     # Apply filters
-#     if status_filter:
-#         tickets = tickets.filter(status=status_filter)
-#     if priority_filter:
-#         tickets = tickets.filter(priority=priority_filter)
-#     if category_filter:
-#         tickets = tickets.filter(category=category_filter)
-    
-#     # Get counts for filters
-#     status_counts = Ticket.objects.values('status').annotate(count=Count('status'))
-#     priority_counts = Ticket.objects.values('priority').annotate(count=Count('priority'))
-#     category_counts = Ticket.objects.values('category').annotate(count=Count('category'))
-    
-    
-#     user_name = request.session.get('user_name')
-#     user_email = request.session.get('user_email')
-#     user_role = request.session.get('user_role')
-#     short_name = user_name[:2].upper() if user_name else ""
 
-    
-#     context = {
-#         'tickets': tickets,
-#         'status_filter': status_filter,
-#         'priority_filter': priority_filter,
-#         'category_filter': category_filter,
-#         'status_counts': status_counts,
-#         'priority_counts': priority_counts,
-#         'category_counts': category_counts,
-#         'STATUS_CHOICES': Ticket.STATUS_CHOICES,
-#         'PRIORITY_CHOICES': Ticket.PRIORITY_CHOICES,
-#         'CATEGORY_CHOICES': Ticket.CATEGORY_CHOICES,
-#         'name': user_name,
-#         'email': user_email,
-#         'role': user_role,
-#         'short_name':short_name,
-#     }
-    
-#     return render(request, 'central_admin/tickets.html', context)
+# ----------------------------- Lead-Replacement -------------------------------------------------
 
-# def update_ticket_status(request, ticket_id):
-#     if request.method == 'POST':
-#         ticket = get_object_or_404(Ticket, id=ticket_id)
-#         new_status = request.POST.get('status')
-#         admin_notes = request.POST.get('admin_notes', '')
-        
-#         if new_status in dict(Ticket.STATUS_CHOICES):
-#             ticket.status = new_status
-#             if admin_notes:
-#                 ticket.admin_notes = admin_notes
-            
-#             # Set resolved_at if status is resolved or closed
-#             if new_status in ['resolved', 'closed'] and not ticket.resolved_at:
-#                 ticket.resolved_at = timezone.now()
-            
-#             ticket.save()
-#             messages.success(request, f'Ticket {ticket.ticket_id} status updated to {new_status}.')
-#         else:
-#             messages.error(request, 'Invalid status selected.')
-    
-#     return redirect('central_admin:all_tickets')
+
+
+# from django.contrib.auth import get_user_model
+
+# User = get_user_model()
 
 # @login_required
-# def get_lead_details(request):
-#     """AJAX endpoint to get lead details for admin"""
-#     lead_ids = request.GET.getlist('lead_ids[]')
-#     lead_details = []
+# def lead_replacement_page(request):
+#     """Lead replacement ka main page"""
+#     # Sirf admin hi access kar sakta hai
+#     if request.user.role not in ['central_admin', 'sub_admin']:
+#         return redirect('access_denied')
     
-#     print(f"Received lead IDs: {lead_ids}")  # Debugging ke liye
+#     subscribers = User.objects.filter(role='subscriber')
     
-#     for lead_id in lead_ids:
+#     context = {
+#         'subscribers': subscribers,
+#     }
+#     return render(request, 'central_admin/lead_replacement.html', context)
+
+# @login_required  
+# def get_user_leads(request):
+#     """AJAX endpoint: User ki assigned leads get kare"""
+#     user_id = request.GET.get('user_id')
+#     if not user_id:
+#         return JsonResponse({'error': 'User ID required'}, status=400)
+    
+#     try:
+#         user = User.objects.get(id=user_id)
+#         lead_models = [RealEstateLead, OnlineMBA, StudyAbroad, ForexTrade]
+        
+#         user_leads = []
+#         for model in lead_models:
+#             content_type = ContentType.objects.get_for_model(model)
+#             # Sirf active leads show karein (trashed nahi)
+#             leads = model.objects.filter(
+#                 assigned_to=user, 
+#                 status__in=['new', 'in_process', 'lead_replacement']
+#             )
+            
+#             for lead in leads:
+#                 user_leads.append({
+#                     'id': f"{content_type.id}_{lead.id}",
+#                     'name': f"{lead.full_name} - {model.__name__}",
+#                     'content_type_id': content_type.id,
+#                     'object_id': lead.id,
+#                     'model_name': model.__name__,
+#                     'phone': lead.phone_number or 'No Phone',
+#                     'email': lead.email or 'No Email',
+#                     'status': lead.status
+#                 })
+        
+#         return JsonResponse({'leads': user_leads})
+    
+#     except User.DoesNotExist:
+#         return JsonResponse({'error': 'User not found'}, status=404)
+
+# @login_required
+# def get_available_leads(request):
+#     """AJAX endpoint: Available leads get kare (jo assigned nahi hain AUR user ki industry se match karein)"""
+#     lead_type = request.GET.get('lead_type')  # e.g., 'RealEstateLead'
+#     subscriber_id = request.GET.get('subscriber_id')  # ✅ Naya parameter
+    
+#     if not lead_type or not subscriber_id:
+#         return JsonResponse({'error': 'Lead type and subscriber ID required'}, status=400)
+    
+#     try:
+#         # Subscriber get karein
+#         subscriber = User.objects.get(id=subscriber_id)
+        
+#         # Model class find karein
+#         model_map = {
+#             'RealEstateLead': RealEstateLead,
+#             'OnlineMBA': OnlineMBA, 
+#             'StudyAbroad': StudyAbroad,
+#             'ForexTrade': ForexTrade
+#         }
+        
+#         model_class = model_map.get(lead_type)
+#         if not model_class:
+#             return JsonResponse({'error': 'Invalid lead type'}, status=400)
+        
+#         # Base query - available leads
+#         available_leads = model_class.objects.filter(
+#             assigned_to__isnull=True,
+#             status='new'
+#         )
+        
+#         # ✅ INDUSTRY MATCHING LOGIC ADD KAREIN
+#         filtered_leads = []
+#         for lead in available_leads:
+#             match_score = calculate_industry_match(lead, subscriber, model_class.__name__)
+            
+#             # Only show leads that have some level of matching
+#             if match_score > 0:
+#                 filtered_leads.append({
+#                     'id': lead.id,
+#                     'name': f"{lead.full_name}",
+#                     'phone': lead.phone_number or 'No Phone',
+#                     'email': lead.email or 'No Email',
+#                     'model_type': lead_type,
+#                     'match_score': match_score,  # Matching percentage
+#                     'match_reason': get_match_reason(lead, subscriber, model_class.__name__)
+#                 })
+        
+#         # Sort by match score (highest first)
+#         filtered_leads.sort(key=lambda x: x['match_score'], reverse=True)
+        
+#         return JsonResponse({'leads': filtered_leads})
+    
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=500)
+
+# def calculate_industry_match(lead, subscriber, lead_type):
+#     """Calculate how well lead matches subscriber's preferences"""
+#     match_score = 0
+    
+#     if lead_type == 'RealEstateLead':
+#         # Real Estate matching logic
+#         if subscriber.industry and 'real estate' in subscriber.industry.lower():
+#             match_score += 30
+        
+#         if subscriber.property_type and lead.property_type:
+#             if subscriber.property_type.lower() == lead.property_type.lower():
+#                 match_score += 40
+        
+#         if subscriber.preferred_country and lead.location:
+#             if subscriber.preferred_country.lower() in lead.location.lower():
+#                 match_score += 30
+    
+#     elif lead_type == 'StudyAbroad':
+#         # Study Abroad matching logic
+#         if subscriber.industry and 'education' in subscriber.industry.lower():
+#             match_score += 30
+        
+#         if subscriber.preferred_country and lead.country:
+#             if subscriber.preferred_country.lower() == lead.country.lower():
+#                 match_score += 40
+        
+#         if subscriber.sub_industry and lead.exam:
+#             if any(sub in lead.exam.lower() for sub in subscriber.sub_industry.lower().split()):
+#                 match_score += 30
+    
+#     elif lead_type == 'ForexTrade':
+#         # Forex Trade matching logic
+#         if subscriber.industry and 'finance' in subscriber.industry.lower():
+#             match_score += 60
+        
+#         if subscriber.preferred_country and lead.country:
+#             if subscriber.preferred_country.lower() == lead.country.lower():
+#                 match_score += 40
+    
+#     elif lead_type == 'OnlineMBA':
+#         # Online MBA matching logic
+#         if subscriber.industry and 'education' in subscriber.industry.lower():
+#             match_score += 60
+        
+#         if subscriber.sub_industry and lead.course:
+#             if any(sub in lead.course.lower() for sub in subscriber.sub_industry.lower().split()):
+#                 match_score += 40
+    
+#     return match_score
+
+# def get_match_reason(lead, subscriber, lead_type):
+#     """Get readable reason for matching"""
+#     reasons = []
+    
+#     if lead_type == 'RealEstateLead':
+#         if subscriber.property_type and lead.property_type and subscriber.property_type.lower() == lead.property_type.lower():
+#             reasons.append(f"Property type: {lead.property_type}")
+#         if subscriber.preferred_country and lead.location and subscriber.preferred_country.lower() in lead.location.lower():
+#             reasons.append(f"Location: {lead.location}")
+    
+#     elif lead_type == 'StudyAbroad':
+#         if subscriber.preferred_country and lead.country and subscriber.preferred_country.lower() == lead.country.lower():
+#             reasons.append(f"Country: {lead.country}")
+    
+#     return ", ".join(reasons) if reasons else "Basic match"
+
+# @login_required
+# def replace_lead(request):
+#     """Lead replace karne ka main function"""
+#     if request.method == 'POST':
 #         try:
-#             if not lead_id or not isinstance(lead_id, str):
-#                 continue
-                
-#             # Parse lead ID (format: "modeltype_id")
-#             if lead_id.startswith('realestate_'):
-#                 lead_obj_id = lead_id.replace('realestate_', '')
-#                 print(f"Looking for RealEstateLead with ID: {lead_obj_id}")  # Debug
-#                 lead = RealEstateLead.objects.get(id=lead_obj_id)
-#                 lead_details.append({
-#                     'id': lead_id,
-#                     'name': lead.full_name,
-#                     'phone': lead.phone_number,
-#                     'email': lead.email,
-#                     'category': lead.sub_industry or 'Real Estate',
-#                     'status': lead.status
-#                 })
-                
-#             elif lead_id.startswith('mba_'):
-#                 lead_obj_id = lead_id.replace('mba_', '')
-#                 lead = OnlineMBA.objects.get(id=lead_obj_id)
-#                 lead_details.append({
-#                     'id': lead_id,
-#                     'name': lead.full_name,
-#                     'phone': lead.phone_number,
-#                     'email': lead.email,
-#                     'category': 'Online MBA',
-#                     'status': lead.status
-#                 })
-                
-#             elif lead_id.startswith('abroad_'):
-#                 lead_obj_id = lead_id.replace('abroad_', '')
-#                 lead = StudyAbroad.objects.get(id=lead_obj_id)
-#                 lead_details.append({
-#                     'id': lead_id,
-#                     'name': lead.full_name,
-#                     'phone': lead.phone_number,
-#                     'email': lead.email,
-#                     'category': 'Study Abroad',
-#                     'status': lead.status
-#                 })
-                
-#             elif lead_id.startswith('forex_'):
-#                 lead_obj_id = lead_id.replace('forex_', '')
-#                 lead = ForexTrade.objects.get(id=lead_obj_id)
-#                 lead_details.append({
-#                     'id': lead_id,
-#                     'name': lead.full_name,
-#                     'phone': lead.phone_number,
-#                     'email': lead.email,
-#                     'category': 'Forex Trade',
-#                     'status': lead.status
-#                 })
-#             else:
-#                 print(f"Unknown lead ID format: {lead_id}")
-                
-#         except RealEstateLead.DoesNotExist:
-#             print(f"RealEstateLead not found with ID: {lead_obj_id}")
-#             continue
-#         except OnlineMBA.DoesNotExist:
-#             print(f"OnlineMBA not found with ID: {lead_obj_id}")
-#             continue
-#         except StudyAbroad.DoesNotExist:
-#             print(f"StudyAbroad not found with ID: {lead_obj_id}")
-#             continue
-#         except ForexTrade.DoesNotExist:
-#             print(f"ForexTrade not found with ID: {lead_obj_id}")
-#             continue
+#             # Data get karein
+#             subscriber_id = request.POST.get('subscriber_id')
+#             old_lead_id = request.POST.get('old_lead_id')  # format: "content_type_id_object_id"
+#             new_lead_id = request.POST.get('new_lead_id')
+#             reason = request.POST.get('reason', '')
+            
+#             # Old lead details parse karein
+#             content_type_id, object_id = old_lead_id.split('_')
+#             old_content_type = ContentType.objects.get(id=content_type_id)
+#             old_lead_model = old_content_type.model_class()
+#             old_lead = old_lead_model.objects.get(id=object_id)
+            
+#             # New lead details (same type ki lead hi hogi)
+#             new_lead = old_lead_model.objects.get(id=new_lead_id)
+            
+#             # Subscriber get karein
+#             subscriber = User.objects.get(id=subscriber_id)
+            
+#             # Pehle check karein ki old lead actually isi subscriber ko assigned hai
+#             if old_lead.assigned_to != subscriber:
+#                 return JsonResponse({
+#                     'success': False, 
+#                     'error': 'Selected lead is not assigned to this subscriber'
+#                 }, status=400)
+            
+#             # Lead replacement history create karein
+#             replacement = LeadReplacementHistory.objects.create(
+#                 old_lead_content_type=old_content_type,
+#                 old_lead_object_id=old_lead.id,
+#                 new_lead_content_type=old_content_type, 
+#                 new_lead_object_id=new_lead.id,
+#                 subscriber=subscriber,
+#                 replaced_by_admin=request.user,
+#                 reason=reason
+#             )
+            
+#             # Actual lead update karein
+#             # Purani lead ko trashed status mein daalein
+#             old_lead.status = 'trashed'
+#             old_lead.remark = f"Replaced with new lead #{new_lead.id} - {reason}"
+#             old_lead.assigned_to = None
+#             old_lead.save()
+            
+#             # Nayi lead assign karein
+#             new_lead.assigned_to = subscriber
+#             new_lead.status = 'new'
+#             new_lead.save()
+            
+#             # Assignment log create karein
+#             LeadAssignmentLog.objects.create(
+#                 lead_content_type=old_content_type,
+#                 lead_object_id=new_lead.id,
+#                 assigned_to=subscriber,
+#                 assigned_by=request.user,
+#                 status_at_assignment='new',
+#                 notes=f"Lead replacement - Replaced lead #{old_lead.id} with this lead"
+#             )
+            
+#             return JsonResponse({
+#                 'success': True,
+#                 'message': f'Lead successfully replaced! Old: {old_lead.full_name}, New: {new_lead.full_name}'
+#             })
+            
 #         except Exception as e:
-#             print(f"Error processing lead ID {lead_id}: {str(e)}")
-#             continue
+#             return JsonResponse({
+#                 'success': False, 
+#                 'error': str(e)
+#             }, status=500)
     
-#     print(f"Returning lead details: {lead_details}")  # Debug
-#     return JsonResponse({'leads': lead_details})
+#     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+# @login_required
+# def replacement_history(request):
+#     """Complete replacement history show kare"""
+#     # Sirf admin hi dekh sakta hai
+#     if request.user.role not in ['central_admin', 'sub_admin']:
+#         return redirect('access_denied')
+    
+#     replacements = LeadReplacementHistory.objects.all().select_related(
+#         'subscriber', 'replaced_by_admin'
+#     ).order_by('-replaced_at')
+    
+#     # Statistics ke liye data
+#     unique_subscribers = replacements.values('subscriber').distinct().count()
+#     unique_admins = replacements.values('replaced_by_admin').distinct().count()
+#     last_replacement = replacements.first()
+    
+#     # All subscribers and admins for filters
+#     subscribers = User.objects.filter(role='subscriber')
+#     admins = User.objects.filter(role__in=['central_admin', 'sub_admin'])
+    
+#     # Pagination
+#     paginator = Paginator(replacements, 20)  # 20 items per page
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+    
+#     context = {
+#         'replacements': page_obj,
+#         'unique_subscribers': unique_subscribers,
+#         'unique_admins': unique_admins,
+#         'last_replacement': last_replacement,
+#         'subscribers': subscribers,
+#         'admins': admins,
+#     }
+#     return render(request, 'leads/replacement_history.html', context)
+
+# @login_required
+# def get_subscriber_info(request):
+#     """AJAX endpoint: Subscriber information get kare"""
+#     subscriber_id = request.GET.get('subscriber_id')
+#     try:
+#         subscriber = User.objects.get(id=subscriber_id)
+#         return JsonResponse({
+#             'subscriber': {
+#                 'username': subscriber.username,
+#                 'email': subscriber.email,
+#                 'phone': subscriber.phone,
+#                 'industry': subscriber.industry,
+#                 'sub_industry': subscriber.sub_industry,
+#                 'preferred_country': subscriber.preferred_country,
+#                 'property_type': subscriber.property_type,
+#                 'plan_type': subscriber.plan_type,
+#             }
+#         })
+#     except User.DoesNotExist:
+#         return JsonResponse({'error': 'Subscriber not found'}, status=404)
+
+
+
+@login_required
+@user_passes_test(is_central_admin)
+def lead_replacement_start(request):
+    """
+    Step 1: User selection for lead replacement
+    """
+    users = User.objects.filter(
+        Q(role='subscriber') | Q(role='sub_admin'),
+        is_active=True
+    ).order_by('username')
+    
+    user_name = request.session.get('user_name')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    short_name = user_name[:2].upper() if user_name else ""
+
+    context = {
+        'name': user_name,
+        'email': user_email,
+        'role': user_role,
+        'short_name': short_name,
+        'users': users,
+    }
+    return render(request, 'central_admin/lead_replacement_start.html', context)
+
+
+# @login_required
+# @user_passes_test(is_central_admin)
+# def lead_replacement_select_lead(request, user_id):
+#     """
+#     Step 2: Show user's assigned leads for replacement
+#     """
+#     try:
+#         user = User.objects.get(id=user_id, is_active=True)
+        
+#         # Get all assigned leads for this user
+#         assigned_leads = []
+        
+#         # Real Estate Leads
+#         real_estate_leads = RealEstateLead.objects.filter(assigned_to=user)
+#         for lead in real_estate_leads:
+#             assigned_leads.append({
+#                 'id': lead.id,
+#                 'type': 'real_estate',
+#                 'type_display': 'Real Estate',
+#                 'full_name': lead.full_name or 'N/A',
+#                 'phone_number': lead.phone_number or 'N/A',
+#                 'email': lead.email or 'N/A',
+#                 'status': lead.status,
+#                 'created_at': lead.created_at
+#             })
+        
+#         # Online MBA Leads
+#         mba_leads = OnlineMBA.objects.filter(assigned_to=user)
+#         for lead in mba_leads:
+#             assigned_leads.append({
+#                 'id': lead.id,
+#                 'type': 'online_mba',
+#                 'type_display': 'Online MBA',
+#                 'full_name': lead.full_name or 'N/A',
+#                 'phone_number': lead.phone_number or 'N/A',
+#                 'email': lead.email or 'N/A',
+#                 'status': lead.status,
+#                 'created_at': lead.created_at
+#             })
+        
+#         # Study Abroad Leads
+#         abroad_leads = StudyAbroad.objects.filter(assigned_to=user)
+#         for lead in abroad_leads:
+#             assigned_leads.append({
+#                 'id': lead.id,
+#                 'type': 'study_abroad',
+#                 'type_display': 'Study Abroad',
+#                 'full_name': lead.full_name or 'N/A',
+#                 'phone_number': lead.phone_number or 'N/A',
+#                 'email': lead.email or 'N/A',
+#                 'status': lead.status,
+#                 'created_at': lead.created_at
+#             })
+        
+#         # Forex Trade Leads
+#         forex_leads = ForexTrade.objects.filter(assigned_to=user)
+#         for lead in forex_leads:
+#             assigned_leads.append({
+#                 'id': lead.id,
+#                 'type': 'forex_trade',
+#                 'type_display': 'Forex Trade',
+#                 'full_name': lead.full_name or 'N/A',
+#                 'phone_number': lead.phone_number or 'N/A',
+#                 'email': lead.email or 'N/A',
+#                 'status': lead.status,
+#                 'created_at': lead.created_at
+#             })
+        
+#         user_name = request.session.get('user_name')
+#         user_email = request.session.get('user_email')
+#         user_role = request.session.get('user_role')
+#         short_name = user_name[:2].upper() if user_name else ""
+
+#         context = {
+#             'name': user_name,
+#             'email': user_email,
+#             'role': user_role,
+#             'short_name': short_name,
+#             'user': user,
+#             'assigned_leads': assigned_leads,
+#         }
+        
+#         if not assigned_leads:
+#             messages.info(request, f"{user.username} has no assigned leads to replace.")
+        
+#         return render(request, 'central_admin/lead_replacement_select_lead.html', context)
+        
+#     except User.DoesNotExist:
+#         messages.error(request, "User not found.")
+#         return redirect('central_admin:lead_replacement_start')
+
+
+# @login_required
+# @user_passes_test(is_central_admin)
+# def lead_replacement_select_lead(request, user_id):
+#     """
+#     Step 2: Show user's assigned leads for replacement
+#     """
+#     try:
+#         user = User.objects.get(id=user_id, is_active=True)
+        
+#         # Get all assigned leads for this user
+#         assigned_leads = []
+        
+#         # Real Estate Leads - EXCLUDE REPLACED LEADS
+#         real_estate_leads = RealEstateLead.objects.filter(
+#             assigned_to=user
+#         ).exclude(
+#             is_replaced=True, replaced_for_user=user
+#         )
+#         for lead in real_estate_leads:
+#             assigned_leads.append({
+#                 'id': lead.id,
+#                 'type': 'real_estate',
+#                 'type_display': 'Real Estate',
+#                 'full_name': lead.full_name or 'N/A',
+#                 'phone_number': lead.phone_number or 'N/A',
+#                 'email': lead.email or 'N/A',
+#                 'status': lead.status,
+#                 'created_at': lead.created_at,
+#                 'is_replaced': lead.is_replaced  # For debugging
+#             })
+        
+#         # Online MBA Leads - EXCLUDE REPLACED LEADS
+#         mba_leads = OnlineMBA.objects.filter(
+#             assigned_to=user
+#         ).exclude(
+#             is_replaced=True, replaced_for_user=user
+#         )
+#         for lead in mba_leads:
+#             assigned_leads.append({
+#                 'id': lead.id,
+#                 'type': 'online_mba',
+#                 'type_display': 'Online MBA',
+#                 'full_name': lead.full_name or 'N/A',
+#                 'phone_number': lead.phone_number or 'N/A',
+#                 'email': lead.email or 'N/A',
+#                 'status': lead.status,
+#                 'created_at': lead.created_at,
+#                 'is_replaced': lead.is_replaced  # For debugging
+#             })
+        
+#         # Study Abroad Leads - EXCLUDE REPLACED LEADS
+#         abroad_leads = StudyAbroad.objects.filter(
+#             assigned_to=user
+#         ).exclude(
+#             is_replaced=True, replaced_for_user=user
+#         )
+#         for lead in abroad_leads:
+#             assigned_leads.append({
+#                 'id': lead.id,
+#                 'type': 'study_abroad',
+#                 'type_display': 'Study Abroad',
+#                 'full_name': lead.full_name or 'N/A',
+#                 'phone_number': lead.phone_number or 'N/A',
+#                 'email': lead.email or 'N/A',
+#                 'status': lead.status,
+#                 'created_at': lead.created_at,
+#                 'is_replaced': lead.is_replaced  # For debugging
+#             })
+        
+#         # Forex Trade Leads - EXCLUDE REPLACED LEADS
+#         forex_leads = ForexTrade.objects.filter(
+#             assigned_to=user
+#         ).exclude(
+#             is_replaced=True, replaced_for_user=user
+#         )
+#         for lead in forex_leads:
+#             assigned_leads.append({
+#                 'id': lead.id,
+#                 'type': 'forex_trade',
+#                 'type_display': 'Forex Trade',
+#                 'full_name': lead.full_name or 'N/A',
+#                 'phone_number': lead.phone_number or 'N/A',
+#                 'email': lead.email or 'N/A',
+#                 'status': lead.status,
+#                 'created_at': lead.created_at,
+#                 'is_replaced': lead.is_replaced  # For debugging
+#             })
+        
+#         print(f"🔍 DEBUG: Found {len(assigned_leads)} assigned leads for {user.username}")
+        
+#         user_name = request.session.get('user_name')
+#         user_email = request.session.get('user_email')
+#         user_role = request.session.get('user_role')
+#         short_name = user_name[:2].upper() if user_name else ""
+
+#         context = {
+#             'name': user_name,
+#             'email': user_email,
+#             'role': user_role,
+#             'short_name': short_name,
+#             'user': user,
+#             'assigned_leads': assigned_leads,
+#         }
+        
+#         if not assigned_leads:
+#             messages.info(request, f"{user.username} has no assigned leads to replace.")
+        
+#         return render(request, 'central_admin/lead_replacement_select_lead.html', context)
+        
+#     except User.DoesNotExist:
+#         messages.error(request, "User not found.")
+#         return redirect('central_admin:lead_replacement_start')
+
+
+
+@login_required
+@user_passes_test(is_central_admin)
+def lead_replacement_select_lead(request, user_id):
+    """
+    Step 2: Show user's assigned leads for replacement
+    """
+    try:
+        user = User.objects.get(id=user_id, is_active=True)
+        
+        # Get all assigned leads for this user (BOTH direct + assignment history)
+        assigned_leads = []
+        
+        # Method 1: Direct assigned_to se (single assignment)
+        # Real Estate Leads - EXCLUDE REPLACED LEADS
+        real_estate_leads = RealEstateLead.objects.filter(
+            assigned_to=user
+        ).exclude(
+            is_replaced=True, replaced_for_user=user
+        )
+        for lead in real_estate_leads:
+            assigned_leads.append({
+                'id': lead.id,
+                'type': 'real_estate',
+                'type_display': 'Real Estate',
+                'full_name': lead.full_name or 'N/A',
+                'phone_number': lead.phone_number or 'N/A',
+                'email': lead.email or 'N/A',
+                'status': lead.status,
+                'created_at': lead.created_at,
+                'assignment_type': 'direct'
+            })
+        
+        # Online MBA Leads - EXCLUDE REPLACED LEADS
+        mba_leads = OnlineMBA.objects.filter(
+            assigned_to=user
+        ).exclude(
+            is_replaced=True, replaced_for_user=user
+        )
+        for lead in mba_leads:
+            assigned_leads.append({
+                'id': lead.id,
+                'type': 'online_mba',
+                'type_display': 'Online MBA',
+                'full_name': lead.full_name or 'N/A',
+                'phone_number': lead.phone_number or 'N/A',
+                'email': lead.email or 'N/A',
+                'status': lead.status,
+                'created_at': lead.created_at,
+                'assignment_type': 'direct'
+            })
+        
+        # Study Abroad Leads - EXCLUDE REPLACED LEADS
+        abroad_leads = StudyAbroad.objects.filter(
+            assigned_to=user
+        ).exclude(
+            is_replaced=True, replaced_for_user=user
+        )
+        for lead in abroad_leads:
+            assigned_leads.append({
+                'id': lead.id,
+                'type': 'study_abroad',
+                'type_display': 'Study Abroad',
+                'full_name': lead.full_name or 'N/A',
+                'phone_number': lead.phone_number or 'N/A',
+                'email': lead.email or 'N/A',
+                'status': lead.status,
+                'created_at': lead.created_at,
+                'assignment_type': 'direct'
+            })
+        
+        # Forex Trade Leads - EXCLUDE REPLACED LEADS
+        forex_leads = ForexTrade.objects.filter(
+            assigned_to=user
+        ).exclude(
+            is_replaced=True, replaced_for_user=user
+        )
+        for lead in forex_leads:
+            assigned_leads.append({
+                'id': lead.id,
+                'type': 'forex_trade',
+                'type_display': 'Forex Trade',
+                'full_name': lead.full_name or 'N/A',
+                'phone_number': lead.phone_number or 'N/A',
+                'email': lead.email or 'N/A',
+                'status': lead.status,
+                'created_at': lead.created_at,
+                'assignment_type': 'direct'
+            })
+
+        # Method 2: Assignment history se (multiple assignment) - SAME AS my_leads
+        from django.contrib.contenttypes.models import ContentType
+        
+        # Get content types for all lead models
+        real_estate_ct = ContentType.objects.get_for_model(RealEstateLead)
+        mba_ct = ContentType.objects.get_for_model(OnlineMBA)
+        study_abroad_ct = ContentType.objects.get_for_model(StudyAbroad)
+        forex_ct = ContentType.objects.get_for_model(ForexTrade)
+
+        # Get lead IDs from assignment logs for this user
+        assignment_lead_ids = LeadAssignmentLog.objects.filter(
+            assigned_to=user
+        ).values_list('lead_object_id', 'lead_content_type')
+
+        # Set to track already added leads
+        added_lead_ids = set()
+
+        # Helper function to add lead if not already added
+        def add_lead(lead_data, lead_id, model_type):
+            lead_key = f"{model_type}_{lead_id}"
+            if lead_key not in added_lead_ids:
+                added_lead_ids.add(lead_key)
+                assigned_leads.append(lead_data)
+                return True
+            return False
+
+        # Mark already added direct leads
+        for lead in assigned_leads:
+            lead_key = f"{lead['type']}_{lead['original_id']}" if 'original_id' in lead else f"{lead['type']}_{lead['id']}"
+            added_lead_ids.add(lead_key)
+
+        # Process assignment history leads (only add if not already present)
+        for lead_id, content_type_id in assignment_lead_ids:
+            try:
+                content_type = ContentType.objects.get_for_id(content_type_id)
+                lead_model = content_type.model_class()
+                lead = lead_model.objects.get(id=lead_id)
+                
+                # Skip if lead is replaced for this user
+                if lead.is_replaced and lead.replaced_for_user == user:
+                    continue
+                    
+                model_type = content_type.model
+                
+                # Check if lead already exists using our tracking set
+                lead_key = f"{model_type}_{lead.id}"
+                if lead_key in added_lead_ids:
+                    continue
+                    
+                if isinstance(lead, RealEstateLead):
+                    lead_data = {
+                        'id': lead.id,
+                        'type': 'real_estate',
+                        'type_display': 'Real Estate',
+                        'full_name': lead.full_name or 'N/A',
+                        'phone_number': lead.phone_number or 'N/A',
+                        'email': lead.email or 'N/A',
+                        'status': lead.status,
+                        'created_at': lead.created_at,
+                        'assignment_type': 'history'
+                    }
+                    add_lead(lead_data, lead.id, 'real_estate')
+                    
+                elif isinstance(lead, OnlineMBA):
+                    lead_data = {
+                        'id': lead.id,
+                        'type': 'online_mba',
+                        'type_display': 'Online MBA',
+                        'full_name': lead.full_name or 'N/A',
+                        'phone_number': lead.phone_number or 'N/A',
+                        'email': lead.email or 'N/A',
+                        'status': lead.status,
+                        'created_at': lead.created_at,
+                        'assignment_type': 'history'
+                    }
+                    add_lead(lead_data, lead.id, 'online_mba')
+                    
+                elif isinstance(lead, StudyAbroad):
+                    lead_data = {
+                        'id': lead.id,
+                        'type': 'study_abroad',
+                        'type_display': 'Study Abroad',
+                        'full_name': lead.full_name or 'N/A',
+                        'phone_number': lead.phone_number or 'N/A',
+                        'email': lead.email or 'N/A',
+                        'status': lead.status,
+                        'created_at': lead.created_at,
+                        'assignment_type': 'history'
+                    }
+                    add_lead(lead_data, lead.id, 'study_abroad')
+                    
+                elif isinstance(lead, ForexTrade):
+                    lead_data = {
+                        'id': lead.id,
+                        'type': 'forex_trade',
+                        'type_display': 'Forex Trade',
+                        'full_name': lead.full_name or 'N/A',
+                        'phone_number': lead.phone_number or 'N/A',
+                        'email': lead.email or 'N/A',
+                        'status': lead.status,
+                        'created_at': lead.created_at,
+                        'assignment_type': 'history'
+                    }
+                    add_lead(lead_data, lead.id, 'forex_trade')
+                        
+            except Exception as e:
+                print(f"Error processing lead from history: {e}")
+                continue
+
+        print(f"🔍 DEBUG: Total assigned leads for {user.username}: {len(assigned_leads)}")
+        
+        user_name = request.session.get('user_name')
+        user_email = request.session.get('user_email')
+        user_role = request.session.get('user_role')
+        short_name = user_name[:2].upper() if user_name else ""
+
+        context = {
+            'name': user_name,
+            'email': user_email,
+            'role': user_role,
+            'short_name': short_name,
+            'user': user,
+            'assigned_leads': assigned_leads,
+        }
+        
+        if not assigned_leads:
+            messages.info(request, f"{user.username} has no assigned leads to replace.")
+        
+        return render(request, 'central_admin/lead_replacement_select_lead.html', context)
+        
+    except User.DoesNotExist:
+        messages.error(request, "User not found.")
+        return redirect('central_admin:lead_replacement_start')
+
+
+# @login_required
+# @user_passes_test(is_central_admin)
+# def lead_replacement_select_new_lead(request, user_id):
+#     """
+#     Step 3: Show available leads for replacement
+#     """
+#     try:
+#         user = User.objects.get(id=user_id, is_active=True)
+        
+#         # Get old lead details from POST
+#         old_lead_id = request.POST.get('old_lead_id')
+#         old_lead_type = request.POST.get('old_lead_type')
+        
+#         print(f"🔍 DEBUG: User ID = {user_id}")
+#         print(f"🔍 DEBUG: User Industry = '{user.industry}'")
+#         print(f"🔍 DEBUG: Old Lead Type = '{old_lead_type}'")
+        
+#         if not old_lead_id or not old_lead_type:
+#             messages.error(request, "Please select a lead to replace.")
+#             return redirect('central_admin:lead_replacement_select_lead', user_id=user_id)
+        
+#         # Get old lead object
+#         old_lead = None
+#         if old_lead_type == 'real_estate':
+#             old_lead = get_object_or_404(RealEstateLead, id=old_lead_id)
+#         elif old_lead_type == 'online_mba':
+#             old_lead = get_object_or_404(OnlineMBA, id=old_lead_id)
+#         elif old_lead_type == 'study_abroad':
+#             old_lead = get_object_or_404(StudyAbroad, id=old_lead_id)
+#         elif old_lead_type == 'forex_trade':
+#             old_lead = get_object_or_404(ForexTrade, id=old_lead_id)
+        
+#         # **FINAL FIX: Sirf same industry ke leads dikhao**
+#         available_leads = []
+        
+#         # Industry mapping
+#         industry_mapping = {
+#             'real-estate': 'real_estate',
+#             'education': 'online_mba', 
+#             'study-abroad': 'study_abroad',
+#             'trading': 'forex_trade'
+#         }
+        
+#         # Get target industry type
+#         target_industry_type = industry_mapping.get(user.industry)
+#         print(f"🔍 DEBUG: Target Industry Type = '{target_industry_type}'")
+        
+#         # Agar industry match kare toh sirf usi type ke leads dikhao
+#         if target_industry_type:
+#             if target_industry_type == 'real_estate':
+#                 leads = RealEstateLead.objects.exclude(assigned_to=user)
+#                 lead_type_display = 'Real Estate'
+#             elif target_industry_type == 'online_mba':
+#                 leads = OnlineMBA.objects.exclude(assigned_to=user)
+#                 lead_type_display = 'Online MBA'
+#             elif target_industry_type == 'study_abroad':
+#                 leads = StudyAbroad.objects.exclude(assigned_to=user)
+#                 lead_type_display = 'Study Abroad'
+#             elif target_industry_type == 'forex_trade':
+#                 leads = ForexTrade.objects.exclude(assigned_to=user)
+#                 lead_type_display = 'Forex Trade'
+            
+#             print(f"🔍 DEBUG: Found {leads.count()} {lead_type_display} leads for industry '{user.industry}'")
+            
+#             for lead in leads:
+#                 available_leads.append({
+#                     'id': lead.id,
+#                     'type': target_industry_type,
+#                     'type_display': lead_type_display,
+#                     'full_name': lead.full_name or 'N/A',
+#                     'phone_number': lead.phone_number or 'N/A',
+#                     'email': lead.email or 'N/A',
+#                     'status': lead.status,
+#                     'created_at': lead.created_at,
+#                     'currently_assigned_to': lead.assigned_to.username if lead.assigned_to else 'Unassigned'
+#                 })
+#         else:
+#             # Agar industry map na ho toh old lead type ke hisaab se dikhao
+#             print(f"⚠️ DEBUG: No industry mapping found, using old lead type: {old_lead_type}")
+#             if old_lead_type == 'real_estate':
+#                 leads = RealEstateLead.objects.exclude(assigned_to=user)
+#                 lead_type_display = 'Real Estate'
+#             elif old_lead_type == 'online_mba':
+#                 leads = OnlineMBA.objects.exclude(assigned_to=user)
+#                 lead_type_display = 'Online MBA'
+#             elif old_lead_type == 'study_abroad':
+#                 leads = StudyAbroad.objects.exclude(assigned_to=user)
+#                 lead_type_display = 'Study Abroad'
+#             elif old_lead_type == 'forex_trade':
+#                 leads = ForexTrade.objects.exclude(assigned_to=user)
+#                 lead_type_display = 'Forex Trade'
+            
+#             for lead in leads:
+#                 available_leads.append({
+#                     'id': lead.id,
+#                     'type': old_lead_type,
+#                     'type_display': lead_type_display,
+#                     'full_name': lead.full_name or 'N/A',
+#                     'phone_number': lead.phone_number or 'N/A',
+#                     'email': lead.email or 'N/A',
+#                     'status': lead.status,
+#                     'created_at': lead.created_at,
+#                     'currently_assigned_to': lead.assigned_to.username if lead.assigned_to else 'Unassigned'
+#                 })
+        
+#         print(f"🔍 DEBUG: Total filtered available leads = {len(available_leads)}")
+        
+#         user_name = request.session.get('user_name')
+#         user_email = request.session.get('user_email')
+#         user_role = request.session.get('user_role')
+#         short_name = user_name[:2].upper() if user_name else ""
+
+#         context = {
+#             'name': user_name,
+#             'email': user_email,
+#             'role': user_role,
+#             'short_name': short_name,
+#             'user': user,
+#             'old_lead': old_lead,
+#             'old_lead_type': old_lead_type,
+#             'available_leads': available_leads,
+#             'show_assignment_info': True
+#         }
+        
+#         if not available_leads:
+#             messages.info(request, f"No available {lead_type_display} leads for replacement.")
+        
+#         return render(request, 'central_admin/lead_replacement_select_new_lead.html', context)
+        
+#     except User.DoesNotExist:
+#         messages.error(request, "User not found.")
+#         return redirect('central_admin:lead_replacement_start')
+    
+
+@login_required
+@user_passes_test(is_central_admin)
+def lead_replacement_select_new_lead(request, user_id):
+    """
+    Step 3: Show available leads for replacement
+    """
+    try:
+        user = User.objects.get(id=user_id, is_active=True)
+        
+        # Get old lead details from POST
+        old_lead_id = request.POST.get('old_lead_id')
+        old_lead_type = request.POST.get('old_lead_type')
+        
+        print(f"🔍 DEBUG: User ID = {user_id}")
+        print(f"🔍 DEBUG: User Industry = '{user.industry}'")
+        print(f"🔍 DEBUG: Old Lead Type = '{old_lead_type}'")
+        
+        if not old_lead_id or not old_lead_type:
+            messages.error(request, "Please select a lead to replace.")
+            return redirect('central_admin:lead_replacement_select_lead', user_id=user_id)
+        
+        # Get old lead object
+        old_lead = None
+        if old_lead_type == 'real_estate':
+            old_lead = get_object_or_404(RealEstateLead, id=old_lead_id)
+        elif old_lead_type == 'online_mba':
+            old_lead = get_object_or_404(OnlineMBA, id=old_lead_id)
+        elif old_lead_type == 'study_abroad':
+            old_lead = get_object_or_404(StudyAbroad, id=old_lead_id)
+        elif old_lead_type == 'forex_trade':
+            old_lead = get_object_or_404(ForexTrade, id=old_lead_id)
+        
+        # **UPDATED: Sirf same industry ke leads dikhao + replaced leads exclude karo**
+        available_leads = []
+        
+        # Industry mapping
+        industry_mapping = {
+            'real-estate': 'real_estate',
+            'education': 'online_mba', 
+            'study-abroad': 'study_abroad',
+            'trading': 'forex_trade'
+        }
+        
+        # Get target industry type
+        target_industry_type = industry_mapping.get(user.industry)
+        print(f"🔍 DEBUG: Target Industry Type = '{target_industry_type}'")
+        
+        # Agar industry match kare toh sirf usi type ke leads dikhao
+        if target_industry_type:
+            if target_industry_type == 'real_estate':
+                leads = RealEstateLead.objects.exclude(assigned_to=user).exclude(
+                    is_replaced=True, replaced_for_user=user
+                )
+                lead_type_display = 'Real Estate'
+            elif target_industry_type == 'online_mba':
+                leads = OnlineMBA.objects.exclude(assigned_to=user).exclude(
+                    is_replaced=True, replaced_for_user=user
+                )
+                lead_type_display = 'Online MBA'
+            elif target_industry_type == 'study_abroad':
+                leads = StudyAbroad.objects.exclude(assigned_to=user).exclude(
+                    is_replaced=True, replaced_for_user=user
+                )
+                lead_type_display = 'Study Abroad'
+            elif target_industry_type == 'forex_trade':
+                leads = ForexTrade.objects.exclude(assigned_to=user).exclude(
+                    is_replaced=True, replaced_for_user=user
+                )
+                lead_type_display = 'Forex Trade'
+            
+            print(f"🔍 DEBUG: Found {leads.count()} {lead_type_display} leads for industry '{user.industry}'")
+            
+            for lead in leads:
+                available_leads.append({
+                    'id': lead.id,
+                    'type': target_industry_type,
+                    'type_display': lead_type_display,
+                    'full_name': lead.full_name or 'N/A',
+                    'phone_number': lead.phone_number or 'N/A',
+                    'email': lead.email or 'N/A',
+                    'status': lead.status,
+                    'created_at': lead.created_at,
+                    'currently_assigned_to': lead.assigned_to.username if lead.assigned_to else 'Unassigned',
+                    'is_replaced': lead.is_replaced  # For debugging
+                })
+        else:
+            # Agar industry map na ho toh old lead type ke hisaab se dikhao
+            print(f"⚠️ DEBUG: No industry mapping found, using old lead type: {old_lead_type}")
+            if old_lead_type == 'real_estate':
+                leads = RealEstateLead.objects.exclude(assigned_to=user).exclude(
+                    is_replaced=True, replaced_for_user=user
+                )
+                lead_type_display = 'Real Estate'
+            elif old_lead_type == 'online_mba':
+                leads = OnlineMBA.objects.exclude(assigned_to=user).exclude(
+                    is_replaced=True, replaced_for_user=user
+                )
+                lead_type_display = 'Online MBA'
+            elif old_lead_type == 'study_abroad':
+                leads = StudyAbroad.objects.exclude(assigned_to=user).exclude(
+                    is_replaced=True, replaced_for_user=user
+                )
+                lead_type_display = 'Study Abroad'
+            elif old_lead_type == 'forex_trade':
+                leads = ForexTrade.objects.exclude(assigned_to=user).exclude(
+                    is_replaced=True, replaced_for_user=user
+                )
+                lead_type_display = 'Forex Trade'
+            
+            for lead in leads:
+                available_leads.append({
+                    'id': lead.id,
+                    'type': old_lead_type,
+                    'type_display': lead_type_display,
+                    'full_name': lead.full_name or 'N/A',
+                    'phone_number': lead.phone_number or 'N/A',
+                    'email': lead.email or 'N/A',
+                    'status': lead.status,
+                    'created_at': lead.created_at,
+                    'currently_assigned_to': lead.assigned_to.username if lead.assigned_to else 'Unassigned',
+                    'is_replaced': lead.is_replaced  # For debugging
+                })
+        
+        print(f"🔍 DEBUG: Total filtered available leads = {len(available_leads)}")
+        
+        user_name = request.session.get('user_name')
+        user_email = request.session.get('user_email')
+        user_role = request.session.get('user_role')
+        short_name = user_name[:2].upper() if user_name else ""
+
+        context = {
+            'name': user_name,
+            'email': user_email,
+            'role': user_role,
+            'short_name': short_name,
+            'user': user,
+            'old_lead': old_lead,
+            'old_lead_type': old_lead_type,
+            'available_leads': available_leads,
+            'show_assignment_info': True
+        }
+        
+        if not available_leads:
+            messages.info(request, f"No available {lead_type_display} leads for replacement.")
+        
+        return render(request, 'central_admin/lead_replacement_select_new_lead.html', context)
+        
+    except User.DoesNotExist:
+        messages.error(request, "User not found.")
+        return redirect('central_admin:lead_replacement_start')
+
+
+        
+# @login_required
+# @user_passes_test(is_central_admin)
+# def lead_replacement_confirm(request):
+#     """
+#     Step 4: Confirm and process lead replacement
+#     """
+#     if request.method == 'POST':
+#         try:
+#             user_id = request.POST.get('user_id')
+#             old_lead_id = request.POST.get('old_lead_id')
+#             old_lead_type = request.POST.get('old_lead_type')
+#             new_lead_id = request.POST.get('new_lead_id')
+#             new_lead_type = request.POST.get('new_lead_type')
+#             reason = request.POST.get('reason', '')
+            
+#             user = User.objects.get(id=user_id, is_active=True)
+            
+#             # Get lead objects
+#             old_lead = None
+#             new_lead = None
+            
+#             # Get old lead
+#             if old_lead_type == 'real_estate':
+#                 old_lead = RealEstateLead.objects.get(id=old_lead_id)
+#             elif old_lead_type == 'online_mba':
+#                 old_lead = OnlineMBA.objects.get(id=old_lead_id)
+#             elif old_lead_type == 'study_abroad':
+#                 old_lead = StudyAbroad.objects.get(id=old_lead_id)
+#             elif old_lead_type == 'forex_trade':
+#                 old_lead = ForexTrade.objects.get(id=old_lead_id)
+            
+#             # Get new lead
+#             if new_lead_type == 'real_estate':
+#                 new_lead = RealEstateLead.objects.get(id=new_lead_id)
+#             elif new_lead_type == 'online_mba':
+#                 new_lead = OnlineMBA.objects.get(id=new_lead_id)
+#             elif new_lead_type == 'study_abroad':
+#                 new_lead = StudyAbroad.objects.get(id=new_lead_id)
+#             elif new_lead_type == 'forex_trade':
+#                 new_lead = ForexTrade.objects.get(id=new_lead_id)
+            
+#             # PERFORM REPLACEMENT
+#             # 1. Old lead ko unassign karo
+#             old_lead.assigned_to = None
+#             old_lead.status = 'lead_replacement'
+#             old_lead.save()
+            
+#             # 2. New lead ko assign karo
+#             new_lead.assigned_to = user
+#             new_lead.status = 'new'
+#             new_lead.save()
+            
+#             # 3. LeadReplacementHistory create karo
+#             old_content_type = ContentType.objects.get_for_model(type(old_lead))
+#             new_content_type = ContentType.objects.get_for_model(type(new_lead))
+            
+#             LeadReplacementHistory.objects.create(
+#                 old_lead_content_type=old_content_type,
+#                 old_lead_object_id=old_lead.id,
+#                 new_lead_content_type=new_content_type,
+#                 new_lead_object_id=new_lead.id,
+#                 subscriber=user,
+#                 replaced_by_admin=request.user,
+#                 reason=reason
+#             )
+            
+#             # 4. Assignment logs create karo
+#             # Old lead unassignment log
+#             LeadAssignmentLog.objects.create(
+#                 lead_content_type=old_content_type,
+#                 lead_object_id=old_lead.id,
+#                 assigned_to=None,  # Unassigned
+#                 assigned_by=request.user,
+#                 status_at_assignment='lead_replacement',
+#                 notes=f"Unassigned during replacement. Reason: {reason}"
+#             )
+            
+#             # New lead assignment log
+#             LeadAssignmentLog.objects.create(
+#                 lead_content_type=new_content_type,
+#                 lead_object_id=new_lead.id,
+#                 assigned_to=user,
+#                 assigned_by=request.user,
+#                 status_at_assignment='new',
+#                 notes=f"Assigned as replacement. Reason: {reason}"
+#             )
+            
+#             messages.success(
+#                 request, 
+#                 f"Lead replaced successfully! {old_lead.full_name or 'Old lead'} replaced with {new_lead.full_name or 'New lead'} for {user.username}"
+#             )
+            
+#             return redirect('central_admin:lead_replacement_start')
+            
+#         except Exception as e:
+#             messages.error(request, f"Error during lead replacement: {str(e)}")
+#             return redirect('central_admin:lead_replacement_start')
+    
+#     return redirect('central_admin:lead_replacement_start')
+
+
+
+
+@login_required
+@user_passes_test(is_central_admin)
+def lead_replacement_confirm(request):
+    """
+    Step 4: Confirm and process lead replacement
+    """
+    if request.method == 'POST':
+        try:
+            user_id = request.POST.get('user_id')
+            old_lead_id = request.POST.get('old_lead_id')
+            old_lead_type = request.POST.get('old_lead_type')
+            new_lead_id = request.POST.get('new_lead_id')
+            new_lead_type = request.POST.get('new_lead_type')
+            reason = request.POST.get('reason', '')
+            
+            user = User.objects.get(id=user_id, is_active=True)
+            
+            # Get lead objects
+            old_lead = None
+            new_lead = None
+            
+            # Get old lead
+            if old_lead_type == 'real_estate':
+                old_lead = RealEstateLead.objects.get(id=old_lead_id)
+            elif old_lead_type == 'online_mba':
+                old_lead = OnlineMBA.objects.get(id=old_lead_id)
+            elif old_lead_type == 'study_abroad':
+                old_lead = StudyAbroad.objects.get(id=old_lead_id)
+            elif old_lead_type == 'forex_trade':
+                old_lead = ForexTrade.objects.get(id=old_lead_id)
+            
+            # Get new lead
+            if new_lead_type == 'real_estate':
+                new_lead = RealEstateLead.objects.get(id=new_lead_id)
+            elif new_lead_type == 'online_mba':
+                new_lead = OnlineMBA.objects.get(id=new_lead_id)
+            elif new_lead_type == 'study_abroad':
+                new_lead = StudyAbroad.objects.get(id=new_lead_id)
+            elif new_lead_type == 'forex_trade':
+                new_lead = ForexTrade.objects.get(id=new_lead_id)
+            
+            print(f"🔍 DEBUG: BEFORE REPLACEMENT")
+            print(f"Old Lead: {old_lead_type} ID {old_lead_id}, Assigned To: {old_lead.assigned_to}")
+            print(f"New Lead: {new_lead_type} ID {new_lead_id}, Assigned To: {new_lead.assigned_to}")
+            
+            # **NEW LOGIC: Use is_replaced field**
+            
+            # 1. Old lead ko mark as replaced for this specific user
+            old_lead.is_replaced = True
+            old_lead.replaced_at = timezone.now()
+            old_lead.replaced_for_user = user
+            old_lead.status = 'lead_replacement'
+            
+            # Remark/note update
+            replacement_note = f"Replaced for {user.username} on {timezone.now().strftime('%Y-%m-%d %H:%M')}. Reason: {reason}"
+            
+            if old_lead_type in ['real_estate', 'online_mba', 'study_abroad']:
+                old_lead.remark = replacement_note
+            elif old_lead_type == 'forex_trade':
+                old_lead.note = replacement_note
+            
+            old_lead.save()
+            
+            # 2. New lead ko assign karo
+            new_lead.assigned_to = user
+            new_lead.status = 'new'
+            
+            # New lead ka remark/note update
+            assignment_note = f"Assigned as replacement lead on {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+            
+            if new_lead_type in ['real_estate', 'online_mba', 'study_abroad']:
+                new_lead.remark = assignment_note
+            elif new_lead_type == 'forex_trade':
+                new_lead.note = assignment_note
+            
+            new_lead.save()
+            
+            print(f"🔍 DEBUG: AFTER REPLACEMENT")
+            print(f"Old Lead - Is Replaced: {old_lead.is_replaced}, For User: {old_lead.replaced_for_user}")
+            print(f"New Lead - Assigned To: {new_lead.assigned_to}")
+            
+            # 3. LeadReplacementHistory create karo
+            old_content_type = ContentType.objects.get_for_model(type(old_lead))
+            new_content_type = ContentType.objects.get_for_model(type(new_lead))
+            
+            LeadReplacementHistory.objects.create(
+                old_lead_content_type=old_content_type,
+                old_lead_object_id=old_lead.id,
+                new_lead_content_type=new_content_type,
+                new_lead_object_id=new_lead.id,
+                subscriber=user,
+                replaced_by_admin=request.user,
+                reason=reason
+            )
+            
+            # 4. Assignment logs create karo
+            # Old lead replacement log
+            LeadAssignmentLog.objects.create(
+                lead_content_type=old_content_type,
+                lead_object_id=old_lead.id,
+                assigned_to=old_lead.assigned_to,  # Keep original assignment
+                assigned_by=request.user,
+                status_at_assignment='lead_replacement',
+                notes=f"Marked as replaced for {user.username}. Reason: {reason}"
+            )
+            
+            # New lead assignment log
+            LeadAssignmentLog.objects.create(
+                lead_content_type=new_content_type,
+                lead_object_id=new_lead.id,
+                assigned_to=user,
+                assigned_by=request.user,
+                status_at_assignment='new',
+                notes=f"Assigned as replacement to {user.username}. Reason: {reason}"
+            )
+            
+            messages.success(
+                request, 
+                f"Lead replaced successfully! {old_lead.full_name or 'Old lead'} replaced with {new_lead.full_name or 'New lead'} for {user.username}"
+            )
+            
+            return redirect('central_admin:lead_replacement_start')
+            
+        except Exception as e:
+            messages.error(request, f"Error during lead replacement: {str(e)}")
+            import traceback
+            print(f"❌ ERROR: {traceback.format_exc()}")
+            return redirect('central_admin:lead_replacement_start')
+    
+    return redirect('central_admin:lead_replacement_start')
+
+
+
+# @login_required
+# @user_passes_test(is_central_admin)
+# def replacement_history(request, user_id):
+#     """
+#     User-wise replacement history
+#     """
+#     try:
+#         user = User.objects.get(id=user_id, is_active=True)
+        
+#         # Get replacement history for this user
+#         replacement_history = LeadReplacementHistory.objects.filter(
+#             subscriber=user
+#         ).order_by('-replaced_at')
+        
+#         # Get user's current assigned leads count
+#         current_leads_count = (
+#             RealEstateLead.objects.filter(assigned_to=user).count() +
+#             OnlineMBA.objects.filter(assigned_to=user).count() +
+#             StudyAbroad.objects.filter(assigned_to=user).count() +
+#             ForexTrade.objects.filter(assigned_to=user).count()
+#         )
+        
+#         user_name = request.session.get('user_name')
+#         user_email = request.session.get('user_email')
+#         user_role = request.session.get('user_role')
+#         short_name = user_name[:2].upper() if user_name else ""
+
+#         context = {
+#             'name': user_name,
+#             'email': user_email,
+#             'role': user_role,
+#             'short_name': short_name,
+#             'user': user,
+#             'replacement_history': replacement_history,
+#             'current_leads_count': current_leads_count,
+#         }
+        
+#         return render(request, 'central_admin/replacement_history.html', context)
+        
+#     except User.DoesNotExist:
+#         messages.error(request, "User not found.")
+#         return redirect('central_admin:lead_replacement_start')
+
+
+
+
+
+@login_required
+@user_passes_test(is_central_admin)
+def replacement_history(request, user_id):
+    """
+    User-wise replacement history
+    """
+    try:
+        user = User.objects.get(id=user_id, is_active=True)
+        
+        # Get replacement history for this user
+        replacement_history = LeadReplacementHistory.objects.filter(
+            subscriber=user
+        ).order_by('-replaced_at')
+        
+        # **UPDATED: Get user's current assigned leads count (EXCLUDE REPLACED LEADS)**
+        current_leads_count = (
+            RealEstateLead.objects.filter(assigned_to=user).exclude(
+                is_replaced=True, replaced_for_user=user
+            ).count() +
+            OnlineMBA.objects.filter(assigned_to=user).exclude(
+                is_replaced=True, replaced_for_user=user
+            ).count() +
+            StudyAbroad.objects.filter(assigned_to=user).exclude(
+                is_replaced=True, replaced_for_user=user
+            ).count() +
+            ForexTrade.objects.filter(assigned_to=user).exclude(
+                is_replaced=True, replaced_for_user=user
+            ).count()
+        )
+        
+        # **NEW: Get replaced leads count for this user**
+        replaced_leads_count = (
+            RealEstateLead.objects.filter(
+                is_replaced=True, replaced_for_user=user
+            ).count() +
+            OnlineMBA.objects.filter(
+                is_replaced=True, replaced_for_user=user
+            ).count() +
+            StudyAbroad.objects.filter(
+                is_replaced=True, replaced_for_user=user
+            ).count() +
+            ForexTrade.objects.filter(
+                is_replaced=True, replaced_for_user=user
+            ).count()
+        )
+        
+        user_name = request.session.get('user_name')
+        user_email = request.session.get('user_email')
+        user_role = request.session.get('user_role')
+        short_name = user_name[:2].upper() if user_name else ""
+
+        context = {
+            'name': user_name,
+            'email': user_email,
+            'role': user_role,
+            'short_name': short_name,
+            'user': user,
+            'replacement_history': replacement_history,
+            'current_leads_count': current_leads_count,
+            'replaced_leads_count': replaced_leads_count,  # New field for template
+        }
+        
+        return render(request, 'central_admin/replacement_history.html', context)
+        
+    except User.DoesNotExist:
+        messages.error(request, "User not found.")
+        return redirect('central_admin:lead_replacement_start')

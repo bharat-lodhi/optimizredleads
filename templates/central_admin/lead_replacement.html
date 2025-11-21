@@ -1,0 +1,345 @@
+{% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Lead Replacement - Admin{% endblock %}
+{% block page_title %}🔄 Lead Replacement System{% endblock %}
+{% block page_subtitle %}Replace subscriber leads with industry-matched alternatives{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Lead Replacement Form</h3>
+                <div class="card-tools">
+                    {% comment %} <a href="{% url 'replacement_history' %}" class="btn btn-info btn-sm"> {% endcomment %}
+                    <a href="#" class="btn btn-info btn-sm">   
+                    📊 View Replacement History
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Step 1: Subscriber Selection -->
+                <div class="form-group">
+                    <label><strong>📋 Select Subscriber:</strong></label>
+                    <select id="subscriberSelect" class="form-control">
+                        <option value="">-- Choose Subscriber --</option>
+                        {% for subscriber in subscribers %}
+                            <option value="{{ subscriber.id }}">
+                                {{ subscriber.username }} - {{ subscriber.email }} ({{ subscriber.get_role_display }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">
+                        Select the subscriber whose lead you want to replace
+                    </small>
+                </div>
+
+                <!-- Step 2: User's Current Leads -->
+                <div class="form-group" id="oldLeadsSection" style="display: none;">
+                    <label><strong>🗑️ Select Lead to Replace:</strong></label>
+                    <select id="oldLeadSelect" class="form-control">
+                        <option value="">-- Select Old Lead --</option>
+                    </select>
+                    <div id="oldLeadInfo" class="mt-2"></div>
+                </div>
+
+                <!-- Step 3: Available New Leads -->
+                <div class="form-group" id="newLeadsSection" style="display: none;">
+                    <label><strong>🆕 Select New Replacement Lead:</strong></label>
+                    <select id="newLeadSelect" class="form-control">
+                        <option value="">-- Select New Lead --</option>
+                    </select>
+                    <div id="newLeadInfo" class="mt-2"></div>
+                </div>
+
+                <!-- Reason Section -->
+                <div class="form-group" id="reasonSection" style="display: none;">
+                    <label><strong>📝 Replacement Reason (Optional):</strong></label>
+                    <textarea id="reasonText" class="form-control" rows="3" placeholder="Why are you replacing this lead?"></textarea>
+                </div>
+
+                <!-- Action Button -->
+                <div class="form-group">
+                    <button onclick="submitReplacement()" id="replaceBtn" class="btn btn-success btn-lg" disabled>
+                        🔄 Replace Lead
+                    </button>
+                </div>
+                
+                <!-- Messages -->
+                <div id="message"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Subscriber Info Card -->
+<div class="row" id="subscriberInfoSection" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Subscriber Information</h3>
+            </div>
+            <div class="card-body">
+                <div id="subscriberInfoContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.lead-info-card {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+.match-high { color: #28a745; font-weight: bold; }
+.match-medium { color: #fd7e14; font-weight: bold; }
+.match-low { color: #dc3545; font-weight: bold; }
+.loading-text { color: #6c757d; font-style: italic; }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // CSRF token setup
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // Subscriber select hone par
+    $('#subscriberSelect').change(function() {
+        const subscriberId = $(this).val();
+        if (subscriberId) {
+            loadUserLeads(subscriberId);
+            loadSubscriberInfo(subscriberId);
+            $('#reasonSection').show();
+            $('#subscriberInfoSection').show();
+        } else {
+            $('#oldLeadsSection, #newLeadsSection, #reasonSection, #subscriberInfoSection').hide();
+            $('#replaceBtn').prop('disabled', true);
+        }
+    });
+
+    // User ki leads load kare
+    function loadUserLeads(subscriberId) {
+        $('#oldLeadSelect').html('<option value="">Loading user leads...</option>');
+        $('#oldLeadsSection').show();
+        
+        $.get(`/central-admin/get-user-leads/?user_id=${subscriberId}`, function(data) {
+            if (data.leads && data.leads.length > 0) {
+                $('#oldLeadSelect').html('<option value="">-- Select Old Lead --</option>');
+                
+                data.leads.forEach(lead => {
+                    $('#oldLeadSelect').append(
+                        `<option value="${lead.id}">
+                            ${lead.name} | 📞 ${lead.phone} | 📧 ${lead.email} | 📊 ${lead.status}
+                        </option>`
+                    );
+                });
+                
+                $('#oldLeadsSection').show();
+            } else {
+                $('#oldLeadSelect').html('<option value="">No active leads found for this user</option>');
+                $('#newLeadsSection').hide();
+            }
+        }).fail(function() {
+            $('#oldLeadSelect').html('<option value="">Error loading leads</option>');
+        });
+    }
+
+    // Subscriber information load kare
+    function loadSubscriberInfo(subscriberId) {
+        $.get(`/central-admin/get-subscriber-info/?subscriber_id=${subscriberId}`, function(data) {
+            if (data.subscriber) {
+                const sub = data.subscriber;
+                $('#subscriberInfoContent').html(`
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Username:</strong> ${sub.username}<br>
+                            <strong>Email:</strong> ${sub.email}<br>
+                            <strong>Phone:</strong> ${sub.phone || 'N/A'}<br>
+                            <strong>Industry:</strong> ${sub.industry || 'Not specified'}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Sub Industry:</strong> ${sub.sub_industry || 'Not specified'}<br>
+                            <strong>Preferred Country:</strong> ${sub.preferred_country || 'Not specified'}<br>
+                            <strong>Property Type:</strong> ${sub.property_type || 'Not specified'}<br>
+                            <strong>Plan:</strong> ${sub.plan_type}
+                        </div>
+                    </div>
+                `);
+            }
+        }).fail(function() {
+            $('#subscriberInfoContent').html('<div class="text-danger">Error loading subscriber information</div>');
+        });
+    }
+
+    // Old lead select hone par
+    $('#oldLeadSelect').change(function() {
+        const oldLeadId = $(this).val();
+        if (oldLeadId) {
+            // Lead type extract karein
+            const leadType = oldLeadId.split('_')[2]; // Model name
+            loadAvailableLeads(leadType);
+            
+            // Old lead info show karein
+            showLeadInfo(oldLeadId, 'oldLeadInfo');
+            
+            $('#replaceBtn').prop('disabled', false);
+        } else {
+            $('#newLeadsSection').hide();
+            $('#replaceBtn').prop('disabled', true);
+        }
+    });
+
+    // Available leads load kare - WITH INDUSTRY MATCHING
+    function loadAvailableLeads(leadType) {
+        const subscriberId = $('#subscriberSelect').val();
+        
+        $('#newLeadSelect').html('<option value="">Loading matching leads...</option>');
+        $('#newLeadsSection').show();
+        
+        // Subscriber ID bhi send karein for matching
+        $.get(`/central-admin/get-available-leads/?lead_type=${leadType}&subscriber_id=${subscriberId}`, function(data) {
+            if (data.leads && data.leads.length > 0) {
+                $('#newLeadSelect').html('<option value="">-- Select New Lead --</option>');
+                
+                data.leads.forEach(lead => {
+                    let matchClass = 'match-low';
+                    if (lead.match_score >= 70) matchClass = 'match-high';
+                    else if (lead.match_score >= 40) matchClass = 'match-medium';
+                    
+                    $('#newLeadSelect').append(
+                        `<option value="${lead.id}" data-match="${lead.match_score}" data-reason="${lead.match_reason}">
+                            ${lead.name} | 📞 ${lead.phone} | <span class="${matchClass}">${lead.match_score}% Match</span>
+                        </option>`
+                    );
+                });
+                
+                $('#newLeadsSection').show();
+            } else {
+                $('#newLeadSelect').html('<option value="">No matching leads found for this user</option>');
+            }
+        }).fail(function() {
+            $('#newLeadSelect').html('<option value="">Error loading leads</option>');
+        });
+    }
+
+    // New lead select hone par detailed matching info show kare
+    $('#newLeadSelect').change(function() {
+        const selectedOption = $(this).find('option:selected');
+        const matchScore = selectedOption.data('match');
+        const matchReason = selectedOption.data('reason');
+        
+        if (matchScore !== undefined) {
+            let matchClass = 'match-low';
+            let matchText = 'Low Match';
+            if (matchScore >= 70) {
+                matchClass = 'match-high';
+                matchText = 'High Match';
+            } else if (matchScore >= 40) {
+                matchClass = 'match-medium';
+                matchText = 'Medium Match';
+            }
+            
+            $('#newLeadInfo').html(`
+                <div class="lead-info-card">
+                    <strong>Industry Matching Analysis:</strong><br>
+                    <span class="${matchClass}">${matchScore}% Match (${matchText})</span><br>
+                    <small><strong>Reason:</strong> ${matchReason || 'Basic availability match'}</small>
+                </div>
+            `);
+        } else {
+            $('#newLeadInfo').html('');
+        }
+    });
+
+    // Lead info show kare
+    function showLeadInfo(leadId, containerId) {
+        const parts = leadId.split('_');
+        $(`#${containerId}`).html(`
+            <div class="lead-info-card">
+                <strong>Selected Lead Details:</strong><br>
+                Lead Type: ${parts[2]}<br>
+                Ready for replacement
+            </div>
+        `);
+    }
+
+    // Replacement submit kare
+    function submitReplacement() {
+        const subscriberId = $('#subscriberSelect').val();
+        const oldLeadId = $('#oldLeadSelect').val();
+        const newLeadId = $('#newLeadSelect').val();
+        const reason = $('#reasonText').val();
+
+        if (!subscriberId || !oldLeadId || !newLeadId) {
+            showMessage('Please fill all required fields', 'error');
+            return;
+        }
+
+        $('#replaceBtn').prop('disabled', true).text('Replacing Lead...');
+
+        $.ajax({
+            url: '/central-admin/replace-lead/',
+            type: 'POST',
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+                subscriber_id: subscriberId,
+                old_lead_id: oldLeadId,
+                new_lead_id: newLeadId,
+                reason: reason
+            },
+            success: function(data) {
+                if (data.success) {
+                    showMessage('✅ ' + data.message, 'success');
+                    // Form reset karein
+                    resetForm();
+                } else {
+                    showMessage('❌ ' + data.error, 'error');
+                    $('#replaceBtn').prop('disabled', false).text('Replace Lead');
+                }
+            },
+            error: function() {
+                showMessage('❌ Server error occurred', 'error');
+                $('#replaceBtn').prop('disabled', false).text('Replace Lead');
+            }
+        });
+    }
+
+    function showMessage(message, type) {
+        const messageDiv = $('#message');
+        const alertClass = type === 'success' ? 'alert alert-success' : 'alert alert-danger';
+        messageDiv.html(`<div class="${alertClass}">${message}</div>`);
+        
+        // Auto-hide success messages after 5 seconds
+        if (type === 'success') {
+            setTimeout(() => {
+                messageDiv.html('');
+            }, 5000);
+        }
+    }
+
+    function resetForm() {
+        $('#subscriberSelect, #oldLeadSelect, #newLeadSelect').val('');
+        $('#reasonText').val('');
+        $('#oldLeadsSection, #newLeadsSection, #reasonSection, #subscriberInfoSection').hide();
+        $('#oldLeadInfo, #newLeadInfo').html('');
+        $('#replaceBtn').prop('disabled', true).text('Replace Lead');
+    }
+</script>
+{% endblock %}

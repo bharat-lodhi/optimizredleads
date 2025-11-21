@@ -1,0 +1,242 @@
+{% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Replacement History{% endblock %}
+
+{% block page_title %}Replacement History{% endblock %}
+{% block page_subtitle %}User: {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Lead Replacement History for {{ user.username }}</h3>
+                <div class="card-tools">
+                    <a href="{% url 'central_admin:lead_replacement_start' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Replacement
+                    </a>
+                    <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-exchange-alt"></i> New Replacement
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- User Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="info-box bg-info">
+                            <span class="info-box-icon"><i class="fas fa-user"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Current Leads</span>
+                                <span class="info-box-number">{{ current_leads_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-success">
+                            <span class="info-box-icon"><i class="fas fa-exchange-alt"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Total Replacements</span>
+                                <span class="info-box-number">{{ replacement_history.count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-warning">
+                            <span class="info-box-icon"><i class="fas fa-history"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Replaced Leads</span>
+                                <span class="info-box-number">{{ replaced_leads_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6>User Information</h6>
+                                <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                                <p class="mb-1"><strong>Industry:</strong> {{ user.industry|default:"Not set" }}</p>
+                                <p class="mb-0"><strong>Role:</strong> {{ user.get_role_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Replacement History Table -->
+                {% if replacement_history %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Date</th>
+                                <th>Old Lead</th>
+                                <th>New Lead</th>
+                                <th>Replaced By</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for history in replacement_history %}
+                            <tr>
+                                <td>{{ history.replaced_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <div class="lead-info">
+                                        <strong>{{ history.old_lead.full_name|default:"N/A" }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ history.old_lead.phone_number|default:"No Phone" }} | 
+                                            {{ history.old_lead_type }}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="lead-info">
+                                        <strong>{{ history.new_lead.full_name|default:"N/A" }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ history.new_lead.phone_number|default:"No Phone" }} | 
+                                            {{ history.new_lead_type }}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>{{ history.replaced_by_admin.username }}</td>
+                                <td>{{ history.reason|default:"No reason provided" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No Replacement History</h4>
+                    <p>No lead replacements have been made for this user yet.</p>
+                    <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" class="btn btn-primary">
+                        <i class="fas fa-exchange-alt"></i> Make First Replacement
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Replacement History{% endblock %}
+
+{% block page_title %}Replacement History{% endblock %}
+{% block page_subtitle %}User: {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Lead Replacement History for {{ user.username }}</h3>
+                <div class="card-tools">
+                    <a href="{% url 'central_admin:lead_replacement_start' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Replacement
+                    </a>
+                    <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-exchange-alt"></i> New Replacement
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- User Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="info-box bg-info">
+                            <span class="info-box-icon"><i class="fas fa-user"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Current Leads</span>
+                                <span class="info-box-number">{{ current_leads_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-success">
+                            <span class="info-box-icon"><i class="fas fa-exchange-alt"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Total Replacements</span>
+                                <span class="info-box-number">{{ replacement_history.count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6>User Information</h6>
+                                <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                                <p class="mb-1"><strong>Industry:</strong> {{ user.industry|default:"Not set" }}</p>
+                                <p class="mb-0"><strong>Role:</strong> {{ user.get_role_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Replacement History Table -->
+                {% if replacement_history %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Date</th>
+                                <th>Old Lead</th>
+                                <th>New Lead</th>
+                                <th>Replaced By</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for history in replacement_history %}
+                            <tr>
+                                <td>{{ history.replaced_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <div class="lead-info">
+                                        <strong>{{ history.old_lead.full_name|default:"N/A" }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ history.old_lead.phone_number|default:"No Phone" }} | 
+                                            {{ history.old_lead_type }}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="lead-info">
+                                        <strong>{{ history.new_lead.full_name|default:"N/A" }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ history.new_lead.phone_number|default:"No Phone" }} | 
+                                            {{ history.new_lead_type }}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>{{ history.replaced_by_admin.username }}</td>
+                                <td>{{ history.reason|default:"No reason provided" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No Replacement History</h4>
+                    <p>No lead replacements have been made for this user yet.</p>
+                    <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" class="btn btn-primary">
+                        <i class="fas fa-exchange-alt"></i> Make First Replacement
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% endcomment %}

@@ -1,0 +1,91 @@
+{% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Select Lead to Replace{% endblock %}
+
+{% block page_title %}Select Lead to Replace{% endblock %}
+{% block page_subtitle %}User: {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Assigned Leads for {{ user.username }}</h3>
+                <div class="card-tools">
+                    <a href="{% url 'central_admin:lead_replacement_start' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Users
+                    </a>
+                    <a href="{% url 'central_admin:replacement_history' user.id %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-history"></i> View History
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if assigned_leads %}
+                <form method="post" action="{% url 'central_admin:lead_replacement_select_new_lead' user.id %}">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Lead Type</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lead in assigned_leads %}
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="old_lead_id" value="{{ lead.id }}" 
+                                                   id="lead_{{ lead.id }}" required>
+                                            <input type="hidden" name="old_lead_type" value="{{ lead.type }}">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">{{ lead.type_display }}</span>
+                                    </td>
+                                    <td>{{ lead.full_name }}</td>
+                                    <td>{{ lead.phone_number }}</td>
+                                    <td>{{ lead.email }}</td>
+                                    <td>
+                                        <span class="badge badge-{% if lead.status == 'new' %}success{% elif lead.status == 'converted' %}primary{% else %}warning{% endif %}">
+                                            {{ lead.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ lead.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-exchange-alt"></i> Select Lead for Replacement
+                        </button>
+                        <a href="{% url 'central_admin:lead_replacement_start' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <h4>No Assigned Leads</h4>
+                    <p>{{ user.username }} doesn't have any assigned leads to replace.</p>
+                    <a href="{% url 'central_admin:lead_replacement_start' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Users
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

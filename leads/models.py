@@ -27,6 +27,17 @@ class BaseLead(models.Model):
         on_delete=models.SET_NULL,
         related_name="%(class)s_assigned"
     )
+    
+    # **NEW FIELD: Track if lead is replaced**
+    is_replaced = models.BooleanField(default=False)
+    replaced_at = models.DateTimeField(null=True, blank=True)
+    replaced_for_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="%(class)s_replaced_for"
+    )
 
     class Meta:
         abstract = True
@@ -230,3 +241,53 @@ class LeadAssignmentLog(models.Model):
         assignee = str(self.assigned_to) if self.assigned_to else "Unassigned"
         return f"{lead_name} assigned to {assignee}"
 
+
+# Lead Replacement History Model
+class LeadReplacementHistory(models.Model):
+    # Ticket reference (agar ticket-based replacement hai)
+    ticket = models.ForeignKey(
+        'subscribers.Ticket', 
+        on_delete=models.CASCADE, 
+        null=True,                 
+        blank=True
+    )
+    
+    # Lead references
+    old_lead_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name='old_lead_replacements'
+    )
+    old_lead_object_id = models.PositiveIntegerField()
+    old_lead = GenericForeignKey('old_lead_content_type', 'old_lead_object_id')
+    
+    new_lead_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE, 
+        related_name='new_lead_replacements'
+    )
+    new_lead_object_id = models.PositiveIntegerField()
+    new_lead = GenericForeignKey('new_lead_content_type', 'new_lead_object_id')
+    
+    # User references
+    subscriber = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='lead_replacements_received'
+    )
+    replaced_by_admin = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='lead_replacements_done'
+    )
+    
+    # Timestamp
+    replaced_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-replaced_at']
+        verbose_name_plural = "Lead Replacement History"
+    
+    def __str__(self):
+        return f"{self.old_lead} → {self.new_lead} for {self.subscriber.username}"

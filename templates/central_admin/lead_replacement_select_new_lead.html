@@ -1,0 +1,115 @@
+{% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Select Replacement Lead{% endblock %}
+
+{% block page_title %}Select Replacement Lead{% endblock %}
+{% block page_subtitle %}Replace: {{ old_lead.full_name|default:"Lead" }} for {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Available Leads for Replacement</h3>
+                <div class="card-tools">
+                    <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Leads
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Old Lead Info -->
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> Replacing Lead:</h5>
+                    <strong>Name:</strong> {{ old_lead.full_name|default:"N/A" }} | 
+                    <strong>Phone:</strong> {{ old_lead.phone_number|default:"N/A" }} | 
+                    <strong>Email:</strong> {{ old_lead.email|default:"N/A" }} |
+                    <strong>Type:</strong> {{ old_lead_type|title }}
+                </div>
+                
+                {% if available_leads %}
+                <form method="post" action="{% url 'central_admin:lead_replacement_confirm' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <input type="hidden" name="old_lead_id" value="{{ old_lead.id }}">
+                    <input type="hidden" name="old_lead_type" value="{{ old_lead_type }}">
+                    
+                    <div class="form-group">
+                        <label for="reason"><strong>Reason for Replacement:</strong></label>
+                        <textarea class="form-control" id="reason" name="reason" rows="3" 
+                                  placeholder="Enter reason for lead replacement..." required></textarea>
+                    </div>
+                    
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Lead Type</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Currently Assigned To</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lead in available_leads %}
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="new_lead_id" value="{{ lead.id }}" 
+                                                   id="new_lead_{{ lead.id }}" required>
+                                            <input type="hidden" name="new_lead_type" value="{{ lead.type }}">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-success">{{ lead.type_display }}</span>
+                                    </td>
+                                    <td>{{ lead.full_name }}</td>
+                                    <td>{{ lead.phone_number }}</td>
+                                    <td>{{ lead.email }}</td>
+                                    <td>
+                                        <span class="badge badge-{% if lead.status == 'new' %}success{% else %}warning{% endif %}">
+                                            {{ lead.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ lead.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                    {% if lead.currently_assigned_to != 'Unassigned' %}
+                                    <span class="badge badge-warning">{{ lead.currently_assigned_to }}</span>
+                                    {% else %}
+                                    <span class="badge badge-success">Unassigned</span>
+                                    {% endif %}
+                                </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-circle"></i> Confirm Replacement
+                        </button>
+                        <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <h4>No Available Leads</h4>
+                    <p>There are no available leads for replacement at the moment.</p>
+                    <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Leads
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
