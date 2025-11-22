@@ -7,6 +7,348 @@
 {% block page_subtitle %}Select user for lead replacement{% endblock %}
 
 {% block content %}
+<div class="mb-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <!-- Card Header -->
+                <div class="px-6 py-4 border-b border-gray-200 bg-white">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Select User</h3>
+                            <p class="text-sm text-gray-600 mt-1">Choose a user to replace their leads</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <span id="userCount">{{ users|length }}</span> users
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="mt-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <input type="text" 
+                                   id="userSearch" 
+                                   placeholder="Search users by name or email..." 
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors duration-200">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users List -->
+                <div class="p-6">
+                    {% if users %}
+                    <div id="usersList" class="space-y-3">
+                        {% for user in users %}
+                        <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" 
+                           class="user-card block p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200 group"
+                           data-name="{{ user.first_name|lower }}"
+                           data-email="{{ user.email|lower }}"
+                           data-role="{{ user.get_role_display|lower }}"
+                           data-industry="{{ user.industry|default:''|lower }}">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <!-- User Avatar -->
+                                    <div class="flex-shrink-0">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                                            <span class="text-white font-semibold text-sm">
+                                                {{ user.first_name|first|upper }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- User Details -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center space-x-2 mb-1">
+                                            <h4 class="text-base font-semibold text-gray-800 truncate user-name">
+                                                {{ user.first_name }}
+                                            </h4>
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 user-role">
+                                                {{ user.get_role_display }}
+                                            </span>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <p class="text-sm text-gray-600 flex items-center user-email">
+                                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                                </svg>
+                                                {{ user.email }}
+                                            </p>
+                                            <p class="text-sm text-gray-500 flex items-center user-industry">
+                                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                                </svg>
+                                                {{ user.industry|default:"No Industry" }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Arrow Icon -->
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-blue-50 group-hover:bg-blue-100 rounded-full flex items-center justify-center transition-colors duration-200">
+                                        <svg class="w-4 h-4 text-blue-600 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+
+                    <!-- No Results Message -->
+                    <div id="noResults" class="hidden text-center py-8">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">No Users Found</h4>
+                        <p class="text-gray-600">No users match your search criteria. Try different keywords.</p>
+                    </div>
+                    {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">No Users Found</h4>
+                        <p class="text-gray-600 mb-4">There are no users available for lead replacement at the moment.</p>
+                        <a href="{% url 'central_admin:users_list' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Add New Users
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="space-y-6">
+                <!-- Quick Actions Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-lg font-semibold text-gray-800">Quick Actions</h3>
+                    </div>
+                    <div class="p-5 space-y-3">
+                        <a href="{% url 'central_admin:users_list' %}" 
+                           class="flex items-center space-x-3 p-3 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 rounded-lg transition-all duration-200 group">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold text-gray-800 group-hover:text-blue-700">View All Users</h4>
+                                <p class="text-xs text-gray-500">Manage all system users</p>
+                            </div>
+                        </a>
+
+                        <a href="{% url 'central_admin:real_estate' %}" 
+                           class="flex items-center space-x-3 p-3 bg-gray-50 hover:bg-green-50 border border-gray-200 hover:border-green-200 rounded-lg transition-all duration-200 group">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold text-gray-800 group-hover:text-green-700">Real Estate Leads</h4>
+                                <p class="text-xs text-gray-500">Manage property leads</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="bg-blue-50 rounded-xl border border-blue-200 p-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-800 mb-1">About Lead Replacement</h4>
+                            <p class="text-xs text-gray-600">Select a user to replace their existing leads with new ones. This helps maintain lead quality and user engagement.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Tips -->
+                <div class="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <svg class="w-5 h-5 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-800 mb-2">Search Tips</h4>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                <li>• Search by user name or email</li>
+                                <li>• Partial matches are supported</li>
+                                <li>• Search is case-insensitive</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('userSearch');
+    const userCards = document.querySelectorAll('.user-card');
+    const usersList = document.getElementById('usersList');
+    const noResults = document.getElementById('noResults');
+    const userCount = document.getElementById('userCount');
+
+    function filterUsers() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        userCards.forEach(card => {
+            const name = card.dataset.name;
+            const email = card.dataset.email;
+            const role = card.dataset.role;
+            const industry = card.dataset.industry;
+
+            const matches = name.includes(searchTerm) || 
+                           email.includes(searchTerm) || 
+                           role.includes(searchTerm) || 
+                           industry.includes(searchTerm);
+
+            if (matches || searchTerm === '') {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Update user count
+        userCount.textContent = visibleCount;
+
+        // Show/hide no results message
+        if (visibleCount === 0 && searchTerm !== '') {
+            noResults.classList.remove('hidden');
+            if (usersList) usersList.classList.add('hidden');
+        } else {
+            noResults.classList.add('hidden');
+            if (usersList) usersList.classList.remove('hidden');
+        }
+    }
+
+    // Add event listener for search input
+    searchInput.addEventListener('input', filterUsers);
+
+    // Clear search on escape key
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            filterUsers();
+        }
+    });
+});
+</script>
+
+<style>
+/* Smooth transitions */
+.group {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover effects */
+.group:hover {
+    transform: translateY(-1px);
+}
+
+/* Custom scrollbar for user list */
+.space-y-3 {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+}
+
+.space-y-3::-webkit-scrollbar {
+    width: 6px;
+}
+
+.space-y-3::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.space-y-3::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.space-y-3::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .grid-cols-1.lg\:grid-cols-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .lg\:col-span-3 {
+        grid-column: span 1;
+    }
+    
+    .lg\:col-span-1 {
+        grid-column: span 1;
+    }
+}
+
+/* Search input focus styles */
+#userSearch:focus {
+    outline: none;
+    ring: 2px;
+}
+
+/* Avatar styling */
+.bg-gradient-to-br {
+    background-image: linear-gradient(135deg, var(--tw-gradient-from), var(--tw-gradient-to));
+}
+
+/* Highlight matching text */
+.user-card .user-name,
+.user-card .user-email,
+.user-card .user-role,
+.user-card .user-industry {
+    transition: all 0.2s ease;
+}
+</style>
+{% endblock %}
+
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Lead Replacement{% endblock %}
+
+{% block page_title %}Lead Replacement{% endblock %}
+{% block page_subtitle %}Select user for lead replacement{% endblock %}
+
+{% block content %}
 <div class="row">
     <div class="col-md-8">
         <div class="card">
@@ -56,4 +398,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}

@@ -7,6 +7,416 @@
 {% block page_subtitle %}User: {{ user.username }}{% endblock %}
 
 {% block content %}
+<div class="mb-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <!-- Card Header -->
+                <div class="px-5 py-3 border-b border-gray-200 bg-white">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Lead Replacement History</h3>
+                            <p class="text-sm text-gray-600 mt-1">Complete history of lead replacements for {{ user.username }}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ replacement_history.count }} replacements
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <a href="{% url 'central_admin:lead_replacement_start' %}" 
+                           class="inline-flex items-center px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back to Replacement
+                        </a>
+                        <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" 
+                           class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            </svg>
+                            New Replacement
+                        </a>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="mt-3">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <input type="text" 
+                                   id="historySearch" 
+                                   placeholder="Search by lead name, phone, reason, or admin..." 
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors duration-200">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History List -->
+                <div class="p-4">
+                    {% if replacement_history %}
+                    <div id="historyList" class="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
+                        {% for history in replacement_history %}
+                        <div class="history-card bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-all duration-200"
+                             data-old-name="{{ history.old_lead.full_name|default:'N/A'|lower }}"
+                             data-new-name="{{ history.new_lead.full_name|default:'N/A'|lower }}"
+                             data-old-phone="{{ history.old_lead.phone_number|default:'No Phone'|lower }}"
+                             data-new-phone="{{ history.new_lead.phone_number|default:'No Phone'|lower }}"
+                             data-reason="{{ history.reason|default:'No reason provided'|lower }}"
+                             data-admin="{{ history.replaced_by_admin.username|lower }}">
+                            <div class="p-3">
+                                <!-- Header -->
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                                    <div class="flex items-center space-x-2 mb-1 sm:mb-0">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                            {{ history.replaced_at|date:"M d, Y" }}
+                                        </span>
+                                        <span class="text-xs text-gray-500">{{ history.replaced_at|date:"H:i" }}</span>
+                                    </div>
+                                    <div class="text-xs text-gray-600">
+                                        By: <span class="font-medium text-gray-800">{{ history.replaced_by_admin.username }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Replacement Flow -->
+                                <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+                                    <!-- Old Lead -->
+                                    <div class="lg:col-span-5">
+                                        <div class="p-2 bg-red-50 border border-red-200 rounded">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <div class="w-5 h-5 bg-red-100 rounded flex items-center justify-center flex-shrink-0">
+                                                    <svg class="w-3 h-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </div>
+                                                <span class="text-xs font-semibold text-gray-800">Old Lead</span>
+                                            </div>
+                                            <div class="space-y-0.5 ml-7">
+                                                <div class="text-sm font-medium text-gray-900 truncate">{{ history.old_lead.full_name|default:"N/A" }}</div>
+                                                <div class="text-xs text-gray-600">{{ history.old_lead.phone_number|default:"No Phone" }}</div>
+                                                <div class="text-xs text-gray-600">{{ history.old_lead.email|default:"Email" }}</div>
+                                                <div class="text-xs text-gray-500">{{ history.old_lead_type }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Arrow -->
+                                    <div class="lg:col-span-2 flex items-center justify-center">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <!-- New Lead -->
+                                    <div class="lg:col-span-5">
+                                        <div class="p-2 bg-green-50 border border-green-200 rounded">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <div class="w-5 h-5 bg-green-100 rounded flex items-center justify-center flex-shrink-0">
+                                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                </div>
+                                                <span class="text-xs font-semibold text-gray-800">New Lead</span>
+                                            </div>
+                                            <div class="space-y-0.5 ml-7">
+                                                <div class="text-sm font-medium text-green-700 truncate">{{ history.new_lead.full_name|default:"N/A" }}</div>
+                                                <div class="text-xs text-gray-600">{{ history.new_lead.phone_number|default:"No Phone" }}</div>
+                                                <div class="text-xs text-gray-600">{{ history.new_lead.email | default:"No Email" }}</div>
+                                                <div class="text-xs text-gray-500">{{ history.new_lead_type }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Reason -->
+                                <div class="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                    <div class="flex items-start space-x-2">
+                                        <svg class="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                                        </svg>
+                                        <div class="flex-1">
+                                            <span class="text-xs font-medium text-gray-700">Reason:</span>
+                                            <p class="text-xs text-gray-600 mt-0.5 line-clamp-2">{{ history.reason|default:"No reason provided" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- No Results Message -->
+                    <div id="noResults" class="hidden text-center py-6">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-base font-semibold text-gray-800 mb-1">No History Found</h4>
+                        <p class="text-sm text-gray-600">No replacement history matches your search criteria.</p>
+                    </div>
+                    {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-6">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-base font-semibold text-gray-800 mb-1">No Replacement History</h4>
+                        <p class="text-sm text-gray-600 mb-3">No lead replacements have been made for this user yet.</p>
+                        <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" 
+                           class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            </svg>
+                            Make First Replacement
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="space-y-4">
+                <!-- User Info Card -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-sm font-semibold text-gray-800">User Information</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-xs">
+                                    {{ user.first_name|first|upper }}
+                                </span>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="text-sm font-semibold text-gray-800 truncate">{{ user.first_name }}</h4>
+                                <p class="text-xs text-gray-600 truncate">{{ user.email }}</p>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Industry:</span>
+                                <span class="font-medium text-gray-800 text-right">{{ user.industry|default:"Not set" }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Role:</span>
+                                <span class="font-medium text-gray-800">{{ user.get_role_display }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Member Since:</span>
+                                <span class="font-medium text-gray-800">{{ user.date_joined|date:"M Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="bg-blue-50 rounded-lg border border-blue-200 p-3">
+                    <div class="flex items-start space-x-2">
+                        <div class="flex-shrink-0">
+                            <svg class="w-4 h-4 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-800 mb-1">Replacement History</h4>
+                            <p class="text-xs text-gray-600">This shows all lead replacements made for this user. Each replacement includes the old lead, new lead, and reason for replacement.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Tips -->
+                <div class="bg-gray-50 rounded-lg border border-gray-200 p-3">
+                    <div class="flex items-start space-x-2">
+                        <div class="flex-shrink-0">
+                            <svg class="w-4 h-4 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-800 mb-1">Search Tips</h4>
+                            <ul class="text-xs text-gray-600 space-y-0.5">
+                                <li>• Search by lead name, phone, reason, or admin</li>
+                                <li>• Partial matches are supported</li>
+                                <li>• Search is case-insensitive</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('historySearch');
+    const historyCards = document.querySelectorAll('.history-card');
+    const historyList = document.getElementById('historyList');
+    const noResults = document.getElementById('noResults');
+
+    function filterHistory() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        historyCards.forEach(card => {
+            const oldName = card.dataset.oldName;
+            const newName = card.dataset.newName;
+            const oldPhone = card.dataset.oldPhone;
+            const newPhone = card.dataset.newPhone;
+            const reason = card.dataset.reason;
+            const admin = card.dataset.admin;
+
+            const matches = oldName.includes(searchTerm) || 
+                           newName.includes(searchTerm) || 
+                           oldPhone.includes(searchTerm) || 
+                           newPhone.includes(searchTerm) || 
+                           reason.includes(searchTerm) || 
+                           admin.includes(searchTerm);
+
+            if (matches || searchTerm === '') {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        if (visibleCount === 0 && searchTerm !== '') {
+            noResults.classList.remove('hidden');
+            if (historyList) historyList.classList.add('hidden');
+        } else {
+            noResults.classList.add('hidden');
+            if (historyList) historyList.classList.remove('hidden');
+        }
+    }
+
+    // Add event listener for search input
+    searchInput.addEventListener('input', filterHistory);
+
+    // Clear search on escape key
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            filterHistory();
+        }
+    });
+});
+</script>
+
+<style>
+/* Smooth transitions */
+.history-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.history-card:hover {
+    transform: translateY(-1px);
+}
+
+/* Custom scrollbar for history list */
+.max-h-\[calc\(100vh-300px\)\] {
+    max-height: calc(100vh - 300px) !important;
+}
+
+.space-y-3::-webkit-scrollbar {
+    width: 4px;
+}
+
+.space-y-3::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 2px;
+}
+
+.space-y-3::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+.space-y-3::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Line clamp for reason text */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Truncate long text */
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .grid-cols-1.lg\:grid-cols-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .lg\:col-span-3 {
+        grid-column: span 1;
+    }
+    
+    .lg\:col-span-1 {
+        grid-column: span 1;
+    }
+    
+    .lg\:grid-cols-12 {
+        grid-template-columns: 1fr;
+    }
+    
+    .lg\:col-span-5 {
+        grid-column: span 1;
+    }
+    
+    .lg\:col-span-2 {
+        grid-column: span 1;
+    }
+}
+
+/* Compact spacing */
+.space-y-3 > * + * {
+    margin-top: 0.75rem;
+}
+
+.space-y-0\.5 > * + * {
+    margin-top: 0.125rem;
+}
+</style>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'central_admin_base.html' %}
+{% load static %}
+
+{% block title %}Replacement History{% endblock %}
+
+{% block page_title %}Replacement History{% endblock %}
+{% block page_subtitle %}User: {{ user.username }}{% endblock %}
+
+{% block content %}
 <div class="row">
     <div class="col-md-12">
         <div class="card">
@@ -123,120 +533,4 @@
 </div>
 {% endblock %}
 
-
-
-{% comment %} {% extends 'central_admin_base.html' %}
-{% load static %}
-
-{% block title %}Replacement History{% endblock %}
-
-{% block page_title %}Replacement History{% endblock %}
-{% block page_subtitle %}User: {{ user.username }}{% endblock %}
-
-{% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Lead Replacement History for {{ user.username }}</h3>
-                <div class="card-tools">
-                    <a href="{% url 'central_admin:lead_replacement_start' %}" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Replacement
-                    </a>
-                    <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-exchange-alt"></i> New Replacement
-                    </a>
-                </div>
-            </div>
-            <div class="card-body">
-                <!-- User Summary -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="info-box bg-info">
-                            <span class="info-box-icon"><i class="fas fa-user"></i></span>
-                            <div class="info-box-content">
-                                <span class="info-box-text">Current Leads</span>
-                                <span class="info-box-number">{{ current_leads_count }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="info-box bg-success">
-                            <span class="info-box-icon"><i class="fas fa-exchange-alt"></i></span>
-                            <div class="info-box-content">
-                                <span class="info-box-text">Total Replacements</span>
-                                <span class="info-box-number">{{ replacement_history.count }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <h6>User Information</h6>
-                                <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
-                                <p class="mb-1"><strong>Industry:</strong> {{ user.industry|default:"Not set" }}</p>
-                                <p class="mb-0"><strong>Role:</strong> {{ user.get_role_display }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Replacement History Table -->
-                {% if replacement_history %}
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th>Date</th>
-                                <th>Old Lead</th>
-                                <th>New Lead</th>
-                                <th>Replaced By</th>
-                                <th>Reason</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for history in replacement_history %}
-                            <tr>
-                                <td>{{ history.replaced_at|date:"M d, Y H:i" }}</td>
-                                <td>
-                                    <div class="lead-info">
-                                        <strong>{{ history.old_lead.full_name|default:"N/A" }}</strong>
-                                        <br>
-                                        <small class="text-muted">
-                                            {{ history.old_lead.phone_number|default:"No Phone" }} | 
-                                            {{ history.old_lead_type }}
-                                        </small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="lead-info">
-                                        <strong>{{ history.new_lead.full_name|default:"N/A" }}</strong>
-                                        <br>
-                                        <small class="text-muted">
-                                            {{ history.new_lead.phone_number|default:"No Phone" }} | 
-                                            {{ history.new_lead_type }}
-                                        </small>
-                                    </div>
-                                </td>
-                                <td>{{ history.replaced_by_admin.username }}</td>
-                                <td>{{ history.reason|default:"No reason provided" }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="alert alert-info text-center">
-                    <i class="fas fa-info-circle fa-2x mb-3"></i>
-                    <h4>No Replacement History</h4>
-                    <p>No lead replacements have been made for this user yet.</p>
-                    <a href="{% url 'central_admin:lead_replacement_select_lead' user.id %}" class="btn btn-primary">
-                        <i class="fas fa-exchange-alt"></i> Make First Replacement
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %} {% endcomment %}
+ {% endcomment %}

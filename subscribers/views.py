@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
-from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, BaseLead, ForexTrade, LeadAssignmentLog, LeadStatusHistory, LeadRemarkHistory
+from leads.models import RealEstateLead, OnlineMBA, StudyAbroad, BaseLead, ForexTrade, LeadAssignmentLog, LeadStatusHistory, LeadRemarkHistory,LeadReplacementHistory
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+
+
 
 # @login_required
 # def dashboard(request):
@@ -69,10 +71,8 @@ from django.db.models import Q
 #     total_assigned_leads = total_leads_count
 
 #     # ------------------------------------
-#     # Your OLD logic (NOT CHANGED AT ALL)
-#     # ------------------------------------
-
 #     # Lead status history stats (converted & replacement)
+#     # ------------------------------------
 #     from django.contrib.contenttypes.models import ContentType
 #     real_estate_ct = ContentType.objects.get_for_model(RealEstateLead)
 #     online_mba_ct = ContentType.objects.get_for_model(OnlineMBA)
@@ -103,10 +103,23 @@ from django.db.models import Q
 #     converted_leads = len(conv_set)
 #     lead_replacement = len(rep_set)
 
+#     # ------------------------------------
+#     # NEW: Lead Replacement TICKETS Count
+#     # ------------------------------------
+#     try:
+#         from .models import Ticket
+#         # Count tickets with category 'lead' (lead replacement tickets)
+#         lead_replacement_tickets_count = Ticket.objects.filter(
+#             user=user, 
+#             category='lead'
+#         ).count()
+#     except:
+#         lead_replacement_tickets_count = 0
+
 #     # Credits
 #     available_credits = user.available_credits
 
-#     # Tickets
+#     # Tickets - COMPLETE stats (including lead replacement in total)
 #     try:
 #         from .models import Ticket
 #         tickets = Ticket.objects.filter(user=user)
@@ -116,6 +129,7 @@ from django.db.models import Q
 #             'in_progress': tickets.filter(status='in_progress').count(),
 #             'resolved': tickets.filter(status='resolved').count(),
 #             'closed': tickets.filter(status='closed').count(),
+#             'lead_replacement': lead_replacement_tickets_count,  # NEW: Lead replacement tickets count
 #         }
 #     except:
 #         ticket_stats = {
@@ -124,20 +138,24 @@ from django.db.models import Q
 #             'in_progress': 0,
 #             'resolved': 0,
 #             'closed': 0,
+#             'lead_replacement': 0,
 #         }
 
 #     context = {
 #         'user': user,
 #         'total_leads': total_assigned_leads,   # FIXED ✔
 #         'converted_leads': converted_leads,
-#         'lead_replacement': lead_replacement,
+#         'lead_replacement': lead_replacement,  # Lead status wala count (existing)
 #         'available_credits': available_credits,
 #         'user_industry': getattr(user, 'industry', None),
 #         'user_sub_industry': getattr(user, 'sub_industry', None),
 #         'ticket_stats': ticket_stats,
+#         'lead_replacement_tickets_count': lead_replacement_tickets_count,  # NEW: For display
 #     }
 
 #     return render(request, 'subscribers/dashboard.html', context)
+
+
 
 
 
@@ -146,14 +164,22 @@ def dashboard(request):
     user = request.user
 
     # ------------------------------------
-    # SAME COUNTING LOGIC AS my_leads PAGE
+    # UPDATED COUNTING LOGIC - SAME AS my_leads PAGE
     # ------------------------------------
 
-    # Direct assigned leads
-    direct_real = RealEstateLead.objects.filter(assigned_to=user)
-    direct_mba = OnlineMBA.objects.filter(assigned_to=user)
-    direct_abroad = StudyAbroad.objects.filter(assigned_to=user)
-    direct_forex = ForexTrade.objects.filter(assigned_to=user)
+    # Direct assigned leads - EXCLUDE REPLACED LEADS
+    direct_real = RealEstateLead.objects.filter(assigned_to=user).exclude(
+        is_replaced=True, replaced_for_user=user
+    )
+    direct_mba = OnlineMBA.objects.filter(assigned_to=user).exclude(
+        is_replaced=True, replaced_for_user=user
+    )
+    direct_abroad = StudyAbroad.objects.filter(assigned_to=user).exclude(
+        is_replaced=True, replaced_for_user=user
+    )
+    direct_forex = ForexTrade.objects.filter(assigned_to=user).exclude(
+        is_replaced=True, replaced_for_user=user
+    )
 
     # Set to avoid duplicate entries (same logic as added_lead_ids)
     added = set()
@@ -180,25 +206,43 @@ def dashboard(request):
     for l in direct_forex:
         total_leads_count += add_lead(l, "forex")
 
-    # Assignment history leads
-    history = LeadAssignmentLog.objects.filter(assigned_to=user).select_related("assigned_to")
+    # Assignment history leads - EXCLUDE REPLACED LEADS
+    from django.contrib.contenttypes.models import ContentType
+    
+    # Get content types for all lead models
+    real_estate_ct = ContentType.objects.get_for_model(RealEstateLead)
+    mba_ct = ContentType.objects.get_for_model(OnlineMBA)
+    study_abroad_ct = ContentType.objects.get_for_model(StudyAbroad)
+    forex_ct = ContentType.objects.get_for_model(ForexTrade)
 
-    for h in history:
-        lead = h.lead
-        if not lead:
+    # Get lead IDs from assignment logs for this user
+    assignment_lead_ids = LeadAssignmentLog.objects.filter(
+        assigned_to=user
+    ).values_list('lead_object_id', 'lead_content_type')
+
+    # Process assignment history leads (only add if not already present)
+    for lead_id, content_type_id in assignment_lead_ids:
+        try:
+            content_type = ContentType.objects.get_for_id(content_type_id)
+            lead_model = content_type.model_class()
+            lead = lead_model.objects.get(id=lead_id)
+            
+            # **FIX: Skip if lead is replaced for this user**
+            if lead.is_replaced and lead.replaced_for_user == user:
+                continue
+                
+            if isinstance(lead, RealEstateLead):
+                total_leads_count += add_lead(lead, "realestate")
+            elif isinstance(lead, OnlineMBA):
+                total_leads_count += add_lead(lead, "mba")
+            elif isinstance(lead, StudyAbroad):
+                total_leads_count += add_lead(lead, "abroad")
+            elif isinstance(lead, ForexTrade):
+                total_leads_count += add_lead(lead, "forex")
+                    
+        except Exception as e:
+            print(f"Error processing lead from history: {e}")
             continue
-
-        if isinstance(lead, RealEstateLead):
-            total_leads_count += add_lead(lead, "realestate")
-
-        elif isinstance(lead, OnlineMBA):
-            total_leads_count += add_lead(lead, "mba")
-
-        elif isinstance(lead, StudyAbroad):
-            total_leads_count += add_lead(lead, "abroad")
-
-        elif isinstance(lead, ForexTrade):
-            total_leads_count += add_lead(lead, "forex")
 
     # Final result
     total_assigned_leads = total_leads_count
@@ -206,17 +250,24 @@ def dashboard(request):
     # ------------------------------------
     # Lead status history stats (converted & replacement)
     # ------------------------------------
-    from django.contrib.contenttypes.models import ContentType
-    real_estate_ct = ContentType.objects.get_for_model(RealEstateLead)
-    online_mba_ct = ContentType.objects.get_for_model(OnlineMBA)
-    study_abroad_ct = ContentType.objects.get_for_model(StudyAbroad)
-    forex_trade_ct = ContentType.objects.get_for_model(ForexTrade)
-
-    # Get lead IDs for status lookup
-    lead_id_map = {h.lead.id: True for h in history if h.lead}
+    # Get lead IDs for status lookup (only non-replaced leads)
+    lead_id_map = {}
+    for lead_id, content_type_id in assignment_lead_ids:
+        try:
+            content_type = ContentType.objects.get_for_id(content_type_id)
+            lead_model = content_type.model_class()
+            lead = lead_model.objects.get(id=lead_id)
+            
+            # Skip replaced leads
+            if lead.is_replaced and lead.replaced_for_user == user:
+                continue
+                
+            lead_id_map[lead.id] = True
+        except:
+            continue
 
     status_history = LeadStatusHistory.objects.filter(
-        lead_content_type__in=[real_estate_ct, online_mba_ct, study_abroad_ct, forex_trade_ct],
+        lead_content_type__in=[real_estate_ct, mba_ct, study_abroad_ct, forex_ct],
         lead_object_id__in=lead_id_map.keys(),
         changed_by=user
     )
@@ -276,7 +327,7 @@ def dashboard(request):
 
     context = {
         'user': user,
-        'total_leads': total_assigned_leads,   # FIXED ✔
+        'total_leads': total_assigned_leads,   # FIXED ✔ - Now same as my_leads
         'converted_leads': converted_leads,
         'lead_replacement': lead_replacement,  # Lead status wala count (existing)
         'available_credits': available_credits,
@@ -287,103 +338,6 @@ def dashboard(request):
     }
 
     return render(request, 'subscribers/dashboard.html', context)
-
-
-# @login_required
-# def dashboard(request):
-#     user = request.user
-
-#     # ✅ Get unique leads count from LeadAssignmentLog (across all lead types)
-#     from django.contrib.contenttypes.models import ContentType
-    
-#     # Get content types for all lead models
-#     real_estate_ct = ContentType.objects.get_for_model(RealEstateLead)
-#     online_mba_ct = ContentType.objects.get_for_model(OnlineMBA)
-#     study_abroad_ct = ContentType.objects.get_for_model(StudyAbroad)
-#     forex_trade_ct = ContentType.objects.get_for_model(ForexTrade)
-    
-#     # Get all assignment logs for this user
-#     assignment_logs = LeadAssignmentLog.objects.filter(assigned_to=user)
-    
-#     # Get unique lead identifiers from assignment logs
-#     unique_lead_identifiers = set()
-#     lead_id_to_identifier = {}  # Map lead IDs to identifiers
-    
-#     for log in assignment_logs:
-#         lead = log.lead
-#         if lead:
-#             # Create unique identifier using phone and email
-#             identifier = f"{getattr(lead, 'phone_number', '')}-{getattr(lead, 'email', '')}"
-#             if identifier:
-#                 unique_lead_identifiers.add(identifier)
-#                 lead_id_to_identifier[lead.id] = identifier
-    
-#     total_assigned_leads = len(unique_lead_identifiers)
-    
-#     # ✅ Get converted and lead_replacement counts from LeadStatusHistory - ONLY FOR THIS USER
-#     converted_leads = 0
-#     lead_replacement = 0
-    
-#     # Get all status changes made BY THIS USER for leads that were assigned to this user
-#     status_history = LeadStatusHistory.objects.filter(
-#         lead_content_type__in=[real_estate_ct, online_mba_ct, study_abroad_ct, forex_trade_ct],
-#         lead_object_id__in=lead_id_to_identifier.keys(),
-#         changed_by=user  # ✅ ONLY COUNT STATUS CHANGES DONE BY THIS USER
-#     ).select_related('changed_by')
-    
-#     # Track which leads have been converted or marked for replacement BY THIS USER
-#     converted_identifiers = set()
-#     replacement_identifiers = set()
-    
-#     for history in status_history:
-#         lead_identifier = lead_id_to_identifier.get(history.lead_object_id)
-#         if lead_identifier:
-#             # Check if status was changed to 'converted' BY THIS USER
-#             if history.new_status == 'converted':
-#                 converted_identifiers.add(lead_identifier)
-#             # Check if status was changed to 'lead_replacement' BY THIS USER
-#             elif history.new_status == 'lead_replacement':
-#                 replacement_identifiers.add(lead_identifier)
-    
-#     converted_leads = len(converted_identifiers)
-#     lead_replacement = len(replacement_identifiers)
-
-#     # ✅ Available credits from user model
-#     available_credits = user.available_credits
-
-#     # Ticket statistics
-#     try:
-#         from .models import Ticket
-#         tickets = Ticket.objects.filter(user=user)
-#         ticket_stats = {
-#             'total': tickets.count(),
-#             'open': tickets.filter(status='open').count(),
-#             'in_progress': tickets.filter(status='in_progress').count(),
-#             'resolved': tickets.filter(status='resolved').count(),
-#             'closed': tickets.filter(status='closed').count(),
-#         }
-#     except:
-#         ticket_stats = {
-#             'total': 0,
-#             'open': 0,
-#             'in_progress': 0,
-#             'resolved': 0,
-#             'closed': 0,
-#         }
-
-#     context = {
-#         'user': user,
-#         'total_leads': total_assigned_leads,
-#         'converted_leads': converted_leads,
-#         'lead_replacement': lead_replacement,
-#         'available_credits': available_credits,
-#         'user_industry': getattr(user, 'industry', None),
-#         'user_sub_industry': getattr(user, 'sub_industry', None),
-#         'ticket_stats': ticket_stats,
-#     }
-
-#     return render(request, 'subscribers/dashboard.html', context)
-
 
 
 
@@ -2261,3 +2215,144 @@ def google_auth_callback(request):
 
 # --------------------------------------------------------------------------------------------
 
+# @login_required
+# def replaced_leads(request):
+#     """
+#     Show leads that were replaced for this user
+#     """
+#     user = request.user
+    
+#     # Get replaced leads for this user
+#     replaced_leads_list = []
+    
+#     # Real Estate Replaced Leads
+#     real_estate_leads = RealEstateLead.objects.filter(
+#         is_replaced=True, replaced_for_user=user
+#     )
+#     for lead in real_estate_leads:
+#         replaced_leads_list.append({
+#             'id': f'realestate_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'realestate',
+#             'category': lead.sub_industry or 'Real Estate',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.location or '-'}/{lead.budget or '-'}/{lead.visit_day or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'replaced_at': lead.replaced_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'replaced'
+#         })
+    
+#     # Online MBA Replaced Leads
+#     mba_leads = OnlineMBA.objects.filter(
+#         is_replaced=True, replaced_for_user=user
+#     )
+#     for lead in mba_leads:
+#         replaced_leads_list.append({
+#             'id': f'mba_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'mba',
+#             'category': 'Online MBA',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.course or '-'}/{lead.university or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'replaced_at': lead.replaced_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'replaced'
+#         })
+    
+#     # Study Abroad Replaced Leads
+#     abroad_leads = StudyAbroad.objects.filter(
+#         is_replaced=True, replaced_for_user=user
+#     )
+#     for lead in abroad_leads:
+#         replaced_leads_list.append({
+#             'id': f'abroad_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'abroad',
+#             'category': 'Study Abroad',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.country or '-'}/{lead.university or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'replaced_at': lead.replaced_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'replaced'
+#         })
+    
+#     # Forex Trade Replaced Leads
+#     forex_leads = ForexTrade.objects.filter(
+#         is_replaced=True, replaced_for_user=user
+#     )
+#     for lead in forex_leads:
+#         replaced_leads_list.append({
+#             'id': f'forex_{lead.id}',
+#             'original_id': lead.id,
+#             'model_type': 'forex',
+#             'category': 'Forex Trade',
+#             'name': lead.full_name,
+#             'phone': lead.phone_number,
+#             'email': lead.email,
+#             'extra': f"{lead.experience or '-'}/{lead.broker or '-'}/{lead.initial_investment or '-'}",
+#             'status': lead.status,
+#             'created_at': lead.created_at,
+#             'replaced_at': lead.replaced_at,
+#             'remark': lead.remark or '',
+#             'assignment_type': 'replaced'
+#         })
+    
+#     # Sort by replacement date (newest first)
+#     replaced_leads_list.sort(key=lambda x: x['replaced_at'] if x['replaced_at'] else x['created_at'], reverse=True)
+    
+#     # Get replacement history for context
+#     replacement_history_count = LeadReplacementHistory.objects.filter(subscriber=user).count()
+    
+#     return render(request, 'subscribers/replaced_leads.html', {
+#         'leads': replaced_leads_list,
+#         'total_replaced_leads': len(replaced_leads_list),
+#         'replacement_history_count': replacement_history_count,
+#     })
+
+
+
+@login_required
+def replacement_history_user(request):
+    """
+    Show lead replacement history for this user
+    """
+    user = request.user
+    
+    # Get replacement history for this user
+    replacement_history = LeadReplacementHistory.objects.filter(
+        subscriber=user
+    ).order_by('-replaced_at')
+    
+    # Prepare data for template
+    history_data = []
+    for history in replacement_history:
+        history_data.append({
+            'replaced_at': history.replaced_at,
+            'old_lead_name': history.old_lead.full_name if history.old_lead else 'N/A',
+            'old_lead_phone': history.old_lead.phone_number if history.old_lead else 'N/A',
+            'old_lead_email': history.old_lead.email if history.old_lead else 'N/A',
+            'old_lead_type': history.old_lead_content_type.model.replace('lead', '').title(),
+            'new_lead_name': history.new_lead.full_name if history.new_lead else 'N/A',
+            'new_lead_phone': history.new_lead.phone_number if history.new_lead else 'N/A',
+            'new_lead_email': history.new_lead.email if history.new_lead else 'N/A',
+            'new_lead_type': history.new_lead_content_type.model.replace('lead', '').title(),
+            'reason': history.reason or 'No reason provided',
+            'replaced_by': history.replaced_by_admin.username if history.replaced_by_admin else 'Admin',
+        })
+    
+    return render(request, 'subscribers/replacement_history_user.html', {
+        'history_data': history_data,
+        'total_replacements': len(history_data),
+    })

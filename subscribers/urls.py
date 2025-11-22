@@ -12,6 +12,8 @@ urlpatterns = [
     path('add_lead_remark/', views.add_lead_remark, name='add_lead_remark'),
     path('get_lead_remarks/', views.get_lead_remarks, name='get_lead_remarks'),
     path('get_lead_status_history/', views.get_lead_status_history, name='get_lead_status_history'),
+    # path('replaced-leads/', views.replaced_leads, name='replaced_leads'),
+    path('replacement-history/', views.replacement_history_user, name='replacement_history_user'),
 
     path('submit-ticket/', views.submit_ticket, name='submit_ticket'),
     path('tickets/', views.my_tickets, name='tickets'),
